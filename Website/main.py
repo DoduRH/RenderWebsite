@@ -15,6 +15,8 @@ app = Flask(__name__)
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "Website/addlyrics-d6f3c94c49de.json"
 
+MAX_MEDIA_SIZE = 300000000  # 300MB between audio and video
+
 uploadBucketName = "addlyrics-content"
 path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
 uploadClient = storage.Client.from_service_account_json(path)
@@ -57,6 +59,25 @@ def check_blob(bucket_name, blob_name):
 
     return stats
 
+def size_blob(bucket_name, blob_name):
+    """Returns a blob's size in bytes."""
+    # bucket_name = "your-bucket-name"
+    # blob_name = "storage-object-name"
+    
+    if not check_blob(bucket_name, blob_name):
+        return 0
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(bucket_name)
+    size = bucket.get_blob(blob_name).size
+
+    print(
+        "File {} has size {} bytes.".format(
+            blob_name, str(size)
+        )
+    )
+
+    return size
 
 def get_value(r, name, default=None):
     if name in r.form.keys():
@@ -172,14 +193,22 @@ def uploader():
         if not check_blob("addlyrics-content", video_name):
             print("Unable to find video")
             return "error, video upload failed"
+        else:
+            video_size = size_blob(uploadBucketName, video_name)
 
         ext = get_value(r, 'audioType', "")
         if ext == "":
             audio_name = None
+            audio_size = 0
         else:
             audio_name = "audio_" + t + "." + ext
             if not check_blob("addlyrics-content", audio_name):
                 return "error, audio not uploaded or somthing else went wrong"
+            else:
+                audio_size = size_blob(uploadBucketName, audio_name)
+
+        if video_size + audio_size > MAX_MEDIA_SIZE:
+            return redirect(url_for('/error', err="error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE)))
 
         font_size = int(get_value(r, 'font_size', 50))
         vid_start = float(get_value(r, 'vid_start', 0))

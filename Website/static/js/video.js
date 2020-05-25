@@ -464,6 +464,24 @@ async function submitForm() {
         }
     }
 
+    // check the file size
+    if (videoUpload.files.length == 1) {
+        videoSize = videoUpload.files[0].size;
+    }else{
+        videoSize = 0;
+    }
+
+    if (audioUpload.files.length == 1) {
+        audioSize = audioUpload.files[0].size;
+    }else{
+        audioSize = 0;
+    }
+
+    if (audioSize + videoSize > 300000000){
+        alert("Unable to upload, combined filesize must be below 300MB")
+        valid = false;
+    }
+
     errDisplay = document.getElementById("errorDisplay")
     if (valid) {
         if (videoUpload.files.length != 1) {
