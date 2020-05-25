@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, send_file, send_from_directory, redirect, url_for, jsonify
-from img_preview import generate_img
+from Website.img_preview import generate_img
 import os
 import json
 import csv
@@ -13,7 +13,7 @@ import threading
 
 app = Flask(__name__)
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "Website/addlyrics-d6f3c94c49de.json"
 
 uploadBucketName = "addlyrics-content"
 path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
