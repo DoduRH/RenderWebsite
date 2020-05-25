@@ -1,0 +1,36 @@
+<!doctype html>
+<title id="title">Please hold while we render your video</title>
+
+<h1 id="head">Please hold while we render your video</h1>
+
+<a href="/video">Add lyrics to another video?</a>
+
+<script>
+const cur_id = { vid_id: '{{ vid_id }}' };
+
+function request(){
+  fetch('/get_file', {
+    method: 'POST', // or 'PUT'
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(cur_id),
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log('Success:', data);
+    if (data['progress'] == "done") {
+      clearInterval(timerID)
+      window.location.href = "/download/".concat(cur_id['vid_id']);
+      document.getElementById("title").innerHTML("Your download should begin shortly")
+      document.getElementById("head").innerHTML("You download should begin shortly")
+    }
+  })
+  .catch((error) => {
+    console.error('Error:', error);
+  });
+}
+
+timerID = setInterval(request, 15000)
+
+</script>
