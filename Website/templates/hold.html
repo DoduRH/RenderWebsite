@@ -9,6 +9,7 @@
 const cur_id = { vid_id: '{{ vid_id }}' };
 
 function request(){
+  console.log("starting request...")
   fetch('/get_file', {
     method: 'POST', // or 'PUT'
     headers: {
@@ -22,8 +23,8 @@ function request(){
     if (data['progress'] == "done") {
       clearInterval(timerID)
       window.location.href = "/download/".concat(cur_id['vid_id']);
-      document.getElementById("title").innerHTML("Your download should begin shortly")
-      document.getElementById("head").innerHTML("You download should begin shortly")
+      document.getElementById("title").innerHTML = "Your download should begin shortly"
+      document.getElementById("head").innerHTML = "You download should begin shortly"
     }
   })
   .catch((error) => {
@@ -32,5 +33,6 @@ function request(){
 }
 
 timerID = setInterval(request, 15000)
+request()
 
 </script>
