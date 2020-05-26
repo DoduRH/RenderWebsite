@@ -132,6 +132,19 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, a
 
     audio_duration = (audio_usable[1] - audio_usable[0]) / audio_speed
 
+    if crop_vid and crop_aud:
+        duration = min(video_duration, audio_duration)
+    elif crop_vid:
+        duration = audio_duration
+    elif crop_aud:
+        duration = video_duration
+    else:
+        duration = max(video_duration, audio_duration)
+
+    if duration > 300:
+        valid = False
+        return "ERROR Max video length 5 minutes (after applying speed change)"
+
     # Edit audio
     if audio_usable[0] > 0 or audio_usable[1] < audio_stream_duration:
         audio_comp = audio_comp.filter("atrim", start=audio_usable[0], end=audio_usable[1]).filter("asetpts", "PTS-STARTPTS")

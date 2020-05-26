@@ -408,7 +408,7 @@ function checkForm() {
         }
     }
 
-    if(audioEnd.value != 0 && audioEnd.value < audioStart.value){
+    if (audioEnd.value != 0 && audioEnd.value < audioStart.value) {
         alert("Audio end larger than audio start")
         accept = false;
     }
@@ -476,19 +476,59 @@ async function submitForm() {
     // check the file size
     if (videoUpload.files.length == 1) {
         videoSize = videoUpload.files[0].size;
-    }else{
+    } else {
         videoSize = 0;
     }
+    contentType = "video";
+    content = myVideo
 
     if (audioUpload.files.length == 1) {
         audioSize = audioUpload.files[0].size;
-    }else{
+        contentType = "audio";
+        content = myAudio;
+    } else {
         audioSize = 0;
     }
 
-    if (audioSize + videoSize > 300000000){
+    if (audioSize + videoSize > 300000000) {
         alert("Unable to upload, combined filesize must be below 300MB")
         valid = false;
+    }
+
+    if (valid) {
+        // Check file length
+        videoStartTime = document.getElementById("vid_start").value
+        if (videoEnd.value == 0) {
+            videoEndTime = myVideo.duration
+        } else {
+            videoEndTime = videoEnd.value
+        }
+        videoDuration = (videoEndTime - videoStartTime) / videoSpeed.value
+
+        audioStartTime = document.getElementById("audio_start").value
+        if (audioEnd.value == 0) {
+            audioEndTime = content.duration
+        } else {
+            audioEndTime = audioEnd.value
+        }
+        audioDuration = (audioEndTime - audioStartTime) / audioSpeed.value
+
+        cropVideo = document.getElementById("crop_vid").checked
+        cropAudio = document.getElementById("crop_aud").checked
+        if (cropVideo && cropAudio) {
+            duration = Math.min(videoDuration, audioDuration)
+        } else if (cropVideo) {
+            duration = audioDuration
+        } else if (cropAudio) {
+            duration = videoDuration
+        } else {
+            duration = Math.max(videoDuration, audioDuration)
+        }
+
+        if (duration > 300) {
+            valid = false
+            alert("Max video length 5 minutes (after applying speed change)")
+        }
     }
 
     errDisplay = document.getElementById("errorDisplay")
