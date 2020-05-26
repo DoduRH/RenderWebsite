@@ -314,6 +314,39 @@ function updated() {
     }
 }
 
+function fillTime() {
+    console.log("Making audio fill video length")
+    if (videoUpload.files.length == 0){
+        alert("No video present")
+        return
+    }
+    // find video duration
+    if (audioUpload.files.length == 1){
+        content = myAudio
+    } else {
+        content = myVideo
+    }
+    
+    audioStartTime = document.getElementById("audio_start").value
+    if (audioEnd.value == 0) {
+        audioEndTime = content.duration
+    } else {
+        audioEndTime = audioEnd.value
+    }
+    audioDuration = (audioEndTime - audioStartTime) / audioSpeed.value
+
+    videoStartTime = document.getElementById("vid_start").value
+    if (videoEnd.value == 0) {
+        videoEndTime = myVideo.duration
+    } else {
+        videoEndTime = videoEnd.value
+    }
+    videoSpeed.value = ((videoEndTime - videoStartTime) / audioDuration).toFixed(2)
+
+    document.getElementById("crop_vid").checked = true
+    document.getElementById("crop_aud").checked = true
+}
+
 function numberUpdate(curId) {
     console.log("Checking value");
 
@@ -385,7 +418,7 @@ function checkForm() {
         write.value = ""
     } else {
         done()
-        
+
         // Check order of items
         for (let i = 0; i < lyrics.value.split("\n").length; i++) {
             start_elm = document.getElementById("start_" + i);
