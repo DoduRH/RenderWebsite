@@ -6,7 +6,9 @@ var videoType = document.getElementById("videoType");
 var audioType = document.getElementById("audioType");
 
 var videoStart = document.getElementById("vid_start");
+var videoEnd = document.getElementById("vid_end");
 var audioStart = document.getElementById("audio_start");
+var audioEnd = document.getElementById("audio_end");
 var write = document.getElementById("csv");
 var csvHead = document.getElementById("csvHeading");
 var lyrics = document.getElementById("lyricsArea");
@@ -42,6 +44,7 @@ function vidChange() {
         }
 
         videoStart.max = myVideo.duration;
+        videoEnd.max = myVideo.duration;
     };
     reader.readAsDataURL(videoUpload.files[0]);
 };
@@ -57,6 +60,7 @@ function audioChange() {
         myMedia = myAudio;
 
         audioStart.max = myAudio.duration;
+        audioEnd.max = myAudio.duration;
     };
 
     reader.readAsDataURL(audioUpload.files[0]);
@@ -402,6 +406,11 @@ function checkForm() {
                 stop_elm.setCustomValidity("This must be less than than " + myMedia.duration)
             }
         }
+    }
+
+    if(audioEnd.value != 0 && audioEnd.value < audioStart.value){
+        alert("Audio end larger than audio start")
+        accept = false;
     }
 
     console.log("Errors: " + errors);

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, send_file, send_from_directory, redirect, url_for, jsonify
-from Website.img_preview import generate_img
+from img_preview import generate_img
 import os
 import json
 import csv
@@ -13,7 +13,7 @@ import threading
 
 app = Flask(__name__)
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "Website/addlyrics-d6f3c94c49de.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
 
 MAX_MEDIA_SIZE = 300000000  # 300MB between audio and video
 
@@ -78,6 +78,9 @@ def size_blob(bucket_name, blob_name):
     )
 
     return size
+
+def error(*msg):
+    return render_template("invalid.html", message=" ".join(msg))
 
 def get_value(r, name, default=None):
     if name in r.form.keys():
@@ -148,7 +151,7 @@ def getSignedURL():
     purpose = request.args.get('purpose')
     if not is_valid_uuid(uuid):
         print("Invalid UUID")
-        return "invalid user and filename"
+        error("invalid uuid", uuid)
 
     mime = guessmime(filename)[0]
     if purpose == "audioUpload" and ("audio" in mime or "video" in mime):
@@ -157,7 +160,7 @@ def getSignedURL():
         filename = "vid_" + uuid + "." + filename.split(".")[-1]
     else:
         print("Invalid purpose", purpose, mime)
-        return "invalid user and filetype"
+        error("Invalid purpose", purpose, mime)
 
     blob = uploadBucket.blob(filename)
     url = blob.generate_signed_url(
@@ -186,13 +189,13 @@ def uploader():
 
         filename = get_value(r, 'uuid')
         if not is_valid_uuid(filename):
-            return redirect(url_for('/error', err="Invalid user and filename"))
+            error("Invalid filename", filename)
         t = filename
 
         video_name = "vid_" + t + "." + get_value(r, 'videoType', "")
         if not check_blob("addlyrics-content", video_name):
             print("Unable to find video")
-            return "error, video upload failed"
+            error("error, video upload failed")
         else:
             video_size = size_blob(uploadBucketName, video_name)
 
@@ -203,16 +206,16 @@ def uploader():
         else:
             audio_name = "audio_" + t + "." + ext
             if not check_blob("addlyrics-content", audio_name):
-                return "error, audio not uploaded or somthing else went wrong"
+                error("error, audio not uploaded")
             else:
                 audio_size = size_blob(uploadBucketName, audio_name)
 
         if video_size + audio_size > MAX_MEDIA_SIZE:
-            return redirect(url_for('/error', err="error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE)))
+            error("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
 
         font_size = int(get_value(r, 'font_size', 50))
-        vid_start = float(get_value(r, 'vid_start', 0))
-        audio_start = float(get_value(r, 'audio_start', 0))
+        video_usable = (float(get_value(r, 'vid_start', 0)), float(get_value(r, 'vid_end', 0)))
+        audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
         font = get_value(r, 'font', 'Arial-Bold')
         offset = (int(get_value(r, 'offset_x', 0)), int(get_value(r, 'offset_y', 0)))
         vid_speed = float(get_value(r, 'vid_speed', 1))
@@ -229,14 +232,14 @@ def uploader():
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
 
         if csv_contents == '':
-            return redirect(url_for('home'))
+            error("no words provided")
 
         data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
 
-        if audio_speed != 1 or audio_start != 0:
+        if audio_speed != 1 or audio_usable[0] != 0:
             for i, row in enumerate(data):
                 for j, cell in enumerate(row[1:]):
-                    data[i][j+1] = str(max(0, round((float(cell) - audio_start) * (1/audio_speed), 2)))
+                    data[i][j+1] = str(max(0, round((float(cell) - audio_usable[0]) * (1/audio_speed), 2)))
 
         csv_name = 'csv_' + str(t) + ".csv"
         local_csv = "/tmp/" + csv_name
@@ -246,8 +249,15 @@ def uploader():
 
         upload_blob("addlyrics-content", local_csv, csv_name)
 
+        # Make sure usable audio and video are actually usable after uploading CSV blob
+        if audio_usable[1] != 0 and audio_usable[1] <= audio_usable[0]:
+            error("Audio timestamps don't make sense")
+        
+        if video_usable[1] != 0 and video_usable[1] <= video_usable[0]:
+            error("Video timestamps don't make sense")
+
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, offset, vid_start, audio_start, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
+        args = [str(t), csv_name, video_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
 
         ##########
         # Q code #
@@ -280,6 +290,9 @@ def uploader():
 
         # Add the payload to the request.
         task['http_request']['body'] = converted_payload
+
+        # for debugging purposes
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)

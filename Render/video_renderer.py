@@ -78,8 +78,8 @@ def wraptext(font, fontsize, text, width):
 
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(vid_id, words_loc, video_loc, audio_loc, text_offset, vid_start, audio_start, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
-    # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, vid_start, audio_start, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
+def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
+    # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     words_loc = download_blob("addlyrics-content", words_loc, 'text')
     video_loc = download_blob("addlyrics-content", video_loc, 'video')
@@ -95,34 +95,46 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, vid_start, audi
 
     in_file = ffmpeg.input(video_loc)
 
-    probe = ffmpeg.probe(video_loc)
-    video_streams = [stream for stream in probe["streams"] if stream["codec_type"] == "video"]
-    video_duration = (float(video_streams[0]['duration']) - vid_start) / video_speed
+    video_probe = ffmpeg.probe(video_loc)
+    video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
     video_width = video_streams[0]['width']
     video_height = video_streams[0]['height']
     bitrate = eval(video_streams[0]['bit_rate'])
     framerate = eval(video_streams[0]['r_frame_rate'])
+
+    # Calculate video duration
+    video_stream_duration = float(video_streams[0]['duration'])
+    if video_usable[1] <= video_usable[0]:
+        video_usable[1] = video_stream_duration
+    else:
+        video_usable[1] = min(video_usable[1], video_stream_duration)
+
+    video_duration = (video_usable[1] - video_usable[0]) / video_speed
 
     if video_width * video_height > 1920 * 1080:
         return "Too many pixels"
 
     # Make audio
     if audio_loc is None:
-        audio_streams = [stream for stream in probe["streams"] if stream["codec_type"] == "audio"]
-        audio_duration = audio_streams[0]['duration']
-
+        audio_probe = video_probe
         audio_comp = in_file.audio
     else:
-        print(audio_loc)
-        probe = ffmpeg.probe(audio_loc)
-        audio_streams = [stream for stream in probe["streams"] if stream["codec_type"] == "audio"]
-        audio_duration = (float(audio_streams[0]['duration']) - audio_start) / audio_speed
-
+        audio_probe = ffmpeg.probe(audio_loc)
         audio_comp = ffmpeg.input(audio_loc).audio
 
+
+    audio_streams = [stream for stream in audio_probe["streams"] if stream["codec_type"] == "audio"]
+    audio_stream_duration = float(audio_streams[0]['duration'])
+    if audio_usable[1] <= audio_usable[0]:
+        audio_usable[1] = audio_stream_duration
+    else:
+        audio_usable[1] = min(audio_usable[1], audio_stream_duration)
+
+    audio_duration = (audio_usable[1] - audio_usable[0]) / audio_speed
+
     # Edit audio
-    if audio_start > 0:
-        audio_comp = audio_comp.filter("atrim", start=audio_start).filter("asetpts", "PTS-STARTPTS")
+    if audio_usable[0] > 0 or audio_usable[1] < audio_stream_duration:
+        audio_comp = audio_comp.filter("atrim", start=audio_usable[0], end=audio_usable[1]).filter("asetpts", "PTS-STARTPTS")
 
     if audio_speed != 1:
         audio_comp = audio_comp.filter("atempo", audio_speed)
@@ -147,8 +159,8 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, vid_start, audi
     if video_speed != 1:
         video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
 
-    if vid_start > 0:
-        video_comp = video_comp.trim(start=vid_start).setpts("PTS-STARTPTS")
+    if video_usable[0] > 0 or video_usable[1] < video_usable[0] + video_duration:
+        video_comp = video_comp.trim(start=video_usable[0], end=video_usable[1]).setpts("PTS-STARTPTS")
 
     if crop_vid:
         video_comp = video_comp.trim(start=0, end=audio_duration)

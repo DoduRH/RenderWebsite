@@ -2,16 +2,23 @@ from flask import Flask, render_template, request
 from video_renderer import render
 import json
 
+import os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-ed88c47e7d9d.json"
+
 app = Flask(__name__)
 
+@app.route("/")
+def index():
+    return "Hello world"
 
-@app.route('/render', methods=['POST'])
+@app.route('/render', methods=['GET', 'POST'])
 def main():
-    r = request
-    print(r.json)
-    t, csv_name, vid_name, audio_name, offset, vid_start, audio_start, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud = json.loads(r.data)
+    data = request.form['body']
+    #data = request.data
+    print(data)
+    t, csv_name, vid_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud = json.loads(data)
 
-    result = render(t, csv_name, vid_name, audio_name, offset, vid_start, audio_start, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud)
+    result = render(t, csv_name, vid_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud)
 
     if result == "ERROR":
         return render_template("invalid", filename="Error, no audio detected")
