@@ -231,23 +231,23 @@ def uploader():
         # CSV file
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
 
-        if csv_contents == '':
-            error("no words provided")
+        if csv_contents != '':
+            data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
 
-        data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
+            if audio_speed != 1 or audio_usable[0] != 0:
+                for i, row in enumerate(data):
+                    for j, cell in enumerate(row[1:]):
+                        data[i][j+1] = str(max(0, round((float(cell) - audio_usable[0]) * (1/audio_speed), 2)))
 
-        if audio_speed != 1 or audio_usable[0] != 0:
-            for i, row in enumerate(data):
-                for j, cell in enumerate(row[1:]):
-                    data[i][j+1] = str(max(0, round((float(cell) - audio_usable[0]) * (1/audio_speed), 2)))
+            csv_name = 'csv_' + str(t) + ".csv"
+            local_csv = "/tmp/" + csv_name
+            with open(local_csv, "a+", newline='') as f:
+                wr = csv.writer(f, quoting=csv.QUOTE_ALL)
+                wr.writerows(data)
 
-        csv_name = 'csv_' + str(t) + ".csv"
-        local_csv = "/tmp/" + csv_name
-        with open(local_csv, "a+", newline='') as f:
-            wr = csv.writer(f, quoting=csv.QUOTE_ALL)
-            wr.writerows(data)
-
-        upload_blob("addlyrics-content", local_csv, csv_name)
+            upload_blob("addlyrics-content", local_csv, csv_name)
+        else:
+            csv_name = ""
 
         # Make sure usable audio and video are actually usable after uploading CSV blob
         if audio_usable[1] != 0 and audio_usable[1] <= audio_usable[0]:

@@ -81,7 +81,13 @@ def wraptext(font, fontsize, text, width):
 def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
     # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
-    words_loc = download_blob("addlyrics-content", words_loc, 'text')
+    if words_loc != "":
+        words_loc = download_blob("addlyrics-content", words_loc, 'text')
+        with open(words_loc, newline='') as csvfile:
+            data = list(csv.reader(csvfile))
+    else:
+        data = [["", 0, 0]]
+
     video_loc = download_blob("addlyrics-content", video_loc, 'video')
     if audio_loc is None:
         audio_loc = video_loc
@@ -89,9 +95,6 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, a
         audio_loc = download_blob("addlyrics-content", audio_loc, 'audio')
 
     output_name = "/tmp/Video_" + str(vid_id) + ".mp4"
-
-    with open(words_loc, newline='') as csvfile:
-        data = list(csv.reader(csvfile))
 
     in_file = ffmpeg.input(video_loc)
 

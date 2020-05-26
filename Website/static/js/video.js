@@ -381,12 +381,11 @@ function checkForm() {
     accept = true;
 
     // Check CSV
-    done();
-    if (write.value.trim() == "") {
-        accept = false;
-        console.log("No lines to write");
-        write.setCustomValidity("Please add your lyrics")
+    if (lyrics.value.trim() == "") {
+        write.value = ""
     } else {
+        done()
+        
         // Check order of items
         for (let i = 0; i < lyrics.value.split("\n").length; i++) {
             start_elm = document.getElementById("start_" + i);
