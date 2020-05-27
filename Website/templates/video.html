@@ -19,7 +19,7 @@
       </div>
       <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this, 'table')">Video Settings</h3>
+          <h3 class=noselect onclick="hide(this)">Video Settings</h3>
           <table id=tab hidden>
             <tr>
               <td>
@@ -50,7 +50,7 @@
                 <label for="vid_speed">Video playback speed</label>
               </td>
               <td>
-                <input type="number" id="vid_speed" name="vid_speed" min="0.1" value="1" step="0.01" max="10" required/>
+                <input type="number" id="vid_speed" name="vid_speed" min="0.01" value="1" step="0.01" max="10" required/>
               </td>
             </tr>
             <tr>
@@ -82,7 +82,7 @@
 
 
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this, 'table')">Audio Settings</h3>
+          <h3 class=noselect onclick="hide(this)">Audio Settings</h3>
           <table id=tab hidden>
             <tr>
               <td>
@@ -154,7 +154,7 @@
         </div>
 
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this, 'table')">Text Settings</h3>
+          <h3 class=noselect onclick="hide(this)">Text Settings</h3>
           <table id=tab hidden>
             <tr>
               <td>
@@ -210,7 +210,7 @@
           </table>
         </div>
         <div class="capsule" id=tab hidden>
-          <h3 class=noselect onclick="hide(this, 'div', true)">Uploaded Video</h3>
+          <h3 class=noselect onclick="hide(this, true)">Uploaded Video</h3>
           <div>
             <video id="video1" width=100% controls>
               Please upload a video
@@ -218,7 +218,7 @@
           </div>
         </div>
         <div class="capsule" id=tab hidden>
-          <h3 class=noselect onclick="hide(this, 'div', true)">Uploaded Audio</h3>
+          <h3 class=noselect onclick="hide(this, true)">Uploaded Audio</h3>
           <div>
             <audio id="audio1" controls>
               Please upload an mp3
@@ -226,7 +226,7 @@
           </div>
         </div>
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this, 'div')">Preview frame</h3>
+          <h3 class=noselect onclick="hide(this)">Preview frame</h3>
           <div id=tab hidden>
             <img id="previewImg" width="100%" src="" hidden /><br />
             <button type="button" onclick="previewFrame()">Preview</button><br />

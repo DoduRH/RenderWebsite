@@ -24,7 +24,6 @@ var tableLength = 0;
 var timerID;
 var c;
 var uploading;
-var errors;
 
 var start_times = [];
 var stop_times = [];
@@ -165,9 +164,7 @@ function previewFrame() {
     offsety = document.getElementById("offset_y").value
     if (myVideo.videoWidth == 0) {
         console.log("No preview for you");
-        alert(
-            "Please upload a video"
-        );
+        showElementError(videoUpload, "Please upload a video")
         return
     } else {
         dimx = myVideo.videoWidth
@@ -316,24 +313,18 @@ function updated() {
 
 function fillTime() {
     console.log("Making audio fill video length")
-    if (videoUpload.files.length == 0){
-        alert("No video present")
+    if (videoUpload.files.length == 0) {
+        showElementError(videoUpload, "Please upload a video")
         return
     }
     // find video duration
-    if (audioUpload.files.length == 1){
+    if (audioUpload.files.length == 1) {
         content = myAudio
     } else {
         content = myVideo
     }
-    
-    audioStartTime = document.getElementById("audio_start").value
-    if (audioEnd.value == 0) {
-        audioEndTime = content.duration
-    } else {
-        audioEndTime = audioEnd.value
-    }
-    audioDuration = (audioEndTime - audioStartTime) / audioSpeed.value
+
+    audioDuration = getAudioDuration(content)
 
     videoStartTime = document.getElementById("vid_start").value
     if (videoEnd.value == 0) {
@@ -375,10 +366,18 @@ function fontCheck(curId, min, max) {
     curId.value = Math.min(max, Math.max(min, curId.value)).toFixed();
 }
 
+function showElementError(elm, msg) {
+    if (elm.offsetHeight == 0) {
+        hide(elm.closest("div").children[0])
+    }
+    elm.setCustomValidity(msg)
+    elm.reportValidity()
+}
+
 function done() {
     console.log("Creating CSV");
 
-    output = "";
+    csv = "";
     i = 0;
 
     lines = lyrics.value.split("\n");
@@ -401,18 +400,55 @@ function done() {
                 }
             }
 
-            output += '"' + line + '", ' + start_time + ", " + stop_time + "\r";
+            csv += '"' + line + '", ' + start_time + ", " + stop_time + "\r";
 
             i++;
         });
     }
 
-    write.value = output;
+    write.value = csv;
+}
+
+function getAudioDuration(content) {
+    audioStartTime = document.getElementById("audio_start").value
+    if (audioEnd.value == 0) {
+        audioEndTime = content.duration
+    } else {
+        audioEndTime = audioEnd.value
+    }
+    return (audioEndTime - audioStartTime) / audioSpeed.value
+}
+
+function getVideoDuration() {
+    videoStartTime = document.getElementById("vid_start").value
+    if (videoEnd.value == 0) {
+        videoEndTime = myVideo.duration
+    } else {
+        videoEndTime = videoEnd.value
+    }
+    return (videoEndTime - videoStartTime) / videoSpeed.value
+}
+
+function getDuration(content) {
+    videoDuration = getVideoDuration()
+    audioDuration = getAudioDuration(content)
+
+    cropVideo = document.getElementById("crop_vid").checked
+    cropAudio = document.getElementById("crop_aud").checked
+
+    if (cropVideo && cropAudio) {
+        duration = Math.min(videoDuration, audioDuration)
+    } else if (cropVideo) {
+        duration = audioDuration
+    } else if (cropAudio) {
+        duration = videoDuration
+    } else {
+        duration = Math.max(videoDuration, audioDuration)
+    }
+    return duration
 }
 
 function checkForm() {
-    accept = true;
-
     // Check CSV
     if (lyrics.value.trim() == "") {
         write.value = ""
@@ -427,28 +463,23 @@ function checkForm() {
                 parseFloat(start_elm.value) >=
                 parseFloat(stop_elm.value)
             ) {
-                accept = false;
-                errors.push("Timing error on line " + (i + 1));
-                stop_elm.setCustomValidity("This must be greater than " + start_elm.value)
+                showElementError(start_elm, "Stop is before start")
+                return false;
             }
 
-            else if (parseFloat(stop_elm.value > myMedia.duration)) {
-                accept = false;
-                errors.push("Timing error on line " + (i + 1));
-                stop_elm.setCustomValidity("This must be less than than " + myMedia.duration)
+            else if (parseFloat(stop_elm.value) > getDuration()) {
+                showElementError(start_elm, "Must be less than than " + getDuration())
+                return false;
             }
         }
     }
 
     if (audioEnd.value != 0 && audioEnd.value < audioStart.value) {
-        alert("Audio end larger than audio start")
-        accept = false;
+        showElementError(audioEnd, "Audio end must be less than audio start")
+        return false
     }
 
-    console.log("Errors: " + errors);
-    document.getElementById("errorDisplay").innerHTML = errors.join("<br>")
-
-    return accept;
+    return true
 }
 
 async function uploadElement(elm) {
@@ -468,139 +499,143 @@ async function uploadElement(elm) {
         body: elm.files[0]
     })
 
-    const finished = await sent.ok
+    const finished = sent.ok
     if (finished) {
         console.log("Complete")
         return true;
     } else {
         console.log("Failed upload of " + elm.files[0].name)
+        alert("Failed upload of " + elm.files[0].name)
         return false;
     }
+}
+
+function htmlValidation() {
+    inputs = document.getElementsByTagName("input")
+    for (const elm of inputs) {
+        elm.setCustomValidity("")
+        if (elm.type != 'file' && !elm.checkValidity()) {
+                showElementError(elm, elm.validationMessage)
+                return false
+        }
+    }
+    return true
+}
+
+function checkFileSize(content) {
+    // check the file size
+    if (videoUpload.files.length == 1) {
+        videoSize = videoUpload.files[0].size
+    } else {
+        videoSize = 0
+    }
+    contentType = "video"
+
+    if (audioUpload.files.length == 1) {
+        audioSize = audioUpload.files[0].size
+        contentType = "audio"
+    } else {
+        audioSize = 0
+    }
+
+    if (audioSize + videoSize > 300000000) {
+        alert("Unable to upload, combined filesize must be below 300MB")
+        return false
+    } else {
+        return true
+    }
+}
+
+function checkDuration(content) {
+    // Check file length
+    duration = getDuration(content)
+
+    if (duration > 300) {
+        alert("Max video length 5 minutes (after applying speed change)")
+        return false
+    } else {
+        return true
+    }
+}
+
+async function uploadContent() {
+    if (videoUpload.files.length != 1) {
+        showElementError(videoUpload, "Please select a video")
+        return false
+    }
+
+    document.getElementById("submitbutton").innerHTML = "Uploading Video..."
+    if (!await uploadElement(videoUpload)) {
+        alert("Unable to upload video")
+        return false
+    } else {
+        videoType.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+    }
+
+    if (audioUpload.files.length == 1) {
+        document.getElementById("submitbutton").innerHTML = "Uploading Audio..."
+        if (!await uploadElement(audioUpload)) {
+            alert("Audio detected but unable to upload")
+            return false
+        } else {
+            audioType.value = audioUpload.value.split(".")[audioUpload.value.split(".").length - 1]
+        }
+    }
+
+    return true
 }
 
 async function submitForm() {
     if (uploading) {
         return
     }
-    errors = [];
     console.log("Trying submit")
-    valid = true;
-    uploading = true;
+    valid = true
+    uploading = true
 
-    document.getElementById("submitbutton").innerHTML = "Uploading...";
+    document.getElementById("submitbutton").innerHTML = "Subitting..."
 
-    inputs = document.getElementsByTagName("input");
-
-    for (const elm of inputs) {
-        if (elm.type != 'file' && !elm.checkValidity()) {
-            valid = false;
-            elm.closest("#tab").hidden = false;
-            elm.setCustomValidity(elm.validationMessage);
-            console.log("error at" + elm)
-        }
-    };
     if (valid) {
-        if (!checkForm()) {
-            valid = false
-        }
+        valid = htmlValidation()
     }
 
-    // check the file size
-    if (videoUpload.files.length == 1) {
-        videoSize = videoUpload.files[0].size;
-    } else {
-        videoSize = 0;
+    if (valid) {
+        valid = checkForm()
     }
-    contentType = "video";
-    content = myVideo
 
+    // Find audio source
     if (audioUpload.files.length == 1) {
-        audioSize = audioUpload.files[0].size;
-        contentType = "audio";
-        content = myAudio;
+        audioSource = myAudio
     } else {
-        audioSize = 0;
+        audioSource = myVideo
     }
+    // End find audio source
 
-    if (audioSize + videoSize > 300000000) {
-        alert("Unable to upload, combined filesize must be below 300MB")
-        valid = false;
+    if (valid) {
+        valid = checkFileSize(audioSource)
     }
 
     if (valid) {
-        // Check file length
-        videoStartTime = document.getElementById("vid_start").value
-        if (videoEnd.value == 0) {
-            videoEndTime = myVideo.duration
-        } else {
-            videoEndTime = videoEnd.value
-        }
-        videoDuration = (videoEndTime - videoStartTime) / videoSpeed.value
-
-        audioStartTime = document.getElementById("audio_start").value
-        if (audioEnd.value == 0) {
-            audioEndTime = content.duration
-        } else {
-            audioEndTime = audioEnd.value
-        }
-        audioDuration = (audioEndTime - audioStartTime) / audioSpeed.value
-
-        cropVideo = document.getElementById("crop_vid").checked
-        cropAudio = document.getElementById("crop_aud").checked
-        if (cropVideo && cropAudio) {
-            duration = Math.min(videoDuration, audioDuration)
-        } else if (cropVideo) {
-            duration = audioDuration
-        } else if (cropAudio) {
-            duration = videoDuration
-        } else {
-            duration = Math.max(videoDuration, audioDuration)
-        }
-
-        if (duration > 300) {
-            valid = false
-            alert("Max video length 5 minutes (after applying speed change)")
-        }
+        valid = checkDuration(audioSource)
     }
 
-    errDisplay = document.getElementById("errorDisplay")
     if (valid) {
-        if (videoUpload.files.length != 1) {
-            valid = false
-            videoUpload.setCustomValidity("Please select a video")
-        } else {
-            document.getElementById("submitbutton").innerHTML = "Uploading Video...";
-            if (!await uploadElement(videoUpload)) {
-                valid = false
-                errDisplay.innerHTML = errDisplay.innerHTML + "<br>Unable to upload video"
-            } else if (audioUpload.files.length == 1) {
-                document.getElementById("submitbutton").innerHTML = "Uploading Audio...";
-                if (!await uploadElement(audioUpload)) {
-                    valid = false
-                    errDisplay.innerHTML = errDisplay.innerHTML + "<br>Audio detected but unable to upload";
-                }
-                audioType.value = audioUpload.value.split(".")[audioUpload.value.split(".").length - 1];
-            }
-            videoType.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1];
-        }
+        valid = await uploadContent()
     }
 
-    document.getElementById("uuid").value = vid_id;
-    errDisplay.hidden = valid;
     if (valid) {
-        document.getElementById("submitbutton").innerHTML = "Submitting From Data...";
-        document.getElementById("theform").submit();
+        document.getElementById("uuid").value = vid_id
+        document.getElementById("submitbutton").innerHTML = "Submitting From Data..."
+        document.getElementById("theform").submit()
     } else {
-        console.log("Failed to submit");
-        document.getElementById("submitbutton").innerHTML = "Submit";
-        uploading = false;
-        alert("Failed to submit");
+        console.log("Failed to submit")
+        document.getElementById("submitbutton").innerHTML = "Submit"
+        uploading = false
     }
 }
 
-function hide(t, type, media = false) {
+function hide(t, media = false) {
     console.log("Toggle")
-    type = type.toUpperCase()
     e = t.nextElementSibling
     if (media) {
         e.children[0].pause()
