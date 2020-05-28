@@ -1,4 +1,5 @@
 var myVideo = document.getElementById("video1");
+var myImage = document.getElementById("image1")
 var myAudio = document.getElementById("audio1");
 var videoUpload = document.getElementById("videoUpload");
 var audioUpload = document.getElementById("audioUpload");
@@ -34,17 +35,26 @@ function vidChange() {
     var reader = new FileReader();
     reader.onload = function (e) {
         console.log("Set as source");
-        myVideo.src = this.result;
         myVideo.closest('#tab').hidden = false;
-        //myVideo.parentElement.hidden = false;
-        changeSpeed(myVideo, videoSpeed.value);
+        myVideo.parentElement.hidden = false;
 
-        if (myAudio.src == "") {
-            myMedia = myVideo;
+        if (videoUpload.files[0].type.includes("video")) {
+            myImage.hidden = true
+            myVideo.hidden = false
+            if (myAudio.src == "") {
+                myMedia = myVideo
+            }
+            myVideo.src = this.result;
+            changeSpeed(myVideo, videoSpeed.value);
+
+            videoStart.max = myVideo.duration
+            videoEnd.max = myVideo.duration
+        } else {
+            myVideo.hidden = true
+            myImage.hidden = false
+
+            myImage.src = this.result
         }
-
-        videoStart.max = myVideo.duration;
-        videoEnd.max = myVideo.duration;
     };
     reader.readAsDataURL(videoUpload.files[0]);
 };
@@ -252,7 +262,9 @@ function updated() {
     textAreaAdjust(lyrics);
     if (lyrics.value == "") {
         tbl.parentElement.parentElement.hidden = true;
+        document.getElementById("text_tl").required = false
     } else {
+        document.getElementById("text_tl").required = true
         lines = lyrics.value.split("\n");
         console.log(lines);
         output_tbl =
@@ -571,6 +583,9 @@ function checkDuration() {
 async function uploadContent() {
     if (videoUpload.files.length != 1) {
         showElementError(videoUpload, "Please select a video")
+        return false
+    } else if (audioUpload.files.length == 0 && videoUpload.files[0].type.includes("image")) {
+        showElementError(audioUpload, "Upload audio to use an image for visuals")
         return false
     }
 

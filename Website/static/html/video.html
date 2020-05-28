@@ -23,7 +23,7 @@
                 <label for="videoUpload">Upload Video</label>
               </td>
               <td>
-                <input type="file" id="videoUpload" accept="video/*" onchange="vidChange()"/>
+                <input type="file" id="videoUpload" accept="video/*,image/*" onchange="vidChange()"/>
               </td>
             </tr>
             <tr>
@@ -52,18 +52,18 @@
             </tr>
             <tr>
               <td>
-                <label for="fade_in">Number of seconds for fade at the start</label>
+                <label for="video_fade_in">Number of seconds for fade at the start</label>
               </td>
               <td>
-                <input type="number" id="fade_in" name="fade_in" min="0" value="0" required/>
+                <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required/>
               </td>
             </tr>
             <tr>
               <td>
-                <label for="fade_out">Number of seconds for fade at the end</label>
+                <label for="video_fade_out">Number of seconds for fade at the end</label>
               </td>
               <td>
-                <input type="number" id="fade_out" name="fade_out" min="0" value="0" required/>
+                <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0" required/>
               </td>
             </tr>
             <tr>
@@ -194,35 +194,35 @@
                 <table>
                   <tr>
                     <td>
-                      <input type="radio" name="text_position" id="text_tl" value="tl" required>
+                      <input type="radio" name="text_position" id="text_tl" value="tl">
                     </td>
                     <td>
-                      <input type="radio" name="text_position" id="text_tm" value="tm" required>
+                      <input type="radio" name="text_position" id="text_tm" value="tm">
                     </td>
                     <td>
-                      <input type="radio" name="text_position" id="text_tr" value="tr" required>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input type="radio" name="text_position" id="text_ml" value="ml" required>
-                    </td>
-                    <td>
-                      <input type="radio" name="text_position" id="text_mm" value="mm" required>
-                    </td>
-                    <td>
-                      <input type="radio" name="text_position" id="text_mr" value="mr" required>
+                      <input type="radio" name="text_position" id="text_tr" value="tr">
                     </td>
                   </tr>
                   <tr>
                     <td>
-                      <input type="radio" name="text_position" id="text_bl" value="bl" required>
+                      <input type="radio" name="text_position" id="text_ml" value="ml">
                     </td>
                     <td>
-                      <input type="radio" name="text_position" id="text_bm" value="bm" required>
+                      <input type="radio" name="text_position" id="text_mm" value="mm">
                     </td>
                     <td>
-                      <input type="radio" name="text_position" id="text_br" value="br" required>
+                      <input type="radio" name="text_position" id="text_mr" value="mr">
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bl" value="bl">
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bm" value="bm">
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_br" value="br">
                     </td>
                   </tr>
                 </table>
@@ -245,6 +245,7 @@
             <video id="video1" width=100% controls>
               Please upload a video
             </video>
+            <img id="image1" width=100% alt="Unable to show image">
           </div>
         </div>
         <div class="capsule" id=tab hidden>

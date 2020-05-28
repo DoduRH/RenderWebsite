@@ -159,7 +159,7 @@ def getSignedURL():
     mime = guessmime(filename)[0]
     if purpose == "audioUpload" and ("audio" in mime or "video" in mime):
         filename = "audio_" + uuid + "." + filename.split(".")[-1]
-    elif purpose == "videoUpload" and "video" in mime:
+    elif purpose == "videoUpload" and ("video" in mime or "image" in mime):
         filename = "vid_" + uuid + "." + filename.split(".")[-1]
     else:
         print("Invalid purpose", purpose, mime)

@@ -39,7 +39,7 @@ class position():
         return self.x
 
 
-def download_blob(bucket_name, source_blob_name, filetype):
+def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
     """Downloads a blob from the bucket."""
     # bucket_name = "your-bucket-name"
     # source_blob_name = "storage-object-name"
@@ -56,7 +56,12 @@ def download_blob(bucket_name, source_blob_name, filetype):
     fname = destination_file_name.split(".")[-1]
 
     mimetype = m.from_file(destination_file_name)
-    if fname not in mimetype and filetype not in mimetype:
+    valid = False
+    for f in filetype:
+        if f in mimetype:
+            valid = True
+
+    if fname not in mimetype and not valid:
         os.remove(destination_file_name)
         print(
             "Blob {} deleted because mimetype didnt match".format(
@@ -70,8 +75,10 @@ def download_blob(bucket_name, source_blob_name, filetype):
                 source_blob_name, destination_file_name
             )
         )
-
-    return destination_file_name
+    if giveType:
+        return destination_file_name, mimetype
+    else:
+        return destination_file_name
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -115,37 +122,49 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
-        words_loc = download_blob("addlyrics-content", words_loc, 'text')
+        words_loc = download_blob("addlyrics-content", words_loc, ('text'))
         with open(words_loc, newline='') as csvfile:
             data = list(csv.reader(csvfile))
     else:
         data = [["", 0, 0]]
 
-    #video_loc = download_blob("addlyrics-content", video_loc, 'video')
+    video_loc, visual_type = download_blob("addlyrics-content", video_loc, ('video', 'image'), True)
     if audio_loc is None:
+        if "image" in visual_type:
+            return "ERROR: image doesn't contain audio stream" 
         audio_loc = video_loc
     else:
-        audio_loc = download_blob("addlyrics-content", audio_loc, 'audio')
+        audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
 
     output_name = "/tmp/Video_" + str(vid_id) + ".mp4"
 
-    in_file = ffmpeg.input(video_loc)
-
     video_probe = ffmpeg.probe(video_loc)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
+    if "video" in visual_type:
+        in_file = ffmpeg.input(video_loc)
+        bitrate = eval(video_streams[0]['bit_rate'])
+        framerate = eval(video_streams[0]['r_frame_rate'])
+        video_comp = in_file.video
+
+        # Calculate video duration
+        video_stream_duration = float(video_streams[0]['duration'])
+        if video_usable[1] <= video_usable[0]:
+            video_usable[1] = video_stream_duration
+        else:
+            video_usable[1] = min(video_usable[1], video_stream_duration)
+
+        video_duration = (video_usable[1] - video_usable[0]) / video_speed
+    else:  # This means the visuals are coming from an image
+        framerate = 25
+        bitrate = 10000000  # Must be set so min can be taken on the output, could be lowered due to solid backdrop?
+        video_comp = (
+            ffmpeg
+            .input(video_loc, loop=True)
+            .filter('framerate', fps=framerate)
+        )
+    
     video_width = video_streams[0]['width']
     video_height = video_streams[0]['height']
-    bitrate = eval(video_streams[0]['bit_rate'])
-    framerate = eval(video_streams[0]['r_frame_rate'])
-
-    # Calculate video duration
-    video_stream_duration = float(video_streams[0]['duration'])
-    if video_usable[1] <= video_usable[0]:
-        video_usable[1] = video_stream_duration
-    else:
-        video_usable[1] = min(video_usable[1], video_stream_duration)
-
-    video_duration = (video_usable[1] - video_usable[0]) / video_speed
 
     if video_width * video_height > 1920 * 1080:
         return "Too many pixels"
@@ -168,14 +187,17 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
 
     audio_duration = (audio_usable[1] - audio_usable[0]) / audio_speed
 
-    if crop_vid and crop_aud:
-        duration = min(video_duration, audio_duration)
-    elif crop_vid:
-        duration = audio_duration
-    elif crop_aud:
-        duration = video_duration
+    if "image" in visual_type:
+        duration = video_duration = audio_duration
     else:
-        duration = max(video_duration, audio_duration)
+        if crop_vid and crop_aud:
+            duration = min(video_duration, audio_duration)
+        elif crop_vid:
+            duration = audio_duration
+        elif crop_aud:
+            duration = video_duration
+        else:
+            duration = max(video_duration, audio_duration)
 
     if duration > 300:
         valid = False
@@ -209,8 +231,6 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
         audio_comp = audio_comp.filter("afade", type="out", start_time=video_duration-audio_fade_out, duration=audio_fade_out)
 
     # Set-up video
-    video_comp = in_file.video
-
     if framerate > 30:  # reduce the framerate
         round_frame = round(framerate)
         new_rate = 0
@@ -256,7 +276,7 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
 
     video_comp = video_comp
     # composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", crf="28").overwrite_output() # CRF 33 also looks alright
-    composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", video_bitrate=min(bitrate, 3000000), loglevel="info").global_args("-nostats").overwrite_output()
+    composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info").global_args("-nostats").overwrite_output()
     print(composition.get_args())
 
     composition.run()
