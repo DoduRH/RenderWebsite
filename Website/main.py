@@ -215,21 +215,24 @@ def uploader():
         if video_size + audio_size > MAX_MEDIA_SIZE:
             error("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
 
-        font_size = int(get_value(r, 'font_size', 50))
-        video_usable = (float(get_value(r, 'vid_start', 0)), float(get_value(r, 'vid_end', 0)))
-        audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
-        font = get_value(r, 'font', 'Arial-Bold')
-        text_position = get_value(r, "text_position", "mm")
-        text_width = float(get_value(r, "text_width", 90))/100
-        vid_speed = float(get_value(r, 'vid_speed', 1))
-        audio_speed = float(get_value(r, 'audio_speed', 1))
-        view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
-        text_colour = get_value(r, 'textColour', '#000000')
-        shadow_colour = get_value(r, 'shadowColour', '#ffffff')
-        video_fade = (float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0)))
-        audio_fade = (float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0)))
-        crop_vid = get_value(r, 'crop_vid', 'off') == 'on'
-        crop_aud = get_value(r, 'crop_aud', 'off') == 'on'
+        try:
+            font_size = int(get_value(r, 'font_size', 50))
+            video_usable = (float(get_value(r, 'vid_start', 0)), float(get_value(r, 'vid_end', 0)))
+            audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
+            font = get_value(r, 'font', 'Arial-Bold')
+            text_position = get_value(r, "text_position", "mm")
+            text_width = float(get_value(r, "text_width", 90))/100
+            vid_speed = float(get_value(r, 'vid_speed', 1))
+            audio_speed = float(get_value(r, 'audio_speed', 1))
+            view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
+            text_colour = get_value(r, 'textColour', '#000000')
+            shadow_colour = get_value(r, 'shadowColour', '#ffffff')
+            video_fade = (float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0)))
+            audio_fade = (float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0)))
+            crop_vid = get_value(r, 'crop_vid', 'off') == 'on'
+            crop_aud = get_value(r, 'crop_aud', 'off') == 'on'
+        except ValueError:
+            return error("Error, unable to interpret inputs")
 
         # CSV file
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
