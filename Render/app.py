@@ -16,10 +16,9 @@ def main():
     data = request.form['body']
     #data = request.data
     print(data)
-    t, csv_name, vid_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud = json.loads(data)
+    t, csv_name, vid_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud = json.loads(data)
 
-    result = render(t, csv_name, vid_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud)
-
+    result = render(t, csv_name, vid_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud)
     if result == "ERROR":
         return render_template("invalid", filename="Error, no audio detected")
 

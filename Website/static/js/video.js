@@ -409,7 +409,9 @@ function done() {
     write.value = csv;
 }
 
-function getAudioDuration(content) {
+function getAudioDuration() {
+    content = getAudioSource()
+    
     audioStartTime = document.getElementById("audio_start").value
     if (audioEnd.value == 0) {
         audioEndTime = content.duration
@@ -429,9 +431,18 @@ function getVideoDuration() {
     return (videoEndTime - videoStartTime) / videoSpeed.value
 }
 
-function getDuration(content) {
+function getAudioSource() {
+    // Find audio source
+    if (audioUpload.files.length == 1) {
+        return myAudio
+    } else {
+        return myVideo
+    }
+}
+
+function getDuration() {
     videoDuration = getVideoDuration()
-    audioDuration = getAudioDuration(content)
+    audioDuration = getAudioDuration()
 
     cropVideo = document.getElementById("crop_vid").checked
     cropAudio = document.getElementById("crop_aud").checked
@@ -522,18 +533,16 @@ function htmlValidation() {
     return true
 }
 
-function checkFileSize(content) {
+function checkFileSize() {
     // check the file size
     if (videoUpload.files.length == 1) {
         videoSize = videoUpload.files[0].size
     } else {
         videoSize = 0
     }
-    contentType = "video"
 
     if (audioUpload.files.length == 1) {
         audioSize = audioUpload.files[0].size
-        contentType = "audio"
     } else {
         audioSize = 0
     }
@@ -546,9 +555,9 @@ function checkFileSize(content) {
     }
 }
 
-function checkDuration(content) {
+function checkDuration() {
     // Check file length
-    duration = getDuration(content)
+    duration = getDuration()
 
     if (duration > 300) {
         alert("Max video length 5 minutes (after applying speed change)")
@@ -603,20 +612,12 @@ async function submitForm() {
         valid = checkForm()
     }
 
-    // Find audio source
-    if (audioUpload.files.length == 1) {
-        audioSource = myAudio
-    } else {
-        audioSource = myVideo
-    }
-    // End find audio source
-
     if (valid) {
-        valid = checkFileSize(audioSource)
+        valid = checkFileSize()
     }
 
     if (valid) {
-        valid = checkDuration(audioSource)
+        valid = checkDuration()
     }
 
     if (valid) {

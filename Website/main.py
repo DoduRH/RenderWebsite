@@ -217,7 +217,8 @@ def uploader():
         video_usable = (float(get_value(r, 'vid_start', 0)), float(get_value(r, 'vid_end', 0)))
         audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
         font = get_value(r, 'font', 'Arial-Bold')
-        offset = (int(get_value(r, 'offset_x', 0)), int(get_value(r, 'offset_y', 0)))
+        text_position = get_value(r, "text_position", "mm")
+        text_width = float(get_value(r, "text_width", 90))/100
         vid_speed = float(get_value(r, 'vid_speed', 1))
         audio_speed = float(get_value(r, 'audio_speed', 1))
         view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
@@ -257,7 +258,7 @@ def uploader():
             error("Video timestamps don't make sense")
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, offset, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
+        args = [str(t), csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
 
         ##########
         # Q code #

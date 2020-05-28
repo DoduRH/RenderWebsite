@@ -7,6 +7,37 @@ from magic import Magic
 
 m = Magic(mime=True)
 
+class position():
+    def __init__(self, pos, text_h, line_gap=1.25, edging=0.025):
+        self.pos = pos.lower()
+        self.text_h = text_h
+        self.spacing = line_gap * text_h
+        self.edging = edging
+
+        if self.pos[1] == "l":
+            self.x = 'w*' + str(self.edging)
+        elif self.pos[1] == "m":
+            self.x = '(w-text_w)/2'
+        elif self.pos[1] == "r":
+            self.x = 'w*' + str(1 - self.edging) + '-text_w'
+        else:
+            self.x = 0
+
+    def getYPos(self, i, length):
+        position = self.pos
+        if position[0] == "t":
+            y = 'h*' + str(self.edging) + '+' + str(self.spacing * i)
+        elif position[0] == "m":
+            y = 'h/2+' + str(self.spacing * (i - length/2))
+        elif position[0] == "b":
+            y = 'h*' + str(1 - self.edging) + '+' + str(-self.text_h + self.spacing * (-length + i + 1))
+        else:
+            y = 0
+        return y
+
+    def getXPos(self):
+        return self.x
+
 
 def download_blob(bucket_name, source_blob_name, filetype):
     """Downloads a blob from the bucket."""
@@ -66,19 +97,21 @@ def wraptext(font, fontsize, text, width):
     f = ImageFont.truetype(font, size=fontsize)
     line = ""
     lines = []
+    height = 0
     for i, word in enumerate(text.split(" ")):
         tmpline = line + " " + word
-        if f.getsize(tmpline)[0] < width:
+        size = f.getsize(tmpline)
+        height = max(size[1], height)
+        if size[0] < width:
             line = tmpline
         else:
             lines.append(line.strip())
             line = word
     lines.append(line)
-    return lines
-
+    return lines, height
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
+def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
     # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
@@ -148,6 +181,16 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, a
         valid = False
         return "ERROR Max video length 5 minutes (after applying speed change)"
 
+    max_lines = 0
+    text_h = 0
+    for i, line in enumerate(data):
+        lines, height = wraptext(font, fontsize, line[0], video_width * text_width)
+        text_h = max(text_h, height)
+        data[i].append(lines)
+        max_lines = max(max_lines, len(lines))
+
+    text_offset = position(text_position, text_h)
+
     # Edit audio
     if audio_usable[0] > 0 or audio_usable[1] < audio_stream_duration:
         audio_comp = audio_comp.filter("atrim", start=audio_usable[0], end=audio_usable[1]).filter("asetpts", "PTS-STARTPTS")
@@ -197,16 +240,10 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_offset, video_usable, a
     FADE_DURATION = 0.125
     for i, line in enumerate(data):
         start_text = float(line[1])
+        end_text = float(line[2])
 
-        if len(line) == 3:
-            end_text = float(line[2])
-        else:
-            end_text = data[i+1][1]
-
-        lines = wraptext(font, fontsize, line[0], video_width * 0.9)
-
-        for i, txt in enumerate(lines):
-            video_comp = video_comp.drawtext(fontfile=font, text=txt, fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset, shadowy=shadow_offset, x='((w-text_w)/2)+' + str(text_offset[0]), y='(h-text_h)/2+' + str(text_offset[1]) + "+" + str(i*1.25) + "*line_h", alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + (end_text - start_text)) + '),1,if(lt(t,' + str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
+        for i, txt in enumerate(line[3]):
+            video_comp = video_comp.drawtext(fontfile=font, text=txt, fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset, shadowy=shadow_offset, x=text_offset.getXPos(), y=text_offset.getYPos(i, len(line[3])), alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + (end_text - start_text)) + '),1,if(lt(t,' + str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
 
     print("Running", output_name)
 

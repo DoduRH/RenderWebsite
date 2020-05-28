@@ -191,21 +191,54 @@
 
             <tr>
               <td>
-                <label for="offset_x">Select x offset from center (positive right)</label>
+                <label for="text_position">Text position</label>
               </td>
               <td>
-                <input type="number" id="offset_x" name="offset_x" min="-960" value="0" max="960" step="1" required/>
+                <table>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tl" value="tl" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tm" value="tm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tr" value="tr" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_ml" value="ml" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_mm" value="mm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_mr" value="mr" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bl" value="bl" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bm" value="bm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_br" value="br" required>
+                    </td>
+                  </tr>
+                </table>
               </td>
             </tr>
             <tr>
               <td>
-                <label for="offset_y">Select y offset from center (positive down)</label>
+                <label for="text_width">Max text width</label>
               </td>
               <td>
-                <input type="number" id="offset_y" name="offset_y" min="-540" value="0" max="540" step="1" required/>
+                <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1" required/> %
               </td>
             </tr>
-
 
           </table>
         </div>
