@@ -175,7 +175,11 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
         audio_comp = in_file.audio
     else:
         audio_probe = ffmpeg.probe(audio_loc)
-        audio_comp = ffmpeg.input(audio_loc).audio
+        audio_comp = (
+            ffmpeg
+            .input(audio_loc)
+            .audio
+        )
 
 
     audio_streams = [stream for stream in audio_probe["streams"] if stream["codec_type"] == "audio"]
@@ -215,7 +219,11 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
 
     # Edit audio
     if audio_usable[0] > 0 or audio_usable[1] < audio_stream_duration:
-        audio_comp = audio_comp.filter("atrim", start=audio_usable[0], end=audio_usable[1]).filter("asetpts", "PTS-STARTPTS")
+        audio_comp = (
+            audio_comp
+            .filter("atrim", start=audio_usable[0], end=audio_usable[1])
+            .filter("asetpts", "PTS-STARTPTS")
+        )
 
     if audio_speed != 1:
         audio_comp = audio_comp.filter("atempo", audio_speed)
@@ -246,7 +254,11 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
         video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
 
     if video_usable[0] > 0 or video_usable[1] < video_usable[0] + video_duration:
-        video_comp = video_comp.trim(start=video_usable[0], end=video_usable[1]).setpts("PTS-STARTPTS")
+        video_comp = (
+            video_comp
+            .trim(start=video_usable[0], end=video_usable[1])
+            .setpts("PTS-STARTPTS")
+        )
 
     if crop_vid:
         video_comp = video_comp.trim(start=0, end=audio_duration)
@@ -270,16 +282,29 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
         end_text = float(line[2])
 
         for i, txt in enumerate(line[3]):
-            video_comp = video_comp.drawtext(fontfile=font, text=txt, fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset, shadowy=shadow_offset, x=text_offset.getXPos(), y=text_offset.getYPos(i, len(line[3])), alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + (end_text - start_text)) + '),1,if(lt(t,' + str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
-
+            video_comp = video_comp.drawtext(fontfile=font, text=txt, 
+            fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, 
+            shadowx=shadow_offset, shadowy=shadow_offset, x=text_offset.getXPos(), 
+            y=text_offset.getYPos(i, len(line[3])), 
+            alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + 
+            str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + 
+            str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + 
+            (end_text - start_text)) + '),1,if(lt(t,' + 
+            str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + 
+            '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + 
+            (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
     print("Running", output_name)
 
     video_comp = video_comp
     # composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", crf="28").overwrite_output() # CRF 33 also looks alright
-    composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info").global_args("-nostats").overwrite_output()
+    composition = (
+        ffmpeg
+        .output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info")
+        .global_args("-nostats")
+        .overwrite_output()
+    )
     print(composition.get_args())
 
     composition.run()
-    print(output_name)
     upload_blob("addlyrics-content", output_name, "Video_" + str(vid_id) + ".mp4")
     return "Video_" + str(vid_id) + ".mp4"
