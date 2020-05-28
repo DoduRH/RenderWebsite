@@ -154,7 +154,7 @@ def getSignedURL():
     purpose = request.args.get('purpose')
     if not is_valid_uuid(uuid):
         print("Invalid UUID")
-        error("invalid uuid", uuid)
+        return error("invalid uuid", uuid)
 
     mime = guessmime(filename)[0]
     if purpose == "audioUpload" and ("audio" in mime or "video" in mime):
@@ -163,7 +163,7 @@ def getSignedURL():
         filename = "vid_" + uuid + "." + filename.split(".")[-1]
     else:
         print("Invalid purpose", purpose, mime)
-        error("Invalid purpose", purpose, mime)
+        return error("Invalid purpose", purpose, mime)
 
     blob = uploadBucket.blob(filename)
     url = blob.generate_signed_url(
@@ -191,13 +191,13 @@ def uploader():
 
         filename = get_value(r, 'uuid')
         if not is_valid_uuid(filename):
-            error("Invalid filename", filename)
+            return error("Invalid filename", filename)
         t = filename
 
         video_name = "vid_" + t + "." + get_value(r, 'videoType', "")
         if not check_blob("addlyrics-content", video_name):
             print("Unable to find video")
-            error("error, video upload failed")
+            return error("error, video upload failed")
         else:
             video_size = size_blob(uploadBucketName, video_name)
 
@@ -208,12 +208,12 @@ def uploader():
         else:
             audio_name = "audio_" + t + "." + ext
             if not check_blob("addlyrics-content", audio_name):
-                error("error, audio not uploaded")
+                return error("error, audio not uploaded")
             else:
                 audio_size = size_blob(uploadBucketName, audio_name)
 
         if video_size + audio_size > MAX_MEDIA_SIZE:
-            error("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
+            return error("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
 
         try:
             font_size = int(get_value(r, 'font_size', 50))
@@ -257,10 +257,10 @@ def uploader():
 
         # Make sure usable audio and video are actually usable after uploading CSV blob
         if audio_usable[1] != 0 and audio_usable[1] <= audio_usable[0]:
-            error("Audio timestamps don't make sense")
+            return error("Audio timestamps don't make sense")
         
         if video_usable[1] != 0 and video_usable[1] <= video_usable[0]:
-            error("Video timestamps don't make sense")
+            return error("Video timestamps don't make sense")
 
         # Create arguments for the queue
         args = [str(t), csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
