@@ -121,7 +121,7 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     else:
         data = [["", 0, 0]]
 
-    video_loc = download_blob("addlyrics-content", video_loc, 'video')
+    #video_loc = download_blob("addlyrics-content", video_loc, 'video')
     if audio_loc is None:
         audio_loc = video_loc
     else:
@@ -211,9 +211,16 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     # Set-up video
     video_comp = in_file.video
 
-    if framerate > 30:
-        video_comp = video_comp.filter("fps", min(30, framerate/2))
-        framerate = min(30, framerate/2)
+    if framerate > 30:  # reduce the framerate
+        round_frame = round(framerate)
+        new_rate = 0
+        for i in range(30, 24, -1):  # 30 to 25
+            if round_frame % i == 0:
+                new_rate = i
+                break
+        
+        framerate = max(25, new_rate)
+        video_comp = video_comp.filter("fps", framerate)
 
     if video_speed != 1:
         video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
