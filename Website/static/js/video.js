@@ -1,42 +1,42 @@
-var myVideo = document.getElementById("video1");
+var myVideo = document.getElementById("video1")
 var myImage = document.getElementById("image1")
-var myAudio = document.getElementById("audio1");
-var videoUpload = document.getElementById("videoUpload");
-var audioUpload = document.getElementById("audioUpload");
-var videoType = document.getElementById("videoType");
-var audioType = document.getElementById("audioType");
+var myAudio = document.getElementById("audio1")
+var videoUpload = document.getElementById("videoUpload")
+var audioUpload = document.getElementById("audioUpload")
+var videoType = document.getElementById("videoType")
+var audioType = document.getElementById("audioType")
 
-var videoStart = document.getElementById("vid_start");
-var videoEnd = document.getElementById("vid_end");
-var audioStart = document.getElementById("audio_start");
-var audioEnd = document.getElementById("audio_end");
-var write = document.getElementById("csv");
-var csvHead = document.getElementById("csvHeading");
-var lyrics = document.getElementById("lyricsArea");
-var tbl = document.getElementById("table1");
-var slider_x = document.getElementById("offset_x");
-var slider_y = document.getElementById("offset_y");
-var audioSpeed = document.getElementById("audio_speed");
-var videoSpeed = document.getElementById("vid_speed");
-var previewImg = document.getElementById("previewImg");
-var lastFocus = null;
-var myMedia;
-var tableLength = 0;
-var timerID;
-var c;
-var uploading;
-var vid_id;
+var videoStart = document.getElementById("vid_start")
+var videoEnd = document.getElementById("vid_end")
+var audioStart = document.getElementById("audio_start")
+var audioEnd = document.getElementById("audio_end")
+var write = document.getElementById("csv")
+var csvHead = document.getElementById("csvHeading")
+var lyrics = document.getElementById("lyricsArea")
+var tbl = document.getElementById("table1")
+var slider_x = document.getElementById("offset_x")
+var slider_y = document.getElementById("offset_y")
+var audioSpeed = document.getElementById("audio_speed")
+var videoSpeed = document.getElementById("vid_speed")
+var previewImg = document.getElementById("previewImg")
+var lastFocus = null
+var myMedia
+var tableLength = 0
+var timerID
+var c
+var uploading
+var vid_id
 
-var start_times = [];
-var stop_times = [];
+var start_times = []
+var stop_times = []
 
 function vidChange() {
-    console.log("New video");
-    var reader = new FileReader();
+    console.log("New video")
+    var reader = new FileReader()
     reader.onload = function (e) {
-        console.log("Set as source");
-        myVideo.closest('#tab').hidden = false;
-        myVideo.parentElement.hidden = false;
+        console.log("Set as source")
+        myVideo.closest('#tab').hidden = false
+        myVideo.parentElement.hidden = false
 
         if (videoUpload.files[0].type.includes("video")) {
             myImage.hidden = true
@@ -44,8 +44,8 @@ function vidChange() {
             if (myAudio.src == "") {
                 myMedia = myVideo
             }
-            myVideo.src = this.result;
-            changeSpeed(myVideo, videoSpeed.value);
+            myVideo.src = this.result
+            changeSpeed(myVideo, videoSpeed.value)
 
             videoStart.max = myVideo.duration
             videoEnd.max = myVideo.duration
@@ -55,45 +55,45 @@ function vidChange() {
 
             myImage.src = this.result
         }
-    };
-    reader.readAsDataURL(videoUpload.files[0]);
-};
+    }
+    reader.readAsDataURL(videoUpload.files[0])
+}
 
 function audioChange() {
-    console.log("New audio");
-    var reader = new FileReader();
+    console.log("New audio")
+    var reader = new FileReader()
     reader.onload = function (e) {
-        console.log("Set as source");
-        myAudio.src = this.result;
-        myAudio.closest('#tab').hidden = false;
+        console.log("Set as source")
+        myAudio.src = this.result
+        myAudio.closest('#tab').hidden = false
 
-        myMedia = myAudio;
+        myMedia = myAudio
 
-        audioStart.max = myAudio.duration;
-        audioEnd.max = myAudio.duration;
-    };
+        audioStart.max = myAudio.duration
+        audioEnd.max = myAudio.duration
+    }
 
-    reader.readAsDataURL(audioUpload.files[0]);
-};
+    reader.readAsDataURL(audioUpload.files[0])
+}
 
 function changeSpeed(elm, s) {
-    elm.playbackRate = s;
+    elm.playbackRate = s
 }
 
 audio_speed.onchange = function () {
-    console.log("Changed speed of audio");
-    changeSpeed(myAudio, audioSpeed.value);
-};
+    console.log("Changed speed of audio")
+    changeSpeed(myAudio, audioSpeed.value)
+}
 
 vid_speed.onchange = function () {
-    console.log("Changed speed of video");
-    changeSpeed(myVideo, videoSpeed.value);
-};
+    console.log("Changed speed of video")
+    changeSpeed(myVideo, videoSpeed.value)
+}
 
 myVideo.onplay = (e) => {
     if (myVideo == myMedia) {
         console.log("Playing media")
-        timerID = setInterval(update_highlight, 100);
+        timerID = setInterval(update_highlight, 100)
     }
 }
 
@@ -108,7 +108,7 @@ myVideo.onpause = (e) => {
 myVideo.onseeking = (e) => {
     if (myVideo == myMedia) {
         console.log("Playing media")
-        timerID = setInterval(update_highlight, 100);
+        timerID = setInterval(update_highlight, 100)
     }
 }
 
@@ -123,7 +123,7 @@ myVideo.onseeked = (e) => {
 myAudio.onplay = (e) => {
     if (myAudio == myMedia) {
         console.log("Playing media")
-        timerID = setInterval(update_highlight, 100);
+        timerID = setInterval(update_highlight, 100)
     }
 }
 
@@ -138,7 +138,7 @@ myAudio.onpause = (e) => {
 myAudio.onseeking = (e) => {
     if (myAudio == myMedia) {
         console.log("Playing media")
-        timerID = setInterval(update_highlight, 100);
+        timerID = setInterval(update_highlight, 100)
     }
 }
 
@@ -153,19 +153,18 @@ myAudio.onseeked = (e) => {
 function media_set() {
     console.log("Media change")
     myMedia.onchange = (e) => {
-
-    };
-};
+    }
+}
 
 function textAreaAdjust(o) {
-    o.style.width = "1px";
-    o.style.width = Math.max((25 + o.scrollWidth), 253) + "px";
-    o.style.height = "1px";
-    o.style.height = Math.max(5 + (o.scrollHeight), 25) + "px";
+    o.style.width = "1px"
+    o.style.width = Math.max((25 + o.scrollWidth), 253) + "px"
+    o.style.height = "1px"
+    o.style.height = Math.max(5 + (o.scrollHeight), 25) + "px"
 }
 
 function previewFrame() {
-    previewImg.hidden = true;
+    previewImg.hidden = true
 
     maincol = document.getElementById("textColour").value.replace("#", "")
     visible = document.getElementById("visibleShadow").checked
@@ -174,7 +173,7 @@ function previewFrame() {
     offsetx = document.getElementById("offset_x").value
     offsety = document.getElementById("offset_y").value
     if (myVideo.videoWidth == 0) {
-        console.log("No preview for you");
+        console.log("No preview for you")
         showElementError(videoUpload, "Please upload a video")
         return
     } else {
@@ -192,53 +191,53 @@ function previewFrame() {
         "&dimx=" + dimx +
         '&dimy=' + dimy
 
-    previewImg.src = address;
-    previewImg.hidden = false;
+    previewImg.src = address
+    previewImg.hidden = false
 }
 
 function focusOnNoScoll(elm) {
-    console.log("Changing focus without scroll");
-    x = window.scrollX;
-    y = window.scrollY;
-    elm.focus();
-    window.scrollTo(x, y);
+    console.log("Changing focus without scroll")
+    x = window.scrollX
+    y = window.scrollY
+    elm.focus()
+    window.scrollTo(x, y)
 }
 
 function time_start() {
-    console.log("Start: " + myMedia.currentTime);
-    start_times.push(myMedia.currentTime);
+    console.log("Start: " + myMedia.currentTime)
+    start_times.push(myMedia.currentTime)
 
     if (lastFocus == null) {
-        lastFocus = document.getElementById("start_0");
+        lastFocus = document.getElementById("start_0")
     }
     if (lastFocus.id.startsWith("stop")) {
         lastFocus = document.getElementById(
             "start_" + (parseInt(lastFocus.id.split("_")[1]) + 1)
-        );
+        ) // this may be an issue
     }
 
-    lastFocus.value = myMedia.currentTime.toFixed(2);
+    lastFocus.value = myMedia.currentTime.toFixed(2)
     focusOnNoScoll(
         document.getElementById(
             "stop_" + parseInt(lastFocus.id.split("_")[1])
         )
-    );
+    )
 }
 
 function time_stop() {
-    console.log("Stop: " + myMedia.currentTime);
-    stop_times.push(myMedia.currentTime);
+    console.log("Stop: " + myMedia.currentTime)
+    stop_times.push(myMedia.currentTime)
 
     if (lastFocus == null) {
-        lastFocus = document.getElementById("start_0");
+        lastFocus = document.getElementById("start_0")
     }
     if (lastFocus.id.startsWith("start")) {
         lastFocus = document.getElementById(
             "stop_" + lastFocus.id.split("_")[1]
-        );
+        ) // this may be an issue
     }
 
-    lastFocus.value = myMedia.currentTime.toFixed(2);
+    lastFocus.value = myMedia.currentTime.toFixed(2)
 
     if (
         lyrics.value.split("\n").length >
@@ -248,42 +247,42 @@ function time_stop() {
             document.getElementById(
                 "start_" + (parseInt(lastFocus.id.split("_")[1]) + 1)
             )
-        );
+        )
     }
 }
 
 function numLostFocus(num) {
-    console.log("Changing focus to " + num);
-    lastFocus = num;
+    console.log("Changing focus to " + num)
+    lastFocus = num
 }
 
 function updated() {
-    console.log("Updating table");
-    textAreaAdjust(lyrics);
+    console.log("Updating table")
+    textAreaAdjust(lyrics)
     if (lyrics.value == "") {
-        tbl.parentElement.parentElement.hidden = true;
+        tbl.parentElement.parentElement.hidden = true
         document.getElementById("text_tl").required = false
     } else {
         document.getElementById("text_tl").required = true
-        lines = lyrics.value.split("\n");
-        console.log(lines);
+        lines = lyrics.value.split("\n")
+        console.log(lines)
         output_tbl =
             "<tr><th>Line</th>" +
             '<th><button onclick="time_start()">Start</button></th>' +
-            '<th><button onclick="time_stop()">Stop</button></th></tr>';
+            '<th><button onclick="time_stop()">Stop</button></th></tr>' // this may be an issue
 
-        tbl.parentElement.parentElement.hidden = false;
-        start_times = [];
-        stop_times = [];
+        tbl.parentElement.parentElement.hidden = false
+        start_times = []
+        stop_times = []
         if (tableLength > 0) {
             for (let i = 0; i < tableLength; i++) {
-                const line = lines[i];
-                start_times.push(document.getElementById("start_" + i).value);
-                stop_times.push(document.getElementById("stop_" + i).value);
+                const line = lines[i]
+                start_times.push(document.getElementById("start_" + i).value)
+                stop_times.push(document.getElementById("stop_" + i).value)
             }
         }
 
-        i = 0;
+        i = 0
         lines.forEach((line) => {
             output_tbl +=
                 "<tr><td>" +
@@ -296,29 +295,22 @@ function updated() {
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(stop_' +
                 i +
-                ')"> </td></tr>';
+                ')"> </td></tr>'
 
-            i++;
-        });
-        console.log(start_times, stop_times);
+            i++
+        })
+        console.log(start_times, stop_times)
 
-        tableLength = lines.length;
+        tableLength = lines.length
 
-        tbl.innerHTML = output_tbl;
+        tbl.innerHTML = output_tbl
         if (Math.min(start_times.length, lines.length) > 0) {
             for (let j = 0; j < Math.min(start_times.length, lines.length); j++) {
-                const line = lines[j];
-                console.log(
-                    "Setting line " +
-                    j +
-                    " to " +
-                    start_times[j] +
-                    ", " +
-                    stop_times[j]
-                );
+                const line = lines[j]
+                console.log("Setting line " + j + " to " + start_times[j] + ", " + stop_times[j])
 
-                document.getElementById("start_" + j).value = start_times[j];
-                document.getElementById("stop_" + j).value = stop_times[j];
+                document.getElementById("start_" + j).value = start_times[j]
+                document.getElementById("stop_" + j).value = stop_times[j]
             }
         }
     }
@@ -352,31 +344,31 @@ function fillTime() {
 }
 
 function numberUpdate(curId) {
-    console.log("Checking value");
+    console.log("Checking value")
 
     if (curId.value != "") {
         if (myMedia == null) {
-            dur = 1000000;
+            dur = 1000000
         } else {
-            dur = myMedia.duration.toFixed(2);
+            dur = myMedia.duration.toFixed(2)
         }
-        curId.value = Math.min(dur, Math.max(0, curId.value)).toFixed(2);
+        curId.value = Math.min(dur, Math.max(0, curId.value)).toFixed(2)
     }
 }
 
 function vidStartCheck(curId) {
     if (curId.value != "") {
         if (myVideo == null) {
-            dur = 1000000;
+            dur = 1000000
         } else {
-            dur = myVideo.duration.toFixed(2);
+            dur = myVideo.duration.toFixed(2)
         }
-        curId.value = Math.min(dur, Math.max(0, curId.value)).toFixed(2);
+        curId.value = Math.min(dur, Math.max(0, curId.value)).toFixed(2)
     }
 }
 
 function fontCheck(curId, min, max) {
-    curId.value = Math.min(max, Math.max(min, curId.value)).toFixed();
+    curId.value = Math.min(max, Math.max(min, curId.value)).toFixed()
 }
 
 function showElementError(elm, msg) {
@@ -388,43 +380,43 @@ function showElementError(elm, msg) {
 }
 
 function done() {
-    console.log("Creating CSV");
+    console.log("Creating CSV")
 
-    csv = "";
-    i = 0;
+    csv = ""
+    i = 0
 
-    lines = lyrics.value.split("\n");
-    console.log(lines);
+    lines = lyrics.value.split("\n")
+    console.log(lines)
 
     if (!(lines.length == 1 && lines[0].trim() == "")) {
         lines.forEach((line) => {
-            start_time = document.getElementById("start_" + i).value;
-            stop_time = document.getElementById("stop_" + i).value;
+            start_time = document.getElementById("start_" + i).value
+            stop_time = document.getElementById("stop_" + i).value
 
             if (stop_time == "") {
                 if (lines.length > i + 1) {
-                    stop_time = document.getElementById("start_" + (i + 1)).value;
+                    stop_time = document.getElementById("start_" + (i + 1)).value
                 } else {
                     if (myMedia != null) {
-                        stop_time = myMedia.duration;
+                        stop_time = myMedia.duration
                     } else {
-                        stop_time = "";
+                        stop_time = ""
                     }
                 }
             }
 
-            csv += '"' + line + '", ' + start_time + ", " + stop_time + "\r";
+            csv += '"' + line + '", ' + start_time + ", " + stop_time + "\r"
 
-            i++;
-        });
+            i++
+        })
     }
 
-    write.value = csv;
+    write.value = csv
 }
 
 function getAudioDuration() {
     content = getAudioSource()
-    
+
     audioStartTime = document.getElementById("audio_start").value
     if (audioEnd.value == 0) {
         audioEndTime = content.duration
@@ -481,19 +473,19 @@ function checkForm() {
 
         // Check order of items
         for (let i = 0; i < lyrics.value.split("\n").length; i++) {
-            start_elm = document.getElementById("start_" + i);
-            stop_elm = document.getElementById("stop_" + i);
+            start_elm = document.getElementById("start_" + i)
+            stop_elm = document.getElementById("stop_" + i)
             if (
                 parseFloat(start_elm.value) >=
                 parseFloat(stop_elm.value)
             ) {
                 showElementError(start_elm, "Stop is before start")
-                return false;
+                return false
             }
 
             else if (parseFloat(stop_elm.value) > getDuration()) {
                 showElementError(start_elm, "Must be less than than " + getDuration())
-                return false;
+                return false
             }
         }
     }
@@ -507,12 +499,12 @@ function checkForm() {
 }
 
 async function uploadElement(elm) {
-    filename = elm.files[0].name;
+    filename = elm.files[0].name
     const response = await fetch('/getSignedURL?uuid=' + vid_id + "&filename=" + filename + "&purpose=" + elm.id)
     if (!await response.ok) {
-        throw new Error('Network response for fetch was not ok.');
+        throw new Error('Network response for fetch was not ok.')
     }
-    c = await response.text();
+    c = await response.text()
     url = c.replace(/\"/g, "")
     console.log("Got signedURL: " + url)
     console.log("Trying to upload " + filename)
@@ -526,11 +518,11 @@ async function uploadElement(elm) {
     const finished = sent.ok
     if (finished) {
         console.log("Complete")
-        return true;
+        return true
     } else {
         console.log("Failed upload of " + elm.files[0].name)
         alert("Failed upload of " + elm.files[0].name)
-        return false;
+        return false
     }
 }
 
@@ -539,8 +531,8 @@ function htmlValidation() {
     for (const elm of inputs) {
         elm.setCustomValidity("")
         if (elm.type != 'file' && !elm.checkValidity()) {
-                showElementError(elm, elm.validationMessage)
-                return false
+            showElementError(elm, elm.validationMessage)
+            return false
         }
     }
     return true
@@ -662,11 +654,11 @@ function hide(t, media = false) {
 }
 
 function update_highlight() {
-    var rows = tbl.getElementsByTagName('tr');
-    var upper;
+    var rows = tbl.getElementsByTagName('tr')
+    var upper
     for (var i = 1; i < rows.length; i++) {
         row = rows[i]
-        cols = row.getElementsByTagName('td');
+        cols = row.getElementsByTagName('td')
 
         // Stop value not there
         if (cols[2].children[0].value == "") {
@@ -695,9 +687,9 @@ function update_highlight() {
 
         // currentTime between start and stop times
         if (lower < myMedia.currentTime && myMedia.currentTime < upper) {
-            row.className = "highlight";
+            row.className = "highlight"
         } else {
-            row.className = "";
+            row.className = ""
         }
     }
 }
@@ -709,4 +701,4 @@ async function getID() {
 document.addEventListener('DOMContentLoaded', function () {
     textAreaAdjust(lyrics)
     getID()
-}, false);
+}, false)
