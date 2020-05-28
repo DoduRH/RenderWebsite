@@ -143,6 +143,9 @@ def prev():
 
     return send_file(img_loc)
 
+@app.route('/getUUID')
+def getUUID():
+    return json.dumps(str(uuid4()))
 
 @app.route('/getSignedURL')
 def getSignedURL():
@@ -171,8 +174,7 @@ def getSignedURL():
 
 @app.route("/video")
 def render_video_page():
-    t = uuid4()
-    return render_template('video.html', vid_id=t)
+    return app.send_static_file('html/video.html')
 
 
 @app.route('/hold/<vid_id>')

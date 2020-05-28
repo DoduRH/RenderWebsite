@@ -24,6 +24,7 @@ var tableLength = 0;
 var timerID;
 var c;
 var uploading;
+var vid_id;
 
 var start_times = [];
 var stop_times = [];
@@ -686,6 +687,11 @@ function update_highlight() {
     }
 }
 
+async function getID() {
+    vid_id = (await (await fetch('getUUID')).text()).replace(/"/g, "")
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     textAreaAdjust(lyrics)
+    getID()
 }, false);

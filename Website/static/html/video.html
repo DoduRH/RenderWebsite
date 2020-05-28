@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Flask app</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
+
+<body>
+  <main>
+    <aside>
+      <div class="capsule" hidden>
+        <h3>Errors</h3>
+        <p id="errorDisplay"></p>
+      </div>
+      <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
+        <div class="capsule">
+          <h3 class=noselect onclick="hide(this)">Video Settings</h3>
+          <table id=tab hidden>
+            <tr>
+              <td>
+                <label for="videoUpload">Upload Video</label>
+              </td>
+              <td>
+                <input type="file" id="videoUpload" accept="video/*" onchange="vidChange()"/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="vid_start">Time to start the video</label>
+              </td>
+              <td>
+                <input type="number" id="vid_start" name="vid_start" min="0" value="0" max="100000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="vid_end">Time to end the video (0 means leave untill the end)</label>
+              </td>
+              <td>
+                <input type="number" id="vid_end" name="vid_end" min="0" value="0" max="100000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="vid_speed">Video playback speed</label>
+              </td>
+              <td>
+                <input type="number" id="vid_speed" name="vid_speed" min="0.01" value="1" step="0.01" max="10" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="fade_in">Number of seconds for fade at the start</label>
+              </td>
+              <td>
+                <input type="number" id="fade_in" name="fade_in" min="0" value="0" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="fade_out">Number of seconds for fade at the end</label>
+              </td>
+              <td>
+                <input type="number" id="fade_out" name="fade_out" min="0" value="0" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for=crop_vid>Crop Video to match audio length?</label>
+              </td>
+              <td>
+                <input type="checkbox" id="crop_vid" name="crop_vid" checked/>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+
+        <div class="capsule">
+          <h3 class=noselect onclick="hide(this)">Audio Settings</h3>
+          <table id=tab hidden>
+            <tr>
+              <td>
+                <label for="audioUpload">Upload Audio (Optional)</label>
+              </td>
+              <td>
+                <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()"/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="audio_start">Time to start the audio</label>
+              </td>
+              <td>
+                <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01" max="100000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="audio_end">Time to end the audio</label>
+              </td>
+              <td>
+                <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01" max="100000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="audio_speed">Audio playback speed</label>
+              </td>
+              <td>
+                <input type="number" id="audio_speed" name="audio_speed" min="0.5" value="1" step="0.01" max="2"
+                  required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for=crop_aud>Crop Audio to match video length?</label>
+              </td>
+              <td>
+                <input type="checkbox" id="crop_aud" name="crop_aud" />
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="audio_fade_in">Fade audio in (seconds)</label>
+              </td>
+              <td>
+                <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="audio_fade_out">Fade audio out (seconds)</label>
+              </td>
+              <td>
+                <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                Caclculate speed to match video time to audio time
+              </td>
+              <td>
+                <button type="button" onclick="fillTime()">Go</button>
+              </td>
+            </tr>
+
+          </table>
+        </div>
+
+        <div class="capsule">
+          <h3 class=noselect onclick="hide(this)">Text Settings</h3>
+          <table id=tab hidden>
+            <tr>
+              <td>
+                <label for="font_size">Font size</label>
+              </td>
+              <td>
+                <input type="number" id="font_size" name="font_size" min="1" value="100" max="1000" step="1" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="textColour">Choose the colour of the text</label>
+              </td>
+              <td>
+                <input id="textColour" name="textColour" type="color" value="#ffffff" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="shadowColour">Choose the colour of the shadow</label>
+              </td>
+              <td>
+                <input id="shadowColour" name="shadowColour" type="color" value="#000000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="visibleShadow">View a shadow behind the text?</label>
+              </td>
+              <td>
+                <input type="checkbox" id="visibleShadow" name="visibleShadow" checked/>
+              </td>
+            </tr>
+
+            <tr>
+              <td>
+                <label for="text_position">Text position</label>
+              </td>
+              <td>
+                <table>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tl" value="tl" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tm" value="tm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_tr" value="tr" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_ml" value="ml" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_mm" value="mm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_mr" value="mr" required>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bl" value="bl" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_bm" value="bm" required>
+                    </td>
+                    <td>
+                      <input type="radio" name="text_position" id="text_br" value="br" required>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="text_width">Max text width</label>
+              </td>
+              <td>
+                <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1" required/> %
+              </td>
+            </tr>
+
+          </table>
+        </div>
+        <div class="capsule" id=tab hidden>
+          <h3 class=noselect onclick="hide(this, true)">Uploaded Video</h3>
+          <div>
+            <video id="video1" width=100% controls>
+              Please upload a video
+            </video>
+          </div>
+        </div>
+        <div class="capsule" id=tab hidden>
+          <h3 class=noselect onclick="hide(this, true)">Uploaded Audio</h3>
+          <div>
+            <audio id="audio1" controls>
+              Please upload an mp3
+            </audio>
+          </div>
+        </div>
+        <div class="capsule">
+          <h3 class=noselect onclick="hide(this)">Preview frame</h3>
+          <div id=tab hidden>
+            <img id="previewImg" width="100%" src="" hidden /><br />
+            <button type="button" onclick="previewFrame()">Preview</button><br />
+          </div>
+        </div>
+        <h1 id="csvHeading" hidden>CSV to copy</h1>
+        <textarea type="text" id="csv" name="csvFile" value="" readonly hidden>
+          </textarea>
+        <div class="capsule">
+          <h3 id="submitbutton" class="noselect" onclick="submitForm()">Submit</h3>
+        </div>
+        </div>
+
+        <input type="text" id="videoType" name="videoType" readonly hidden>
+        <input type="text" id="audioType" name="audioType" readonly hidden>
+        <input type="text" id="uuid" name="uuid" readonly hidden>        
+      </form>
+    </aside>
+
+    <section hidden>
+      <article>
+        <h2>Timing</h2>
+        <table id="table1"></table>
+      </article>
+    </section>
+    <section>
+      <article>
+        <h2>Lyrics</h2>
+        <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off" onkeyup="textAreaAdjust(this)"
+          placeholder="Insert the lyrics of the song here" onchange="updated()"></textarea>
+      </article>
+    </section>
+  </main>
+</body>
+
+<script src="/static/js/video.js"></script>
+</html>
