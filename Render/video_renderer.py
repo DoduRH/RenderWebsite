@@ -307,5 +307,11 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
 
     composition.run()
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
+    
     os.remove(output_name)
+    os.remove(video_loc)
+    os.remove(words_loc)
+    if video_loc != audio_loc:
+        os.remove(audio_loc)
+
     return "VideoOutput_" + str(video_id) + ".mp4"
