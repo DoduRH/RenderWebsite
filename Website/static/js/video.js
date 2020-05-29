@@ -163,31 +163,51 @@ function textAreaAdjust(o) {
     o.style.height = Math.max(5 + (o.scrollHeight), 25) + "px"
 }
 
+function getRadioValue(name) {
+    items = document.getElementsByName(name)
+    for (let i = 1; i < items.length; i++) {
+        if (items[i].checked) {
+            return items[i].value
+        }
+    }
+    return false
+}
+
 function previewFrame() {
     previewImg.hidden = true
+    radioValue = getRadioValue("text_position")
+    if (videoUpload.files.length == 0) {
+        console.log("No preview for you")
+        showElementError(videoUpload, "Please upload a video")
+        return
+    } else if (!htmlValidation()) {
+        return
+    } else if (!radioValue){
+        showElementError(document.getElementById("text_mm"), "Please select the position of the preview text")
+    } else {
+        if(videoUpload.files[0].type.includes("video")){
+        dimx = myVideo.videoWidth
+        dimy = myVideo.videoHeight
+        } else {
+            dimx = myImage.naturalHeight
+            dimy = myImage.naturalWidth
+        }
+    }
 
     maincol = document.getElementById("textColour").value.replace("#", "")
     visible = document.getElementById("visibleShadow").checked
     shadow = document.getElementById("shadowColour").value.replace("#", "")
     size = document.getElementById("font_size").value
-    offsetx = document.getElementById("offset_x").value
-    offsety = document.getElementById("offset_y").value
-    if (myVideo.videoWidth == 0) {
-        console.log("No preview for you")
-        showElementError(videoUpload, "Please upload a video")
-        return
-    } else {
-        dimx = myVideo.videoWidth
-        dimy = myVideo.videoHeight
-    }
+    position = radioValue
+    maxWidth = document.getElementById("text_width").value
 
     address = '/prev' +
         '?maincol=' + maincol +
         "&visible=" + visible +
         "&shadow=" + shadow +
         '&fontsize=' + size +
-        "&offsetx=" + offsetx +
-        '&offsety=' + offsety +
+        "&position=" + position +
+        '&maxWidth=' + maxWidth +
         "&dimx=" + dimx +
         '&dimy=' + dimy
 

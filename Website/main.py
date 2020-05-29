@@ -127,16 +127,21 @@ def delay_delete(delay, path):
 @app.route("/prev")
 def prev():
     r = request
-    maincol = get_args(r, "maincol", "ffffff")
-    visible = get_args(r, "visible", "true") == "true"
-    shadow = get_args(r, "shadow", "000000")
-    fontsize = get_args(r, "fontsize", 100)
-    offsetx = get_args(r, "offsetx", 0)
-    offsety = get_args(r, "offsety", 0)
-    dimx = get_args(r, "dimx", 1920)
-    dimy = get_args(r, "dimy", 1080)
+    try:
+        maincol = '#' + get_args(r, "maincol", "ffffff")
+        visible = bool(get_args(r, "visible", "true") == "true")
+        shadow = '#' + get_args(r, "shadow", "000000")
+        fontsize = int(get_args(r, "fontsize", 100))
+        position = get_args(r, "position", "mm")
+        max_width = int(get_args(r, "maxWidth", 90)) / 100
+        dimentions = (int(get_args(r, "dimx", 1920)), int(get_args(r, "dimy", 1080)))
+    except ValueError:
+        return "ERROR: unable to process arguments"  # make this an image eventually
 
-    img_loc = generate_img('#' + maincol, bool(visible), '#' + shadow, int(fontsize), (int(offsetx), int(offsety)), (int(dimx), int(dimy)))
+    img_loc = generate_img(maincol, visible, shadow, fontsize, position, max_width, dimentions)
+
+    if 'error' in img_loc.lower():
+        return img_loc
 
     del_thread = threading.Thread(target=delay_delete, args=(5, img_loc))
     del_thread.start()
