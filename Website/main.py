@@ -33,13 +33,16 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
+    print(
+        "Uploading file {} to {}.".format(
+            source_file_name, destination_blob_name
+        ),
+        end=""
+    )
+
     blob.upload_from_filename(source_file_name)
 
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
-        )
-    )
+    print("Success")
 
 
 def check_blob(bucket_name, blob_name):

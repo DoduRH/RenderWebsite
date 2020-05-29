@@ -49,6 +49,13 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     destination_file_name = "/tmp/" + source_blob_name
 
+    print(
+        "Downloading blob {} to {} - ".format(
+            source_blob_name, destination_file_name
+        ),
+        end=""
+    )
+
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
@@ -63,18 +70,10 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     if fname not in mimetype and not valid:
         os.remove(destination_file_name)
-        print(
-            "Blob {} deleted because mimetype didnt match".format(
-                destination_file_name
-            )
-        )
+        print("Failed because mimetype didnt match")
         destination_file_name = ""
     else:
-        print(
-            "Blob {} downloaded to {}".format(
-                source_blob_name, destination_file_name
-            )
-        )
+        print("Success")
     if giveType:
         return destination_file_name, mimetype
     else:
@@ -91,13 +90,24 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
+    print(
+        "Uploading file {} to {} - ".format(
+            source_file_name, destination_blob_name
+        ),
+        end=""
+    )
+
     blob.upload_from_filename(source_file_name)
 
-    print(
-        "File {} uploaded to {}.".format(
-            source_file_name, destination_blob_name
-        )
-    )
+    print("Success")
+
+def delete_files(files):
+    filenames = []
+    for f in files:
+        if os.path.exists(f):
+            os.remove(f)
+            filenames.append(f)
+    print("Deleted files: ", ", ".join(filenames))
 
 
 def wraptext(font, fontsize, text, width):
@@ -293,7 +303,6 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
             str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + 
             '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + 
             (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
-    print("Running", output_name)
 
     video_comp = video_comp
     # composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", crf="28").overwrite_output() # CRF 33 also looks alright
@@ -307,11 +316,7 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
 
     composition.run()
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
-    
-    os.remove(output_name)
-    os.remove(video_loc)
-    os.remove(words_loc)
-    if video_loc != audio_loc:
-        os.remove(audio_loc)
+
+    delete_files([output_name, video_loc, words_loc, audio_loc])        
 
     return "VideoOutput_" + str(video_id) + ".mp4"
