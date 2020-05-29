@@ -150,6 +150,9 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
 
     video_probe = ffmpeg.probe(video_loc)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
+    if len(video_streams) == 0:
+        return "ERROR: no video stream detected"
+
     if "video" in visual_type:
         in_file = ffmpeg.input(video_loc)
         bitrate = eval(video_streams[0]['bit_rate'])
