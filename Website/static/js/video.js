@@ -409,29 +409,41 @@ function done() {
     console.log(lines)
 
     if (!(lines.length == 1 && lines[0].trim() == "")) {
-        lines.forEach((line) => {
+        for (let i = 0; i < lines.length; i++) {
             start_time = document.getElementById("start_" + i).value
             stop_time = document.getElementById("stop_" + i).value
+            if (start_time == "") {
+                showElementError(document.getElementById("start_" + i), "Please enter a start time for this line")
+                return false
+            }
 
             if (stop_time == "") {
                 if (lines.length > i + 1) {
                     stop_time = document.getElementById("start_" + (i + 1)).value
+                    if (stop_time <= start_time) {
+                        showElementError(document.getElementById("start_" + i), "Timing error here")
+                        return false
+                    }
                 } else {
                     if (myMedia != null) {
+                        if (start_time == "") {
+                            showElementError(document.getElementById("start_" + i), "Please enter a start time for this line")
+                            return false
+                        }
                         stop_time = myMedia.duration
                     } else {
-                        stop_time = ""
+                        showElementError(videoUpload, "Please upload a video")
+                        return false
                     }
                 }
             }
 
-            csv += '"' + line + '", ' + start_time + ", " + stop_time + "\r"
-
-            i++
-        })
+            csv += '"' + lines[i] + '", ' + start_time + ", " + stop_time + "\r"
+        }
     }
 
     write.value = csv
+    return true
 }
 
 function getAudioDuration() {
@@ -489,7 +501,9 @@ function checkForm() {
     if (lyrics.value.trim() == "") {
         write.value = ""
     } else {
-        done()
+        if (!done()){
+            return false
+        }
 
         // Check order of items
         for (let i = 0; i < lyrics.value.split("\n").length; i++) {

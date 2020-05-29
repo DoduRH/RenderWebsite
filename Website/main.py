@@ -246,7 +246,10 @@ def uploader():
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
 
         if csv_contents != '':
-            data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
+            try:
+                data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
+            except:
+                return error("Error, unable to interpret read timings")
 
             if audio_speed != 1 or audio_usable[0] != 0:
                 for i, row in enumerate(data):
