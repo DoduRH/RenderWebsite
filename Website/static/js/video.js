@@ -6,8 +6,8 @@ var audioUpload = document.getElementById("audioUpload")
 var videoType = document.getElementById("videoType")
 var audioType = document.getElementById("audioType")
 
-var videoStart = document.getElementById("vid_start")
-var videoEnd = document.getElementById("vid_end")
+var videoStart = document.getElementById("video_start")
+var videoEnd = document.getElementById("video_end")
 var audioStart = document.getElementById("audio_start")
 var audioEnd = document.getElementById("audio_end")
 var write = document.getElementById("csv")
@@ -17,7 +17,7 @@ var tbl = document.getElementById("table1")
 var slider_x = document.getElementById("offset_x")
 var slider_y = document.getElementById("offset_y")
 var audioSpeed = document.getElementById("audio_speed")
-var videoSpeed = document.getElementById("vid_speed")
+var videoSpeed = document.getElementById("video_speed")
 var previewImg = document.getElementById("previewImg")
 var lastFocus = null
 var myMedia
@@ -25,12 +25,12 @@ var tableLength = 0
 var timerID
 var c
 var uploading
-var vid_id
+var video_id
 
 var start_times = []
 var stop_times = []
 
-function vidChange() {
+function videoChange() {
     console.log("New video")
     var reader = new FileReader()
     reader.onload = function (e) {
@@ -85,7 +85,7 @@ audio_speed.onchange = function () {
     changeSpeed(myAudio, audioSpeed.value)
 }
 
-vid_speed.onchange = function () {
+video_speed.onchange = function () {
     console.log("Changed speed of video")
     changeSpeed(myVideo, videoSpeed.value)
 }
@@ -351,7 +351,7 @@ function fillTime() {
 
     audioDuration = getAudioDuration(content)
 
-    videoStartTime = document.getElementById("vid_start").value
+    videoStartTime = document.getElementById("video_start").value
     if (videoEnd.value == 0) {
         videoEndTime = myVideo.duration
     } else {
@@ -359,8 +359,8 @@ function fillTime() {
     }
     videoSpeed.value = ((videoEndTime - videoStartTime) / audioDuration).toFixed(2)
 
-    document.getElementById("crop_vid").checked = true
-    document.getElementById("crop_aud").checked = true
+    document.getElementById("crop_video").checked = true
+    document.getElementById("crop_audio").checked = true
 }
 
 function numberUpdate(curId) {
@@ -376,7 +376,7 @@ function numberUpdate(curId) {
     }
 }
 
-function vidStartCheck(curId) {
+function videoStartCheck(curId) {
     if (curId.value != "") {
         if (myVideo == null) {
             dur = 1000000
@@ -447,7 +447,7 @@ function getAudioDuration() {
 }
 
 function getVideoDuration() {
-    videoStartTime = document.getElementById("vid_start").value
+    videoStartTime = document.getElementById("video_start").value
     if (videoEnd.value == 0) {
         videoEndTime = myVideo.duration
     } else {
@@ -469,8 +469,8 @@ function getDuration() {
     videoDuration = getVideoDuration()
     audioDuration = getAudioDuration()
 
-    cropVideo = document.getElementById("crop_vid").checked
-    cropAudio = document.getElementById("crop_aud").checked
+    cropVideo = document.getElementById("crop_video").checked
+    cropAudio = document.getElementById("crop_audio").checked
 
     if (cropVideo && cropAudio) {
         duration = Math.min(videoDuration, audioDuration)
@@ -520,7 +520,7 @@ function checkForm() {
 
 async function uploadElement(elm) {
     filename = elm.files[0].name
-    const response = await fetch('/getSignedURL?uuid=' + vid_id + "&filename=" + filename + "&purpose=" + elm.id)
+    const response = await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + filename + "&purpose=" + elm.id)
     if (!await response.ok) {
         throw new Error('Network response for fetch was not ok.')
     }
@@ -653,7 +653,7 @@ async function submitForm() {
     }
 
     if (valid) {
-        document.getElementById("uuid").value = vid_id
+        document.getElementById("uuid").value = video_id
         document.getElementById("submitbutton").innerHTML = "Submitting From Data..."
         document.getElementById("theform").submit()
     } else {
@@ -715,7 +715,7 @@ function update_highlight() {
 }
 
 async function getID() {
-    vid_id = (await (await fetch('getUUID')).text()).replace(/"/g, "")
+    video_id = (await (await fetch('getUUID')).text()).replace(/"/g, "")
 }
 
 document.addEventListener('DOMContentLoaded', function () {

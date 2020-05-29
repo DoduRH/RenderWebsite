@@ -118,8 +118,8 @@ def wraptext(font, fontsize, text, width):
     return lines, height
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud):
-    # print("Starting render", vid_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
+def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
+    # print("Starting render", video_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_video, crop_audio)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
         words_loc = download_blob("addlyrics-content", words_loc, ('text'))
@@ -136,7 +136,7 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     else:
         audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
 
-    output_name = "/tmp/Video_" + str(vid_id) + ".mp4"
+    output_name = "/tmp/VideoOutput_" + str(video_id) + ".mp4"
 
     video_probe = ffmpeg.probe(video_loc)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
@@ -194,11 +194,11 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     if "image" in visual_type:
         duration = video_duration = audio_duration
     else:
-        if crop_vid and crop_aud:
+        if crop_video and crop_audio:
             duration = min(video_duration, audio_duration)
-        elif crop_vid:
+        elif crop_video:
             duration = audio_duration
-        elif crop_aud:
+        elif crop_audio:
             duration = video_duration
         else:
             duration = max(video_duration, audio_duration)
@@ -228,7 +228,7 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     if audio_speed != 1:
         audio_comp = audio_comp.filter("atempo", audio_speed)
 
-    if crop_aud:
+    if crop_audio:
         audio_comp = audio_comp.filter("atrim", start=0, end=video_duration)
 
     audio_fade_in, audio_fade_out = audio_fade
@@ -260,7 +260,7 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
             .setpts("PTS-STARTPTS")
         )
 
-    if crop_vid:
+    if crop_video:
         video_comp = video_comp.trim(start=0, end=audio_duration)
 
     video_fade_in, video_fade_out = video_fade
@@ -306,5 +306,5 @@ def render(vid_id, words_loc, video_loc, audio_loc, text_position, text_width, v
     print(composition.get_args())
 
     composition.run()
-    upload_blob("addlyrics-content", output_name, "Video_" + str(vid_id) + ".mp4")
-    return "Video_" + str(vid_id) + ".mp4"
+    upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
+    return "VideoOutput_" + str(video_id) + ".mp4"

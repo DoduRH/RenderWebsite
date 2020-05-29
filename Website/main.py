@@ -165,7 +165,7 @@ def getSignedURL():
     if purpose == "audioUpload" and ("audio" in mime or "video" in mime):
         filename = "audio_" + uuid + "." + filename.split(".")[-1]
     elif purpose == "videoUpload" and ("video" in mime or "image" in mime):
-        filename = "vid_" + uuid + "." + filename.split(".")[-1]
+        filename = "video_" + uuid + "." + filename.split(".")[-1]
     else:
         print("Invalid purpose", purpose, mime)
         return error("Invalid purpose", purpose, mime)
@@ -182,9 +182,9 @@ def render_video_page():
     return app.send_static_file('html/video.html')
 
 
-@app.route('/hold/<vid_id>')
-def hold(vid_id):
-    return render_template('hold.html', vid_id=vid_id)
+@app.route('/hold/<video_id>')
+def hold(video_id):
+    return render_template('hold.html', video_id=video_id)
 
 
 @app.route('/uploader', methods=['GET', 'POST'])
@@ -199,7 +199,7 @@ def uploader():
             return error("Invalid filename", filename)
         t = filename
 
-        video_name = "vid_" + t + "." + get_value(r, 'videoType', "")
+        video_name = "video_" + t + "." + get_value(r, 'videoType', "")
         if not check_blob("addlyrics-content", video_name):
             print("Unable to find video")
             return error("error, video upload failed")
@@ -222,20 +222,20 @@ def uploader():
 
         try:
             font_size = int(get_value(r, 'font_size', 50))
-            video_usable = (float(get_value(r, 'vid_start', 0)), float(get_value(r, 'vid_end', 0)))
+            video_usable = (float(get_value(r, 'video_start', 0)), float(get_value(r, 'video_end', 0)))
             audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
             font = get_value(r, 'font', 'Arial-Bold')
             text_position = get_value(r, "text_position", "mm")
             text_width = float(get_value(r, "text_width", 90))/100
-            vid_speed = float(get_value(r, 'vid_speed', 1))
+            video_speed = float(get_value(r, 'video_speed', 1))
             audio_speed = float(get_value(r, 'audio_speed', 1))
             view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
             text_colour = get_value(r, 'textColour', '#000000')
             shadow_colour = get_value(r, 'shadowColour', '#ffffff')
             video_fade = (float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0)))
             audio_fade = (float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0)))
-            crop_vid = get_value(r, 'crop_vid', 'off') == 'on'
-            crop_aud = get_value(r, 'crop_aud', 'off') == 'on'
+            crop_video = get_value(r, 'crop_video', 'off') == 'on'
+            crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
         except ValueError:
             return error("Error, unable to interpret inputs")
 
@@ -268,7 +268,7 @@ def uploader():
             return error("Video timestamps don't make sense")
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud]
+        args = [str(t), csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
 
         ##########
         # Q code #
@@ -309,7 +309,7 @@ def uploader():
         response = client.create_task(parent, task)
 
         print('Created task {}'.format(response.name))
-        return redirect(url_for('hold', vid_id=t))
+        return redirect(url_for('hold', video_id=t))
 
 
 @app.route('/get_file', methods=['GET', 'POST'])
@@ -317,8 +317,8 @@ def get_file():
     if request.method == 'POST':
         r = request
         data = json.loads(r.data)
-        vid_id = data['vid_id']
-        path = "Video_" + vid_id + ".mp4"
+        video_id = data['video_id']
+        path = "VideoOutput_" + video_id + ".mp4"
         if check_blob("addlyrics-content", path):
             return jsonify({"progress": "done"})
         else:
@@ -327,10 +327,10 @@ def get_file():
         return redirect(url_for('home'))
 
 
-@app.route('/download/<vid_id>', methods=['GET'])
-def download(vid_id):
+@app.route('/download/<video_id>', methods=['GET'])
+def download(video_id):
     if request.method == 'GET':
-        path = "Video_" + vid_id + ".mp4"
+        path = "VideoOutput_" + video_id + ".mp4"
         if not check_blob("addlyrics-content", path):
             return render_template('home.html', version=4)
 

@@ -23,31 +23,31 @@
                 <label for="videoUpload">Upload Video</label>
               </td>
               <td>
-                <input type="file" id="videoUpload" accept="video/*,image/*" onchange="vidChange()"/>
+                <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()"/>
               </td>
             </tr>
             <tr>
               <td>
-                <label for="vid_start">Time to start the video</label>
+                <label for="video_start">Time to start the video</label>
               </td>
               <td>
-                <input type="number" id="vid_start" name="vid_start" min="0" value="0" max="100000" required/>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <label for="vid_end">Time to end the video (0 means leave untill the end)</label>
-              </td>
-              <td>
-                <input type="number" id="vid_end" name="vid_end" min="0" value="0" max="100000" required/>
+                <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000" required/>
               </td>
             </tr>
             <tr>
               <td>
-                <label for="vid_speed">Video playback speed</label>
+                <label for="video_end">Time to end the video (0 means leave untill the end)</label>
               </td>
               <td>
-                <input type="number" id="vid_speed" name="vid_speed" min="0.01" value="1" step="0.01" max="10" required/>
+                <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000" required/>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <label for="video_speed">Video playback speed</label>
+              </td>
+              <td>
+                <input type="number" id="video_speed" name="video_speed" min="0.01" value="1" step="0.01" max="10" required/>
               </td>
             </tr>
             <tr>
@@ -68,10 +68,10 @@
             </tr>
             <tr>
               <td>
-                <label for=crop_vid>Crop Video to match audio length?</label>
+                <label for=crop_video>Crop Video to match audio length?</label>
               </td>
               <td>
-                <input type="checkbox" id="crop_vid" name="crop_vid" checked/>
+                <input type="checkbox" id="crop_video" name="crop_video" checked/>
               </td>
             </tr>
           </table>
@@ -116,10 +116,10 @@
             </tr>
             <tr>
               <td>
-                <label for=crop_aud>Crop Audio to match video length?</label>
+                <label for=crop_audio>Crop Audio to match video length?</label>
               </td>
               <td>
-                <input type="checkbox" id="crop_aud" name="crop_aud" />
+                <input type="checkbox" id="crop_audio" name="crop_audio" />
               </td>
             </tr>
             <tr>

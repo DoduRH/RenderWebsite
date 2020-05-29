@@ -16,9 +16,9 @@ def main():
     data = request.form['body']
     #data = request.data
     print(data)
-    t, csv_name, vid_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud = json.loads(data)
+    t, csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio = json.loads(data)
 
-    result = render(t, csv_name, vid_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_vid, crop_aud)
+    result = render(t, csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio)
     if result == "ERROR":
         return render_template("invalid", filename="Error, no audio detected")
 
@@ -39,28 +39,28 @@ def uploader():
         print(list(r.form.keys()))
 
         font_size = int(get_value(r, 'font_size', 50))
-        vid_start = float(get_value(r, 'vid_start', 0))
+        video_start = float(get_value(r, 'video_start', 0))
         audio_start = float(get_value(r, 'audio_start', 0))
         font = get_value(r, 'font', 'Arial-Bold')
         offset = (int(get_value(r, 'offset_x', 0)), int(get_value(r, 'offset_y', 0)))
-        vid_speed = float(get_value(r, 'vid_speed', 1))
+        video_speed = float(get_value(r, 'video_speed', 1))
         audio_speed = float(get_value(r, 'audio_speed', 1))
         view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
         text_colour = get_value(r, 'textColour', '#000000')
         shadow_colour = get_value(r, 'shadowColour', '#ffffff')
         fade_in = float(get_value(r, 'fade_in', 0))
         fade_out = float(get_value(r, 'fade_out', 0))
-        crop_vid = get_value(r, 'crop_vid', 'off') == 'on'
-        crop_aud = get_value(r, 'crop_aud', 'off') == 'on'
+        crop_video = get_value(r, 'crop_video', 'off') == 'on'
+        crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
 
-        vid = r.files.get('vid')
-        if vid.filename != '':
-            vid_name = 'content/vid_' + str(t) + "." + secure_filename(vid.filename.split(".")[-1])
-            vid.save(vid_name)
-            mime = get_mimetype(vid_name).split("/")
+        video = r.files.get('video')
+        if video.filename != '':
+            video_name = 'content/video_' + str(t) + "." + secure_filename(video.filename.split(".")[-1])
+            video.save(video_name)
+            mime = get_mimetype(video_name).split("/")
             if mime[0] != "video":  # Check mimetype is video
-                os.remove(vid_name)
-                return render_template("invalid.html", filename=vid_name)
+                os.remove(video_name)
+                return render_template("invalid.html", filename=video_name)
         else:
             return redirect()
 
@@ -91,10 +91,10 @@ def uploader():
             wr = csv.writer(f, quoting=csv.QUOTE_ALL)
             wr.writerows(data)
 
-        # print(csv_name, vid_name, audio_name, offset, vid_start, font, font_size, vid_speed, audio_speed, text_colour, shadow_colour)
-        result = render(t, csv_name, vid_name, audio_name, offset, vid_start, audio_start, font, font_size, vid_speed, audio_speed, view_shadow, text_colour, shadow_colour, fade_in, fade_out, crop_vid, crop_aud)
+        # print(csv_name, video_name, audio_name, offset, video_start, font, font_size, video_speed, audio_speed, text_colour, shadow_colour)
+        result = render(t, csv_name, video_name, audio_name, offset, video_start, audio_start, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, fade_in, fade_out, crop_video, crop_audio)
 
         if result == "ERROR":
             return render_template("invalid", filename="Error, no audio detected")
 
-        return redirect(url_for('hold', vid_id=t))'''
+        return redirect(url_for('hold', video_id=t))'''
