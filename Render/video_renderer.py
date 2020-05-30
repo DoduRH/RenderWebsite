@@ -169,7 +169,7 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
         video_duration = (video_usable[1] - video_usable[0]) / video_speed
     else:  # This means the visuals are coming from an image
         framerate = 25
-        bitrate = 10000000  # Must be set so min can be taken on the output, could be lowered due to solid backdrop?
+        bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
             .input(video_loc, loop=True)
