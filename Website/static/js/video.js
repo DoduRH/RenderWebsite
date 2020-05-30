@@ -14,8 +14,8 @@ var write = document.getElementById("csv")
 var csvHead = document.getElementById("csvHeading")
 var lyrics = document.getElementById("lyricsArea")
 var tbl = document.getElementById("table1")
-var slider_x = document.getElementById("offset_x")
-var slider_y = document.getElementById("offset_y")
+var allMaxedAudio = [audioStart, audioEnd, document.getElementById("audio_fade_in"), document.getElementById("audio_fade_out")]
+var allMaxedVideo = [document.getElementById("video_fade_in"), document.getElementById("video_fade_out")]
 var audioSpeed = document.getElementById("audio_speed")
 var videoSpeed = document.getElementById("video_speed")
 var previewImg = document.getElementById("previewImg")
@@ -59,6 +59,52 @@ function videoChange() {
     reader.readAsDataURL(videoUpload.files[0])
 }
 
+function setMaxMediaValues() {
+    if (videoUpload.files.length == 0) {
+        showElementError(videoUpload, "Please upload a video")
+        return false
+    }
+
+    if (videoStart.value > myVideo.duration) {
+        showElementError(videoStart, "This value is too high")
+        return false
+    }
+
+    if (videoEnd.value > myVideo.duration) {
+        showElementError(videoEnd, "This value is too high")
+        return false
+    }
+
+    if (videoUpload.files[0].type.includes("video")) {
+        // Video is used for visuals
+        video_result = getVideoDuration()
+        videoDuration = video_result
+
+        if (audioUpload.files.length == 1) {
+            audioDuration = getAudioDuration()
+        } else {
+            audioDuration = video_result
+        }
+    } else {
+        // Image is used for visuals
+        if (audioUpload.files.length == 1) {
+            audioDuration = getAudioDuration()
+            videoDuration = audioDuration
+        } else {
+            alert("No audio content is present")
+        }
+    }
+
+    allMaxedAudio.forEach(elm => {
+        elm.max = audioDuration
+    })
+
+    allMaxedVideo.forEach(elm => {
+        elm.max = videoDuration
+    })
+    return true
+}
+
 function audioChange() {
     console.log("New audio")
     var reader = new FileReader()
@@ -68,12 +114,11 @@ function audioChange() {
         myAudio.closest('#tab').hidden = false
 
         myMedia = myAudio
-
-        audioStart.max = myAudio.duration
-        audioEnd.max = myAudio.duration
     }
 
     reader.readAsDataURL(audioUpload.files[0])
+
+    setMaxMediaValues()
 }
 
 function changeSpeed(elm, s) {
@@ -182,12 +227,12 @@ function previewFrame() {
         return
     } else if (!htmlValidation()) {
         return
-    } else if (!radioValue){
+    } else if (!radioValue) {
         showElementError(document.getElementById("text_mm"), "Please select the position of the preview text")
     } else {
-        if(videoUpload.files[0].type.includes("video")){
-        dimx = myVideo.videoWidth
-        dimy = myVideo.videoHeight
+        if (videoUpload.files[0].type.includes("video")) {
+            dimx = myVideo.videoWidth
+            dimy = myVideo.videoHeight
         } else {
             dimx = myImage.naturalHeight
             dimy = myImage.naturalWidth
@@ -478,8 +523,11 @@ function getAudioSource() {
 }
 
 function getDuration() {
-    videoDuration = getVideoDuration()
     audioDuration = getAudioDuration()
+    if (videoUpload.files[0].type.includes("image")) {
+        return audioDuration
+    }
+    videoDuration = getVideoDuration()
 
     cropVideo = document.getElementById("crop_video").checked
     cropAudio = document.getElementById("crop_audio").checked
@@ -501,7 +549,7 @@ function checkForm() {
     if (lyrics.value.trim() == "") {
         write.value = ""
     } else {
-        if (!done()){
+        if (!done()) {
             return false
         }
 
@@ -561,6 +609,10 @@ async function uploadElement(elm) {
 }
 
 function htmlValidation() {
+    if (!setMaxMediaValues()) {
+        return false
+    }
+
     inputs = document.getElementsByTagName("input")
     for (const elm of inputs) {
         elm.setCustomValidity("")
