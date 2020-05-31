@@ -3,8 +3,8 @@ var myImage = document.getElementById("image1")
 var myAudio = document.getElementById("audio1")
 var videoUpload = document.getElementById("videoUpload")
 var audioUpload = document.getElementById("audioUpload")
-var videoType = document.getElementById("videoType")
-var audioType = document.getElementById("audioType")
+var videoExt = document.getElementById("videoExt")
+var audioExt = document.getElementById("audioExt")
 
 var videoStart = document.getElementById("video_start")
 var videoEnd = document.getElementById("video_end")
@@ -515,9 +515,12 @@ function getVideoDuration() {
 
 function getAudioSource() {
     // Find audio source
-    if (audioUpload.files.length == 1) {
+    if (document.getElementById("videoSource").checked) {
+        return myVideo
+    } else if (document.getElementById("audioSource").checked) {
         return myAudio
     } else {
+        console.log("No audio source selected")
         return myVideo
     }
 }
@@ -613,9 +616,33 @@ function htmlValidation() {
         return false
     }
 
+    if (document.getElementById("videoType").checked) {
+        visualType = "video"
+    } else if (document.getElementById("imageType").checked) {
+        visualType = "image"
+    } else if (document.getElementById("solidType").checked) {
+        visualType = "solid"
+    }
+
+    if (document.getElementById("videoSource").checked) {
+        audioSource = "video"
+        if (visualType != "video") {
+            alert("Please provide some media with audio")
+            return false
+        }
+    } else if (document.getElementById("audioSource").checked) {
+        audioSource = "audio"
+    }
+
     inputs = document.getElementsByTagName("input")
     for (const elm of inputs) {
-        elm.setCustomValidity("")
+        elm.setCustomValidity("") // HERE
+        if (audioSource == "video" && elm.className.includes("copy")) { // copy values from video version
+            elm.value = document.getElementById(elm.id.replace("audio", "video")).value
+        } else if (elm.className.includes("all") && elm.hidden) {
+            elm.value = 0
+        }
+
         if (elm.type != 'file' && !elm.checkValidity()) {
             showElementError(elm, elm.validationMessage)
             return false
@@ -672,7 +699,7 @@ async function uploadContent() {
         alert("Unable to upload video")
         return false
     } else {
-        videoType.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+        videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
     }
 
     if (audioUpload.files.length == 1) {
@@ -681,7 +708,7 @@ async function uploadContent() {
             alert("Audio detected but unable to upload")
             return false
         } else {
-            audioType.value = audioUpload.value.split(".")[audioUpload.value.split(".").length - 1]
+            audioExt.value = audioUpload.value.split(".")[audioUpload.value.split(".").length - 1]
         }
     }
 
@@ -689,7 +716,7 @@ async function uploadContent() {
 }
 
 async function submitForm() {
-    if (uploading) {
+    if (uploading || document.getElementById("solidType").checked) {
         return
     }
     console.log("Trying submit")
@@ -782,6 +809,23 @@ function update_highlight() {
 
 async function getID() {
     video_id = (await (await fetch('getUUID')).text()).replace(/"/g, "")
+}
+
+function videoTypeChange(newType) {
+    console.log(newType)
+    videoUpload.accept = newType + "/*"
+    elements = document.getElementById("tableVisual").getElementsByClassName('all')
+    for (let i = 0; i < elements.length; i++){
+        elements[i].hidden = !elements[i].className.includes(newType)
+    }
+}
+
+function audioSourceChange(newSource) {
+    console.log(newSource)
+    elements = document.getElementById("tableAudio").getElementsByClassName('all')
+    for (let i = 0; i < elements.length; i++){
+        elements[i].hidden = !elements[i].className.includes(newSource)
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -195,21 +195,21 @@ def uploader():
     print("Uploading", request.method)
     if request.method == 'POST':
         r = request
-        print(list(r.form.keys()))
+        print(r.form)
 
         filename = get_value(r, 'uuid')
         if not is_valid_uuid(filename):
             return error("Invalid filename", filename)
         t = filename
 
-        video_name = "video_" + t + "." + get_value(r, 'videoType', "")
+        video_name = "video_" + t + "." + get_value(r, 'videoExt', "")
         if not check_blob("addlyrics-content", video_name):
             print("Unable to find video")
             return error("error, video upload failed")
         else:
             video_size = size_blob(uploadBucketName, video_name)
 
-        ext = get_value(r, 'audioType', "")
+        ext = get_value(r, 'audioExt', "")
         if ext == "":
             audio_name = None
             audio_size = 0

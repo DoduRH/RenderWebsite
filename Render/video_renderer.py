@@ -180,7 +180,7 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
     video_height = video_streams[0]['height']
 
     if video_width * video_height > 1920 * 1080:
-        return "Too many pixels"
+        return "ERROR: Too many pixels"
 
     # Make audio
     if audio_loc is None:
@@ -220,13 +220,13 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
 
     if duration > 300:
         valid = False
-        return "ERROR Max video length 5 minutes (after applying speed change)"
+        return "ERROR: Max video length 5 minutes (after applying speed change)"
 
     if video_stream_duration < video_usable[0] or video_stream_duration < video_usable[1] or video_duration < video_fade[0] or video_duration < video_fade[1]:
-        return "ERROR Video timings don't match"
+        return "ERROR: Video timings don't match"
 
     if audio_stream_duration < audio_usable[0] or audio_stream_duration < audio_usable[1] or audio_duration < audio_fade[0] or audio_duration < audio_fade[1]:
-        return "ERROR Audio timings don't match"
+        return "ERROR: Audio timings don't match"
 
     max_lines = 0
     text_h = 0
