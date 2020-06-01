@@ -10,6 +10,7 @@ from datetime import timedelta
 from mimetypes import guess_type as guessmime
 from time import sleep
 import threading
+from re import compile as reg
 
 app = Flask(__name__)
 
@@ -22,6 +23,7 @@ path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
 uploadClient = storage.Client.from_service_account_json(path)
 downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
 
+rrggbbString = reg(r'#[a-fA-F0-9]{6}$')
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
@@ -45,7 +47,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     print("Success")
 
 
-def check_blob(bucket_name, blob_name):
+def blob_exists(bucket_name, blob_name):
     """Checks a blob exists in the bucket."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
@@ -67,7 +69,7 @@ def size_blob(bucket_name, blob_name):
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
     
-    if not check_blob(bucket_name, blob_name):
+    if not blob_exists(bucket_name, blob_name):
         return 0
 
     storage_client = storage.Client()
@@ -105,6 +107,9 @@ def is_valid_uuid(uuid_to_test, version=4):
 
     return str(uuid_obj) == uuid_to_test
 
+
+def is_valid_colour(str_to_test):
+    return bool(rrggbbString.match(str_to_test))
 
 @app.route("/")
 def home():
@@ -202,8 +207,11 @@ def uploader():
             return error("Invalid filename", filename)
         t = filename
 
-        video_name = "video_" + t + "." + get_value(r, 'videoExt', "")
-        if not check_blob("addlyrics-content", video_name):
+        video_ext = get_value(r, 'videoExt', "")
+        video_name = "video_" + t + "." + video_ext
+        if video_ext == "solid":
+            video_name = ""
+        elif not blob_exists("addlyrics-content", video_name):
             print("Unable to find video")
             return error("error, video upload failed")
         else:
@@ -215,7 +223,7 @@ def uploader():
             audio_size = 0
         else:
             audio_name = "audio_" + t + "." + ext
-            if not check_blob("addlyrics-content", audio_name):
+            if not blob_exists("addlyrics-content", audio_name):
                 return error("error, audio not uploaded")
             else:
                 audio_size = size_blob(uploadBucketName, audio_name)
@@ -233,14 +241,20 @@ def uploader():
             video_speed = float(get_value(r, 'video_speed', 1))
             audio_speed = float(get_value(r, 'audio_speed', 1))
             view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
-            text_colour = get_value(r, 'textColour', '#000000')
-            shadow_colour = get_value(r, 'shadowColour', '#ffffff')
+            text_colour = get_value(r, 'textColour', 'ffffff')
+            shadow_colour = get_value(r, 'shadowColour', '000000')
+            background_colour = get_value(r, 'background_colour', '000000')
             video_fade = (float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0)))
             audio_fade = (float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0)))
             crop_video = get_value(r, 'crop_video', 'off') == 'on'
             crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
         except ValueError:
             return error("Error, unable to interpret inputs")
+
+        # Check colours are valid 6 character hex strings
+        for col, name in ((text_colour, "text"), (shadow_colour, "shadow"), (background_colour, "background")):
+            if not is_valid_colour(col):
+                return error("Error, invalid", name, "colour")
 
         # CSV file
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
@@ -274,7 +288,7 @@ def uploader():
             return error("Video timestamps don't make sense")
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
+        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
 
         ##########
         # Q code #
@@ -325,7 +339,7 @@ def get_file():
         data = json.loads(r.data)
         video_id = data['video_id']
         path = "VideoOutput_" + video_id + ".mp4"
-        if check_blob("addlyrics-content", path):
+        if blob_exists("addlyrics-content", path):
             return jsonify({"progress": "done"})
         else:
             return jsonify({"progress": "nothing"})
@@ -337,7 +351,7 @@ def get_file():
 def download(video_id):
     if request.method == 'GET':
         path = "VideoOutput_" + video_id + ".mp4"
-        if not check_blob("addlyrics-content", path):
+        if not blob_exists("addlyrics-content", path):
             return render_template('home.html', version=4)
 
         blob = downloadBucket.blob(path)

@@ -60,22 +60,25 @@ function videoChange() {
 }
 
 function setMaxMediaValues() {
-    if (videoUpload.files.length == 0) {
-        showElementError(videoUpload, "Please upload a video")
-        return false
+    visualType = getVisualType()
+    if (visualType == "video") {
+        if (videoUpload.files.length == 0) {
+            showElementError(videoUpload, "Please upload a video")
+            return false
+        }
+
+        if (videoStart.value > myVideo.duration) {
+            showElementError(videoStart, "This value is too high")
+            return false
+        }
+
+        if (videoEnd.value > myVideo.duration) {
+            showElementError(videoEnd, "This value is too high")
+            return false
+        }
     }
 
-    if (videoStart.value > myVideo.duration) {
-        showElementError(videoStart, "This value is too high")
-        return false
-    }
-
-    if (videoEnd.value > myVideo.duration) {
-        showElementError(videoEnd, "This value is too high")
-        return false
-    }
-
-    if (videoUpload.files[0].type.includes("video")) {
+    if (videoType == "video" && videoUpload.files[0].type.includes("video")) {
         // Video is used for visuals
         video_result = getVideoDuration()
         videoDuration = video_result
@@ -86,7 +89,7 @@ function setMaxMediaValues() {
             audioDuration = video_result
         }
     } else {
-        // Image is used for visuals
+        // Image or solid colour is used for visuals
         if (audioUpload.files.length == 1) {
             audioDuration = getAudioDuration()
             videoDuration = audioDuration
@@ -229,8 +232,9 @@ function previewFrame() {
         return
     } else if (!radioValue) {
         showElementError(document.getElementById("text_mm"), "Please select the position of the preview text")
+        return
     } else {
-        if (videoUpload.files[0].type.includes("video")) {
+        if (videoUpload.files[0].type.includes("video")) {  // update this
             dimx = myVideo.videoWidth
             dimy = myVideo.videoHeight
         } else {
@@ -527,7 +531,7 @@ function getAudioSource() {
 
 function getDuration() {
     audioDuration = getAudioDuration()
-    if (videoUpload.files[0].type.includes("image")) {
+    if (getVisualType() != "video") {
         return audioDuration
     }
     videoDuration = getVideoDuration()
@@ -611,18 +615,23 @@ async function uploadElement(elm) {
     }
 }
 
+function getVisualType() {
+    if (document.getElementById("videoType").checked) {
+        return "video"
+    } else if (document.getElementById("imageType").checked) {
+        return "image"
+    } else if (document.getElementById("solidType").checked) {
+        return "solid"
+    }
+    return false
+}
+
 function htmlValidation() {
     if (!setMaxMediaValues()) {
         return false
     }
 
-    if (document.getElementById("videoType").checked) {
-        visualType = "video"
-    } else if (document.getElementById("imageType").checked) {
-        visualType = "image"
-    } else if (document.getElementById("solidType").checked) {
-        visualType = "solid"
-    }
+    visualType = getVisualType()
 
     if (document.getElementById("videoSource").checked) {
         audioSource = "video"
@@ -686,20 +695,29 @@ function checkDuration() {
 }
 
 async function uploadContent() {
-    if (videoUpload.files.length != 1) {
-        showElementError(videoUpload, "Please select a video")
-        return false
-    } else if (audioUpload.files.length == 0 && videoUpload.files[0].type.includes("image")) {
-        showElementError(audioUpload, "Upload audio to use an image for visuals")
-        return false
-    }
+    visualType = getVisualType()
+    if (visualType != "solid") { // Upload file if needed
+        if (videoUpload.files.length != 1) {
+            showElementError(videoUpload, "Please select a video")
+            return false
+        } else if (audioUpload.files.length == 0 && getVisualType() != "video") {
+            showElementError(audioUpload, "Upload audio to use an image for visuals")
+            return false
+        }
 
-    document.getElementById("submitbutton").innerHTML = "Uploading Video..."
-    if (!await uploadElement(videoUpload)) {
-        alert("Unable to upload video")
-        return false
-    } else {
-        videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+        document.getElementById("submitbutton").innerHTML = "Uploading Video..."
+        if (!await uploadElement(videoUpload)) {
+            alert("Unable to upload video")
+            return false
+        } else {
+            if (getVisualType() == "solid") {
+                videoExt.value = "solid"
+            } else {
+                videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+            }
+        }
+    } else if (audioUpload.files.length == 0) {
+        alert("No audio detected")
     }
 
     if (audioUpload.files.length == 1) {
@@ -716,7 +734,7 @@ async function uploadContent() {
 }
 
 async function submitForm() {
-    if (uploading || document.getElementById("solidType").checked) {
+    if (uploading) {
         return
     }
     console.log("Trying submit")
@@ -815,7 +833,7 @@ function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
     elements = document.getElementById("tableVisual").getElementsByClassName('all')
-    for (let i = 0; i < elements.length; i++){
+    for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newType)
     }
 }
@@ -823,7 +841,7 @@ function videoTypeChange(newType) {
 function audioSourceChange(newSource) {
     console.log(newSource)
     elements = document.getElementById("tableAudio").getElementsByClassName('all')
-    for (let i = 0; i < elements.length; i++){
+    for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newSource)
     }
 }

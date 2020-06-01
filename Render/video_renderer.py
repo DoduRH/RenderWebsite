@@ -1,7 +1,7 @@
 import csv
 import ffmpeg
 from google.cloud import storage
-from PIL import ImageFont
+from PIL import ImageFont, Image
 import os
 from magic import Magic 
 
@@ -127,8 +127,29 @@ def wraptext(font, fontsize, text, width):
     lines.append(line)
     return lines, height
 
+def hex2rgb(hexcode):
+    # Convert 6 char hex to tuplet RGB
+    hexcode = hexcode.lower().replace("#", "")
+    col = []
+    for i in range(0, 6, 2):
+        num = 0
+        for j in range(2):
+            letter = hexcode[i + j]
+            if letter.isnumeric():
+                num += int(letter) * (16**(1-j))
+            else:
+                num += (ord(letter)-87) * (16**(1-j))
+
+        col.append(num)
+    return tuple(col)
+
+def generate_solid_background(video_id, background_colour, dim=(1, 1)):
+    filename = "/tmp/solid_" + video_id + ".png"
+    Image.new('RGB', dim, hex2rgb(background_colour)).save(filename)
+    return filename
+
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
+def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
     # print("Starting render", video_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_video, crop_audio)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
@@ -138,10 +159,16 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
     else:
         data = [["", 0, 0]]
 
-    video_loc, visual_type = download_blob("addlyrics-content", video_loc, ('video', 'image'), True)
+    solid_background = (video_loc == "")
+    if not solid_background:
+        video_loc, visual_type = download_blob("addlyrics-content", video_loc, ('video', 'image'), True)
+    else:
+        visual_type = "image"
+        video_loc = generate_solid_background(video_id, background_colour)
+
     if audio_loc is None:
-        if "image" in visual_type:
-            return "ERROR: image doesn't contain audio stream" 
+        if "video" not in visual_type:
+            return "ERROR: no audio stream present" 
         audio_loc = video_loc
     else:
         audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
@@ -175,9 +202,14 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
             .input(video_loc, loop=True)
             .filter('framerate', fps=framerate)
         )
-    
-    video_width = video_streams[0]['width']
-    video_height = video_streams[0]['height']
+
+    if solid_background:
+        video_width = 1920
+        video_height = 1080
+        video_comp = video_comp.filter('scale', w=video_width, h=video_height)
+    else:
+        video_width = video_streams[0]['width']
+        video_height = video_streams[0]['height']
 
     if video_width * video_height > 1920 * 1080:
         return "ERROR: Too many pixels"
@@ -284,6 +316,27 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
     if crop_video:
         video_comp = video_comp.trim(start=0, end=audio_duration)
 
+    # Add black screen to end video
+    if video_duration < duration and not solid_background:
+        filename = generate_solid_background(video_id, "#000000")
+        black_video = (
+            ffmpeg            
+            .input(filename, loop=True)
+            .filter('framerate', fps=framerate)
+            .trim(start=0, end=duration - video_duration)
+            .filter('scale', w=video_width, h=video_height)
+        )
+
+        video_comp = (
+            ffmpeg
+            .concat(
+                video_comp,
+                black_video
+            )
+        )
+    # VIDEO END
+
+
     video_fade_in, video_fade_out = video_fade
     if video_fade_in > 0:
         video_comp = video_comp.filter("fade", type="in", start_time=0, duration=video_fade_in)
@@ -298,7 +351,7 @@ def render(video_id, words_loc, video_loc, audio_loc, text_position, text_width,
         shadow_offset = 0
 
     FADE_DURATION = 0.125
-    for i, line in enumerate(data):
+    for i, line in enumerate(data[0:2]):
         start_text = float(line[1])
         end_text = float(line[2])
 
