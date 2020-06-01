@@ -6,23 +6,16 @@
 <a href="/video">Add lyrics to another video?</a>
 
 <script>
-const cur_id = { video_id: '{{ video_id }}' };
+const video_id = '{{ video_id }}';
 
 function request(){
   console.log("starting request...")
-  fetch('/get_file', {
-    method: 'POST', // or 'PUT'
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(cur_id),
-  })
+  fetch('/get_file?videoID='.concat(video_id))
   .then(response => response.json())
   .then(data => {
-    console.log('Success:', data);
     if (data['progress'] == "done") {
       clearInterval(timerID)
-      window.location.href = "/download/".concat(cur_id['video_id']);
+      window.location.href = "/download?videoID=".concat(video_id)
       document.getElementById("title").innerHTML = "Your download should begin shortly"
       document.getElementById("head").innerHTML = "You download should begin shortly"
     }

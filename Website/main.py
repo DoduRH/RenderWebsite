@@ -113,6 +113,8 @@ def is_valid_colour(str_to_test):
 
 @app.route("/")
 def home():
+    t="8e0660c5-aa84-4754-a17f-40da17bf0eae"
+    return redirect(url_for('hold', videoID=t))
     return render_template('home.html', version=1)
 
 
@@ -190,8 +192,9 @@ def render_video_page():
     return app.send_static_file('html/video.html')
 
 
-@app.route('/hold/<video_id>')
-def hold(video_id):
+@app.route('/hold')
+def hold():
+    video_id = get_args(request, "videoID")
     return render_template('hold.html', video_id=video_id)
 
 
@@ -208,6 +211,7 @@ def uploader():
         t = filename
 
         video_ext = get_value(r, 'videoExt', "")
+        video_name = "video_" + t + "." + video_ext
         if video_ext == "solid":
             video_name = ""
             video_size = 0
@@ -215,7 +219,6 @@ def uploader():
             print("Unable to find video")
             return error("error, video upload failed")
         else:
-            video_name = "video_" + t + "." + video_ext
             video_size = size_blob(uploadBucketName, video_name)
 
         ext = get_value(r, 'audioExt', "")
@@ -330,41 +333,34 @@ def uploader():
         response = client.create_task(parent, task)
 
         print('Created task {}'.format(response.name))
-        return redirect(url_for('hold', video_id=t))
+        return redirect(url_for('hold', videoID=t))
 
 
-@app.route('/get_file', methods=['GET', 'POST'])
+@app.route('/get_file', methods=['GET'])
 def get_file():
-    if request.method == 'POST':
-        r = request
-        data = json.loads(r.data)
-        video_id = data['video_id']
-        path = "VideoOutput_" + video_id + ".mp4"
-        if blob_exists("addlyrics-content", path):
-            return jsonify({"progress": "done"})
-        else:
-            return jsonify({"progress": "nothing"})
+    video_id = get_args(request, "videoID")
+    path = "VideoOutput_" + video_id + ".mp4"
+    if blob_exists("addlyrics-content", path):
+        return jsonify({"progress": "done"})
     else:
-        return redirect(url_for('home'))
+        return jsonify({"progress": "nothing"})
 
 
-@app.route('/download/<video_id>', methods=['GET'])
-def download(video_id):
-    if request.method == 'GET':
-        path = "VideoOutput_" + video_id + ".mp4"
-        if not blob_exists("addlyrics-content", path):
-            return render_template('home.html', version=4)
+@app.route('/download', methods=['GET'])
+def download():
+    video_id = get_args(request, "videoID")
+    path = "VideoOutput_" + video_id + ".mp4"
+    if not blob_exists("addlyrics-content", path):
+        return render_template('home.html', version=4)
 
-        blob = downloadBucket.blob(path)
-        url = blob.generate_signed_url(
-            expiration=timedelta(minutes=60),
-            method='GET', version="v4", 
-            response_disposition='attachment; filename=AddmylyricsVideo.mp4')
+    blob = downloadBucket.blob(path)
+    url = blob.generate_signed_url(
+        expiration=timedelta(minutes=60),
+        method='GET', version="v4", 
+        response_disposition='attachment; filename=AddmylyricsVideo.mp4')
 
-        print("downloading")
-        return redirect(url)
-
-    return render_template('home.html', version=3)
+    print("downloading")
+    return redirect(url)
 
 
 if __name__ == '__main__':
