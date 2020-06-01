@@ -208,13 +208,14 @@ def uploader():
         t = filename
 
         video_ext = get_value(r, 'videoExt', "")
-        video_name = "video_" + t + "." + video_ext
         if video_ext == "solid":
             video_name = ""
+            video_size = 0
         elif not blob_exists("addlyrics-content", video_name):
             print("Unable to find video")
             return error("error, video upload failed")
         else:
+            video_name = "video_" + t + "." + video_ext
             video_size = size_blob(uploadBucketName, video_name)
 
         ext = get_value(r, 'audioExt', "")

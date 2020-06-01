@@ -78,7 +78,7 @@ function setMaxMediaValues() {
         }
     }
 
-    if (videoType == "video" && videoUpload.files[0].type.includes("video")) {
+    if (visualType == "video" && videoUpload.files[0].type.includes("video")) {
         // Video is used for visuals
         video_result = getVideoDuration()
         videoDuration = video_result
@@ -95,6 +95,7 @@ function setMaxMediaValues() {
             videoDuration = audioDuration
         } else {
             alert("No audio content is present")
+            return false
         }
     }
 
@@ -223,18 +224,22 @@ function getRadioValue(name) {
 
 function previewFrame() {
     previewImg.hidden = true
-    radioValue = getRadioValue("text_position")
-    if (videoUpload.files.length == 0) {
+    textPosition = getRadioValue("text_position")
+    visualType = getVisualType()
+    if (visualType != "solid" && videoUpload.files.length == 0) {
         console.log("No preview for you")
         showElementError(videoUpload, "Please upload a video")
         return
     } else if (!htmlValidation()) {
         return
-    } else if (!radioValue) {
+    } else if (!textPosition) {
         showElementError(document.getElementById("text_mm"), "Please select the position of the preview text")
         return
     } else {
-        if (videoUpload.files[0].type.includes("video")) {  // update this
+        if (visualType == "solid") {
+            dimx = 1920
+            dimy = 1080
+        }else if (videoUpload.files[0].type.includes("video")) {
             dimx = myVideo.videoWidth
             dimy = myVideo.videoHeight
         } else {
@@ -247,7 +252,7 @@ function previewFrame() {
     visible = document.getElementById("visibleShadow").checked
     shadow = document.getElementById("shadowColour").value.replace("#", "")
     size = document.getElementById("font_size").value
-    position = radioValue
+    position = textPosition
     maxWidth = document.getElementById("text_width").value
 
     address = '/prev' +
@@ -709,15 +714,14 @@ async function uploadContent() {
         if (!await uploadElement(videoUpload)) {
             alert("Unable to upload video")
             return false
-        } else {
-            if (getVisualType() == "solid") {
-                videoExt.value = "solid"
-            } else {
-                videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
-            }
         }
+        videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+
     } else if (audioUpload.files.length == 0) {
         alert("No audio detected")
+        return false
+    } else {  // Solid background and audio is present
+        videoExt.value = "solid"
     }
 
     if (audioUpload.files.length == 1) {
