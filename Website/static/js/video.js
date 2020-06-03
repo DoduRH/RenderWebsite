@@ -59,6 +59,25 @@ function videoChange() {
     reader.readAsDataURL(videoUpload.files[0])
 }
 
+
+myVideo.oncanplay = function (e) {
+    if (videoUpload.files[0].type.includes("video")) {
+        if (myVideo.videoWidth * myVideo.videoHeight > 1920 * 1080) {
+            myVideo.closest('#tab').hidden = true
+            videoUpload.value = ""
+            alert("Video resolution too high please select another file, 1080p max")
+            return
+        }
+    } else {
+        if (myImage.naturalWidth * myImage.naturalHeight > 1920 * 1080) {
+            myVideo.closest('#tab').hidden = true
+            videoUpload.value = ""
+            alert("Image resolution too high please select another file, max 1920x1080")
+            return
+        }
+    }
+}
+
 function setMaxMediaValues() {
     visualType = getVisualType()
     if (visualType == "video") {
