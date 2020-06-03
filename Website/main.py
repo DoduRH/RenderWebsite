@@ -113,8 +113,6 @@ def is_valid_colour(str_to_test):
 
 @app.route("/")
 def home():
-    t="8e0660c5-aa84-4754-a17f-40da17bf0eae"
-    return redirect(url_for('hold', videoID=t))
     return render_template('home.html', version=1)
 
 
