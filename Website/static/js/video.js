@@ -773,6 +773,16 @@ async function uploadContent() {
     return true
 }
 
+function checkLyricAscii() {
+    position = lyrics.value.search('[^\n-~]')
+    if (position == -1) {
+        return true
+    } else {
+        alert(lyrics.value[position] + " in position " + position + " is not an allowed character.  Try typing a similar character from your keyboard")
+        return false
+    }
+}
+
 async function submitForm() {
     if (uploading) {
         return
@@ -782,6 +792,10 @@ async function submitForm() {
     uploading = true
 
     document.getElementById("submitbutton").innerHTML = "Subitting..."
+
+    if (valid) {
+        valid = checkLyricAscii()
+    }
 
     if (valid) {
         valid = htmlValidation()
