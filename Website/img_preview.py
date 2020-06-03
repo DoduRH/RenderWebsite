@@ -1,23 +1,26 @@
 import ffmpeg
 from PIL import ImageFont
 from uuid import uuid4
+from re import compile as re_comp
 
 
 def wraptext(font, fontsize, text, width):
     f = ImageFont.truetype(font, size=fontsize)
-    line = ""
     lines = []
     height = 0
-    for i, word in enumerate(text.split(" ")):
-        tmpline = line + " " + word
-        size = f.getsize(tmpline)
-        height = max(size[1], height)
-        if size[0] < width:
-            line = tmpline
-        else:
-            lines.append(line.strip())
-            line = word
-    lines.append(line)
+    splitter = re_comp(r'(?: ?)\|(?: ?)')
+    for txt in splitter.split(text):
+        line = ""
+        for i, word in enumerate(txt.split(" ")):
+            tmpline = line + " " + word
+            size = f.getsize(tmpline)
+            height = max(size[1], height)
+            if size[0] < width:
+                line = tmpline
+            else:
+                lines.append(line.strip())
+                line = word
+        lines.append(line.strip())
     return lines, height
 
 class position():
