@@ -392,15 +392,30 @@ function updated() {
 
 function fillTime() {
     console.log("Making audio fill video length")
+    visualType = getVisualType()
+    if (visualType != "video") {
+        alert("Video must be selected for filling time")
+        return
+    }
     if (videoUpload.files.length == 0) {
         showElementError(videoUpload, "Please upload a video")
         return
     }
+    if (audioUpload.files.length == 0) {
+        showElementError(audioUpload, "Please upload audio")
+        return
+    }
+    if (audioSpeed.value > 2 || audioSpeed.value < 0.5) {
+        showElementError(audioSpeed, "Must be in the range 0.5 to 2")
+        return
+    }
+
     // find video duration
-    if (audioUpload.files.length == 1) {
-        content = myAudio
-    } else {
+    audioSource = getRadioValue('audioSource')
+    if (audioSource != "audio") {
         content = myVideo
+    } else {
+        content = myAudio
     }
 
     audioDuration = getAudioDuration(content)
@@ -833,9 +848,15 @@ async function getID() {
     video_id = (await (await fetch('getUUID')).text()).replace(/"/g, "")
 }
 
+function audioFitTime() {
+    // Audio 'Go' button
+    document.getElementById("row_fill_time").hidden = !(getVisualType() == "video" && getRadioValue('audioSource') == "audio")
+}
+
 function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
+    audioFitTime()
     elements = document.getElementById("tableVisual").getElementsByClassName('all')
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newType)
@@ -844,6 +865,7 @@ function videoTypeChange(newType) {
 
 function audioSourceChange(newSource) {
     console.log(newSource)
+    audioFitTime()
     elements = document.getElementById("tableAudio").getElementsByClassName('all')
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newSource)
