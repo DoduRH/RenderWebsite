@@ -143,10 +143,11 @@ def prev():
         position = get_args(r, "position", "mm")
         max_width = int(get_args(r, "maxWidth", 90)) / 100
         dimentions = (int(get_args(r, "dimx", 1920)), int(get_args(r, "dimy", 1080)))
+        text = get_args(r, "text", "Add my lyrics")
     except ValueError:
         return "ERROR: unable to process arguments"  # make this an image eventually
 
-    img_loc = generate_img(maincol, visible, shadow, fontsize, position, max_width, dimentions)
+    img_loc = generate_img(text, maincol, visible, shadow, fontsize, position, max_width, dimentions)
 
     if 'error' in img_loc.lower():
         return img_loc

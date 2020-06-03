@@ -267,6 +267,7 @@ function previewFrame() {
         }
     }
 
+    text = lyrics.value.split("\n")[0]
     maincol = document.getElementById("textColour").value.replace("#", "")
     visible = document.getElementById("visibleShadow").checked
     shadow = document.getElementById("shadowColour").value.replace("#", "")
@@ -275,7 +276,8 @@ function previewFrame() {
     maxWidth = document.getElementById("text_width").value
 
     address = '/prev' +
-        '?maincol=' + maincol +
+        '?text=' + text +
+        '&maincol=' + maincol +
         "&visible=" + visible +
         "&shadow=" + shadow +
         '&fontsize=' + size +

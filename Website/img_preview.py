@@ -55,8 +55,7 @@ class position():
         return self.x
 
 
-def generate_img(text_colour, view_shadow, shadow_colour, fontsize, text_position, max_width, dim):
-    text = "Add my lyrics"
+def generate_img(text, text_colour, view_shadow, shadow_colour, fontsize, text_position, max_width, dim):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     filename = "/tmp/img_" + str(uuid4()) + ".jpg"
 
