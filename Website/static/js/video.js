@@ -264,7 +264,7 @@ function previewFrame() {
             dimy = myImage.naturalWidth
         }
     }
-    
+
     if (document.getElementById("verses").checked) {
         text = lyrics.value.split("\n\n")[0].split("\n").join("|")
     } else {
@@ -907,9 +907,27 @@ function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
     audioFitTime()
-    elements = document.getElementById("tableVisual").getElementsByClassName('all')
-    for (let i = 0; i < elements.length; i++) {
-        elements[i].hidden = !elements[i].className.includes(newType)
+    tableElements = document.getElementById("tableVisual").getElementsByClassName('all')
+    for (let i = 0; i < tableElements.length; i++) {
+        tableElements[i].hidden = !tableElements[i].className.includes(newType)
+    }
+
+    if (videoUpload.files.length == 0) {
+        filetype = ""
+    } else {
+        filetype = videoUpload.files[0].type
+    }
+
+    if (newType == "solid" || !filetype.includes(newType)) {
+        myVideo.closest("#tab").hidden = true
+    } else {
+        myVideo.closest("#tab").hidden = false
+        displayElements = myVideo.closest("#tab").getElementsByClassName("all")
+        for (let i = 0; i < displayElements.length; i++) {
+            if (!displayElements[i].hidden) {
+                displayElements[i].hidden = !displayElements[i].className.includes(newType)
+            }
+        }
     }
 }
 
@@ -920,6 +938,7 @@ function audioSourceChange(newSource) {
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newSource)
     }
+    myAudio.closest("#tab").hidden = (audioUpload.length == 0) || (newSource != "audio")
 }
 
 document.addEventListener('DOMContentLoaded', function () {
