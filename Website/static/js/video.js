@@ -32,31 +32,30 @@ var stop_times = []
 
 function videoChange() {
     console.log("New video")
-    var reader = new FileReader()
-    reader.onload = function (e) {
-        console.log("Set as source")
-        myVideo.closest('#tab').hidden = false
-        myVideo.parentElement.hidden = false
+    fileBlob = videoUpload.files[0]
+    url = (URL || webkitURL).createObjectURL(fileBlob)
 
-        if (videoUpload.files[0].type.includes("video")) {
-            myImage.hidden = true
-            myVideo.hidden = false
-            if (myAudio.src == "") {
-                myMedia = myVideo
-            }
-            myVideo.src = this.result
-            changeSpeed(myVideo, videoSpeed.value)
+    console.log("Set as source")
+    myVideo.closest('#tab').hidden = false
+    myVideo.parentElement.hidden = false
 
-            videoStart.max = myVideo.duration
-            videoEnd.max = myVideo.duration
-        } else {
-            myVideo.hidden = true
-            myImage.hidden = false
-
-            myImage.src = this.result
+    if (videoUpload.files[0].type.includes("video")) {
+        myImage.hidden = true
+        myVideo.hidden = false
+        if (myAudio.src == "") {
+            myMedia = myVideo
         }
+        myVideo.src = url
+        changeSpeed(myVideo, videoSpeed.value)
+
+        videoStart.max = myVideo.duration
+        videoEnd.max = myVideo.duration
+    } else {
+        myVideo.hidden = true
+        myImage.hidden = false
+
+        myImage.src = url
     }
-    reader.readAsDataURL(videoUpload.files[0])
 }
 
 
