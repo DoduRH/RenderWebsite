@@ -222,18 +222,28 @@
             </tr>
             <tr>
               <td>
+                <label for="visibleShadow">View a shadow behind the text?</label>
+              </td>
+              <td>
+                <input type="checkbox" id="visibleShadow" name="visibleShadow" onchange="shadowChange()" checked/>
+              </td>
+            </tr>
+            <tr class="shadow_properties">
+              <td>
                 <label for="shadowColour">Choose the colour of the shadow</label>
               </td>
               <td>
                 <input id="shadowColour" name="shadowColour" type="color" value="#000000" required/>
               </td>
             </tr>
-            <tr>
+            <tr class="shadow_properties">
               <td>
-                <label for="visibleShadow">View a shadow behind the text?</label>
+                <label for="shadowX">Shadow offset</label>
               </td>
               <td>
-                <input type="checkbox" id="visibleShadow" name="visibleShadow" checked/>
+                <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="5" step="1" min="-2000" max="2000" required>
+                , 
+                <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="5" step="1" min="-2000" max="2000" required>
               </td>
             </tr>
 

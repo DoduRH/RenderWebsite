@@ -138,16 +138,17 @@ def prev():
     try:
         maincol = '#' + get_args(r, "maincol", "ffffff")
         visible = bool(get_args(r, "visible", "true") == "true")
-        shadow = '#' + get_args(r, "shadow", "000000")
+        shadowcolour = '#' + get_args(r, "shadow", "000000")
         fontsize = int(get_args(r, "fontsize", 100))
         position = get_args(r, "position", "mm")
         max_width = int(get_args(r, "maxWidth", 90)) / 100
         dimentions = (int(get_args(r, "dimx", 1920)), int(get_args(r, "dimy", 1080)))
         text = get_args(r, "text", "Add my lyrics")
+        shadow_offset = (int(get_args(r, "shadx", 5)), int(get_args(r, "shady", 5)))
     except ValueError:
         return "ERROR: unable to process arguments"  # make this an image eventually
 
-    img_loc = generate_img(text, maincol, visible, shadow, fontsize, position, max_width, dimentions)
+    img_loc = generate_img(text, maincol, visible, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
 
     if 'error' in img_loc.lower():
         return img_loc
@@ -244,6 +245,7 @@ def uploader():
             video_speed = float(get_value(r, 'video_speed', 1))
             audio_speed = float(get_value(r, 'audio_speed', 1))
             view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
+            shadow_offset = (int(get_value(r, 'shadow_offset_x', 5)), int(get_value(r, 'shadow_offset_y', 5)))
             text_colour = get_value(r, 'textColour', 'ffffff')
             shadow_colour = get_value(r, 'shadowColour', '000000')
             background_colour = get_value(r, 'background_colour', '000000')
@@ -291,7 +293,7 @@ def uploader():
             return error("Video timestamps don't make sense")
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
+        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
 
         ##########
         # Q code #

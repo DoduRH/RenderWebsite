@@ -55,7 +55,7 @@ class position():
         return self.x
 
 
-def generate_img(text, text_colour, view_shadow, shadow_colour, fontsize, text_position, max_width, dim):
+def generate_img(text, text_colour, view_shadow, shadow_colour, shadow_offset, fontsize, text_position, max_width, dim):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     filename = "/tmp/img_" + str(uuid4()) + ".jpg"
 
@@ -64,10 +64,8 @@ def generate_img(text, text_colour, view_shadow, shadow_colour, fontsize, text_p
 
     lines, height = wraptext(font, fontsize, text, dim[0] * max_width)
     text_offset = position(text_position, height)
-    if view_shadow:
-        shadow_offset = 5
-    else:
-        shadow_offset = 0
+    if not view_shadow:
+        shadow_offset = [0, 0]
 
     render = (
         ffmpeg
@@ -76,8 +74,8 @@ def generate_img(text, text_colour, view_shadow, shadow_colour, fontsize, text_p
     )
     for i, txt in enumerate(lines):
         render = render.drawtext(fontfile=font, text=txt, fontcolor=text_colour, 
-            shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset, 
-            shadowy=shadow_offset, x=text_offset.getXPos(), y=text_offset.getYPos(i, len(lines)))
+            shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset[0], 
+            shadowy=shadow_offset[1], x=text_offset.getXPos(), y=text_offset.getYPos(i, len(lines)))
     (
         render
         .output(filename, loglevel="warning")

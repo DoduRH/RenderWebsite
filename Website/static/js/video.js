@@ -250,8 +250,6 @@ function previewFrame() {
         return
     } else if (!htmlValidation()) {
         return
-    } else if (!textPosition) {
-        textPosition = "mm"
     } else {
         if (visualType == "solid") {
             dimx = 1920
@@ -265,14 +263,29 @@ function previewFrame() {
         }
     }
 
+    if (!textPosition) {
+        textPosition = "mm"
+    }
+
+    if (document.getElementById("visibleShadow").checked) {
+        visible = true
+        shadx = document.getElementById("shadow_offset_x").value
+        shady = document.getElementById("shadow_offset_x").value
+        shadow = document.getElementById("shadowColour").value.replace("#", "")
+    } else {
+        visible = false
+        shadx = 0
+        shady = 0
+        shadow = "#000000"
+    }
+
     if (document.getElementById("verses").checked) {
         text = lyrics.value.split("\n\n")[0].split("\n").join("|")
     } else {
         text = lyrics.value.split("\n")[0]
     }
+
     maincol = document.getElementById("textColour").value.replace("#", "")
-    visible = document.getElementById("visibleShadow").checked
-    shadow = document.getElementById("shadowColour").value.replace("#", "")
     size = document.getElementById("font_size").value
     position = textPosition
     maxWidth = document.getElementById("text_width").value
@@ -286,7 +299,9 @@ function previewFrame() {
         "&position=" + position +
         '&maxWidth=' + maxWidth +
         "&dimx=" + dimx +
-        '&dimy=' + dimy
+        '&dimy=' + dimy +
+        "&shadx=" + shadx +
+        '&shady=' + shady
 
     previewImg.src = address
     previewImg.hidden = false
@@ -687,6 +702,18 @@ function htmlValidation() {
         return false
     }
 
+    if (!document.getElementById("visibleShadow").checked) {
+        if (document.getElementById("shadow_offset_x").value == "") {
+            document.getElementById("shadow_offset_x").value = 0
+        }
+        if (document.getElementById("shadow_offset_y").value == "") {
+            document.getElementById("shadow_offset_y").value = 0
+        }
+        if (document.getElementById("shadowColour").value == "") {
+            document.getElementById("shadowColour").value = "#000000"
+        }
+    }
+
     visualType = getVisualType()
 
     if (document.getElementById("videoSource").checked) {
@@ -939,6 +966,16 @@ function audioSourceChange(newSource) {
         elements[i].hidden = !elements[i].className.includes(newSource)
     }
     myAudio.closest("#tab").hidden = (audioUpload.length == 0) || (newSource != "audio")
+}
+
+function shadowChange() {
+    console.log("Changing shadowchange")
+    t = document.getElementById("visibleShadow")
+    elements = t.closest("table").getElementsByClassName("shadow_properties")
+
+    for (let i = 0; i < elements.length; i++) {
+        elements[i].hidden = !t.checked
+    }
 }
 
 document.addEventListener('DOMContentLoaded', function () {

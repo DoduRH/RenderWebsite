@@ -152,7 +152,7 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
     return filename
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
+def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
     # print("Starting render", video_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_video, crop_audio)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
@@ -348,10 +348,8 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         video_comp = video_comp.filter("fade", type="out", start_time=video_duration-video_fade_out, duration=video_fade_out)
 
     # Create filters for text
-    if shadow_visible:
-        shadow_offset = 5
-    else:
-        shadow_offset = 0
+    if not shadow_visible:
+        shadow_offset = [0, 0]
 
     FADE_DURATION = 0.125
     for i, line in enumerate(data[0:2]):
@@ -361,7 +359,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         for i, txt in enumerate(line[3]):
             video_comp = video_comp.drawtext(fontfile=font, text=txt, 
             fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, 
-            shadowx=shadow_offset, shadowy=shadow_offset, x=text_offset.getXPos(), 
+            shadowx=shadow_offset[0], shadowy=shadow_offset[1], x=text_offset.getXPos(), 
             y=text_offset.getYPos(i, len(line[3])), 
             alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + 
             str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + 
