@@ -148,17 +148,19 @@ def prev():
         text = get_args(r, "text", "Add my lyrics")
         shadow_offset = (int(get_args(r, "shadx", 5)), int(get_args(r, "shady", 5)))
     except ValueError:
-        return "ERROR: unable to process arguments"  # make this an image eventually
+        return send_file("images/errorImage.jpg")  # make this an image eventually
 
     if text == "":
         text = "Add my lyrics"
     if shadowcolour == "#":
         shadowcolour = '#000000'
+    if background_colour == "#":
+        background_colour = '#000000'
 
     img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
 
     if 'error' in img_loc.lower():
-        return img_loc
+        return send_file("images/errorImage")
 
     del_thread = threading.Thread(target=delay_delete, args=(5, img_loc))
     del_thread.start()

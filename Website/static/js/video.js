@@ -276,7 +276,7 @@ function previewFrame() {
         visible = false
         shadx = 0
         shady = 0
-        shadow = "#000000"
+        shadow = "000000"
     }
 
     if (document.getElementById("verses").checked) {
@@ -290,7 +290,7 @@ function previewFrame() {
     position = textPosition
     maxWidth = document.getElementById("text_width").value
     backgroundType = getVisualType()
-    background = document.getElementById("background_colour").value
+    background = document.getElementById("background_colour").value.replace("#", "")
 
     address = '/prev' +
         '?text=' + text +
