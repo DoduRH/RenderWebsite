@@ -251,8 +251,7 @@ function previewFrame() {
     } else if (!htmlValidation()) {
         return
     } else if (!textPosition) {
-        showElementError(document.getElementById("text_mm"), "Please select the position of the preview text")
-        return
+        textPosition = "mm"
     } else {
         if (visualType == "solid") {
             dimx = 1920
@@ -265,8 +264,12 @@ function previewFrame() {
             dimy = myImage.naturalWidth
         }
     }
-
-    text = lyrics.value.split("\n")[0]
+    
+    if (document.getElementById("verses").checked) {
+        text = lyrics.value.split("\n\n")[0].split("\n").join("|")
+    } else {
+        text = lyrics.value.split("\n")[0]
+    }
     maincol = document.getElementById("textColour").value.replace("#", "")
     visible = document.getElementById("visibleShadow").checked
     shadow = document.getElementById("shadowColour").value.replace("#", "")
@@ -358,7 +361,11 @@ function updated() {
         document.getElementById("text_tl").required = false
     } else {
         document.getElementById("text_tl").required = true
-        lines = lyrics.value.split("\n")
+        if (document.getElementById("verses").checked) {
+            lines = lyrics.value.split("\n\n")
+        } else {
+            lines = lyrics.value.split("\n")
+        }
         console.log(lines)
         output_tbl =
             "<tr><th>Line</th>" +
@@ -380,7 +387,7 @@ function updated() {
         lines.forEach((line) => {
             output_tbl +=
                 "<tr><td>" +
-                line +
+                line.replace(/\n/g, "<br>") +
                 '</td><td> <input type="number" id="start_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(start_' +
@@ -393,6 +400,7 @@ function updated() {
 
             i++
         })
+
         console.log(start_times, stop_times)
 
         tableLength = lines.length
@@ -491,14 +499,16 @@ function showElementError(elm, msg) {
 function done() {
     console.log("Creating CSV")
 
-    csv = ""
+    csv = []
     i = 0
 
     lines = lyrics.value.split("\n")
+    loops = tbl.rows.length - 1
     console.log(lines)
 
-    if (!(lines.length == 1 && lines[0].trim() == "")) {
-        for (let i = 0; i < lines.length; i++) {
+    if (!(loops == 1 && lines[0].trim() == "")) {
+        verse = ""
+        for (let i = 0; i < loops; i++) {
             start_time = document.getElementById("start_" + i).value
             stop_time = document.getElementById("stop_" + i).value
             if (start_time == "") {
@@ -507,7 +517,7 @@ function done() {
             }
 
             if (stop_time == "") {
-                if (lines.length > i + 1) {
+                if (loops > i + 1) {
                     stop_time = document.getElementById("start_" + (i + 1)).value
                     if (stop_time <= start_time) {
                         showElementError(document.getElementById("start_" + i), "Timing error here")
@@ -527,11 +537,17 @@ function done() {
                 }
             }
 
-            csv += '"' + lines[i] + '", ' + start_time + ", " + stop_time + "\r"
+            if (document.getElementById("verses").checked) {
+                line = lyrics.value.split("\n\n")[i].split("\n").join("|")
+            } else {
+                line = lines[i]
+            }
+            line = line.replace(/"/g, '""')
+            csv.push('"' + line + '", ' + start_time + ", " + stop_time)
         }
     }
 
-    write.value = csv
+    write.value = csv.join("\r")
     return true
 }
 
@@ -601,7 +617,7 @@ function checkForm() {
         }
 
         // Check order of items
-        for (let i = 0; i < lyrics.value.split("\n").length; i++) {
+        for (let i = 0; i < tbl.rows.length - 1; i++) {
             start_elm = document.getElementById("start_" + i)
             stop_elm = document.getElementById("stop_" + i)
             if (

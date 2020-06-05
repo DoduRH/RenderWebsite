@@ -336,6 +336,9 @@
     <section>
       <article>
         <h2>Lyrics</h2>
+        <label for="verses"> Show full a verse at a time </label>
+        <input type="checkbox" id="verses" onchange="updated()"/>
+        <br>
         <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off" onkeyup="textAreaAdjust(this)"
           placeholder="Insert the lyrics of the song here" onchange="updated()"></textarea>
       </article>
