@@ -1,31 +1,44 @@
 <!doctype html>
-<title id="title">Please hold while we render your video</title>
+<html>
 
-<h1 id="head">Please hold while we render your video</h1>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Please Hold</title>
+  <link rel="stylesheet" href="/static/css/main.css">
+</head>
 
-<a href="/video">Add lyrics to another video?</a>
+<body>
+  <main>
+    <section>
+      <article>
+        <h2 id="head">Please hold while we render your video</h2>
+        <a href="/video">Add lyrics to another video?</a>
+      </article>
+    </section>
+  </main>
+</body>
 
 <script>
-const video_id = '{{ video_id }}';
+  const video_id = '{{ video_id }}';
 
-function request(){
-  console.log("starting request...")
-  fetch('/get_file?videoID='.concat(video_id))
-  .then(response => response.json())
-  .then(data => {
-    if (data['progress'] == "done") {
-      clearInterval(timerID)
-      window.location.href = "/download?videoID=".concat(video_id)
-      document.getElementById("title").innerHTML = "Your download should begin shortly"
-      document.getElementById("head").innerHTML = "You download should begin shortly"
-    }
-  })
-  .catch((error) => {
-    console.error('Error:', error);
-  });
-}
+  function request() {
+    console.log("starting request...")
+    fetch('/get_file?videoID='.concat(video_id))
+      .then(response => response.json())
+      .then(data => {
+        if (data['progress'] == "done") {
+          clearInterval(timerID)
+          window.location.href = "/download?videoID=".concat(video_id)
+          document.getElementById("title").innerHTML = "Your download should begin shortly"
+          document.getElementById("head").innerHTML = "You download should begin shortly"
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+  }
 
-timerID = setInterval(request, 15000)
-request()
+  timerID = setInterval(request, 15000)
+  request()
 
 </script>
