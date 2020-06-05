@@ -1,7 +1,8 @@
 import ffmpeg
-from PIL import ImageFont
+from PIL import ImageFont, Image
 from uuid import uuid4
 from re import compile as re_comp
+from os import remove
 
 
 def wraptext(font, fontsize, text, width):
@@ -54,10 +55,31 @@ class position():
     def getXPos(self):
         return self.x
 
+def hex2rgb(hexcode):
+    # Convert 6 char hex to tuplet RGB
+    hexcode = hexcode.lower().replace("#", "")
+    col = []
+    for i in range(0, 6, 2):
+        num = 0
+        for j in range(2):
+            letter = hexcode[i + j]
+            if letter.isnumeric():
+                num += int(letter) * (16**(1-j))
+            else:
+                num += (ord(letter)-87) * (16**(1-j))
 
-def generate_img(text, text_colour, view_shadow, shadow_colour, shadow_offset, fontsize, text_position, max_width, dim):
+        col.append(num)
+    return tuple(col)
+
+def generate_solid_background(video_id, background_colour, dim=(1, 1)):
+    filename = "/tmp/solid_" + video_id + ".png"
+    Image.new('RGB', dim, hex2rgb(background_colour)).save(filename)
+    return filename
+
+def generate_img(text, text_colour, view_shadow, background_type, background_colour, shadow_colour, shadow_offset, fontsize, text_position, max_width, dim):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
-    filename = "/tmp/img_" + str(uuid4()) + ".jpg"
+    preview_id = str(uuid4())
+    filename = "/tmp/img_" + preview_id + ".jpg"
 
     if dim[0] > 1920 or dim[1] > 1080:
         return "ERROR: Image dimensions too large"  # could put error pic, video dimentions too big
@@ -67,11 +89,18 @@ def generate_img(text, text_colour, view_shadow, shadow_colour, shadow_offset, f
     if not view_shadow:
         shadow_offset = [0, 0]
 
-    render = (
-        ffmpeg
-        .input("images/testImage.jpg")
-        .crop(x=0, y=0, width=dim[0], height=dim[1])
-    )
+    if background_type == "solid":
+        imagename = generate_solid_background(preview_id, background_colour)
+    else:
+        imagename = "images/testImage.jpg"
+
+    render = ffmpeg.input(imagename)
+
+    if background_type == "solid":
+        render = render.filter('scale', w=1920, h=1080)
+    else:
+        render = render.crop(x=0, y=0, width=dim[0], height=dim[1])
+
     for i, txt in enumerate(lines):
         render = render.drawtext(fontfile=font, text=txt, fontcolor=text_colour, 
             shadowcolor=shadow_colour, fontsize=fontsize, shadowx=shadow_offset[0], 
@@ -83,5 +112,10 @@ def generate_img(text, text_colour, view_shadow, shadow_colour, shadow_offset, f
         .overwrite_output()
         .run()
     )
+
+    if background_type == "solid":
+        print("Deleting", imagename, end=" - ")
+        remove(imagename)
+        print("Done")
 
     return filename

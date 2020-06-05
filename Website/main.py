@@ -137,6 +137,8 @@ def prev():
     r = request
     try:
         maincol = '#' + get_args(r, "maincol", "ffffff")
+        background_type = get_args(r, 'bgtype', "solid")
+        background_colour = '#' + get_args(r, 'background', "000000")
         visible = bool(get_args(r, "visible", "true") == "true")
         shadowcolour = '#' + get_args(r, "shadow", "000000")
         fontsize = int(get_args(r, "fontsize", 100))
@@ -148,7 +150,10 @@ def prev():
     except ValueError:
         return "ERROR: unable to process arguments"  # make this an image eventually
 
-    img_loc = generate_img(text, maincol, visible, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
+    if text == "":
+        text = "Add my lyrics"
+
+    img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
 
     if 'error' in img_loc.lower():
         return img_loc

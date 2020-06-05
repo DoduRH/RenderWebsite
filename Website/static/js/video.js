@@ -289,10 +289,14 @@ function previewFrame() {
     size = document.getElementById("font_size").value
     position = textPosition
     maxWidth = document.getElementById("text_width").value
+    backgroundType = getVisualType()
+    background = document.getElementById("background_colour").value
 
     address = '/prev' +
         '?text=' + text +
         '&maincol=' + maincol +
+        '&bgtype=' + backgroundType +
+        '&background=' + background +
         "&visible=" + visible +
         "&shadow=" + shadow +
         '&fontsize=' + size +
