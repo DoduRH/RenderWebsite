@@ -152,6 +152,8 @@ def prev():
 
     if text == "":
         text = "Add my lyrics"
+    if shadowcolour == "#":
+        shadowcolour = '#000000'
 
     img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
 
