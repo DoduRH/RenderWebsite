@@ -21,7 +21,7 @@ def main():
     result = render(t, csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio)
     if "error" == result[0:5].lower():
         print("Error while rendering:", result)
-        return render_template("invalid", filename="Error, no audio detected")
+        return render_template("invalid", filename=result[5:])
 
     return t
 

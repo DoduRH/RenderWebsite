@@ -153,7 +153,6 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
 def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
-    # print("Starting render", video_id, "with ", words_loc, video_loc, audio_loc, text_offset, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, text_colour, shadow_colour, fade_in, fade_out, crop_video, crop_audio)
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
         words_loc = download_blob("addlyrics-content", words_loc, ('text'))
@@ -228,7 +227,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             .input(audio_loc)
             .audio
         )
-
 
     audio_streams = [stream for stream in audio_probe["streams"] if stream["codec_type"] == "audio"]
     audio_stream_duration = float(audio_streams[0]['duration'])
@@ -352,7 +350,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         shadow_offset = [0, 0]
 
     FADE_DURATION = 0.125
-    for i, line in enumerate(data[0:2]):
+    for i, line in enumerate(data):
         start_text = float(line[1])
         end_text = float(line[2])
 

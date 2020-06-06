@@ -47,7 +47,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     print("Success")
 
 
-def blob_exists(bucket_name, blob_name):
+def blob_exists(bucket_name, blob_name, output=True):
     """Checks a blob exists in the bucket."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
@@ -55,12 +55,12 @@ def blob_exists(bucket_name, blob_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
-
-    print(
-        "File {} exists {}.".format(
-            blob_name, str(stats)
+    if output:
+        print(
+            "File {} exists {}.".format(
+                blob_name, str(stats)
+            )
         )
-    )
 
     return stats
 
@@ -69,7 +69,7 @@ def size_blob(bucket_name, blob_name):
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
     
-    if not blob_exists(bucket_name, blob_name):
+    if not blob_exists(bucket_name, blob_name, False):
         return 0
 
     storage_client = storage.Client()
@@ -127,7 +127,7 @@ def delay_delete(delay, path):
     try:
         os.remove(path)
     except Exception as error:
-        app.logger.error("Error removing or closing downloaded file handle", error)
+        print("Error removing or closing downloaded file handle", error)
     print("Deleted", path)
     return
 
@@ -337,7 +337,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        import taskSim as client
+        # import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
