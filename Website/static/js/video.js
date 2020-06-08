@@ -149,7 +149,11 @@ function changeSpeed(elm, s) {
 
 audio_speed.onchange = function () {
     console.log("Changed speed of audio")
-    changeSpeed(myAudio, audioSpeed.value)
+    if (getRadioValue("audioSource") == "video" && document.getElementById("advanced_options").checked) {
+        changeSpeed(myVideo, audioSpeed.value)
+    } else {
+        changeSpeed(myAudio, audioSpeed.value)
+    }
 }
 
 video_speed.onchange = function () {
@@ -232,7 +236,7 @@ function textAreaAdjust(o) {
 
 function getRadioValue(name) {
     items = document.getElementsByName(name)
-    for (let i = 1; i < items.length; i++) {
+    for (let i = 0; i < items.length; i++) {
         if (items[i].checked) {
             return items[i].value
         }
@@ -733,7 +737,7 @@ function htmlValidation() {
     inputs = document.getElementsByTagName("input")
     for (const elm of inputs) {
         elm.setCustomValidity("") // HERE
-        if (audioSource == "video" && elm.className.includes("copy")) { // copy values from video version
+        if (audioSource == "video" && elm.className.includes("copy") && !document.getElementById("advanced_options").checked) { // copy values from video version
             elm.value = document.getElementById(elm.id.replace("audio", "video")).value
         } else if (elm.className.includes("all") && elm.hidden) {
             elm.value = 0
@@ -962,6 +966,14 @@ function videoTypeChange(newType) {
     }
 }
 
+function advancedOption() {
+    if (document.getElementById("advanced_options").checked) {
+        audioSourceChange("audio")
+    } else {
+        audioSourceChange("video")
+    }
+}
+
 function audioSourceChange(newSource) {
     console.log(newSource)
     audioFitTime()
@@ -970,6 +982,15 @@ function audioSourceChange(newSource) {
         elements[i].hidden = !elements[i].className.includes(newSource)
     }
     myAudio.closest("#tab").hidden = (audioUpload.length == 0) || (newSource != "audio")
+    adv = document.getElementById("advanced_options")
+    if (getRadioValue('audioSource') == "video") {
+        adv.closest("tr").hidden = false
+        if (newSource == "video" && adv.checked) {
+            audioSourceChange('audio')
+        }
+    } else {
+        adv.closest("tr").hidden = true
+    }
 }
 
 function shadowChange() {
