@@ -29,7 +29,7 @@
         if (data['progress'] == "done") {
           clearInterval(timerID)
           window.location.href = "/download?videoID=".concat(video_id)
-          document.getElementById("title").innerHTML = "Your download should begin shortly"
+          document.title = "Your download should begin shortly"
           document.getElementById("head").innerHTML = "You download should begin shortly"
         }
       })
