@@ -147,7 +147,7 @@ def hex2rgb(hexcode):
     return tuple(col)
 
 def generate_solid_background(video_id, background_colour, dim=(1, 1)):
-    filename = "/tmp/solid_" + video_id + ".png"
+    filename = "/tmp/solid_" + video_id + ".jpg"
     Image.new('RGB', dim, hex2rgb(background_colour)).save(filename)
     return filename
 
