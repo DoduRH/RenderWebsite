@@ -62,10 +62,6 @@
   p + p {
     margin-top: .75em;
   }
-  div {
-    padding: 1.5em;
-    background: white;
-  }
   div h3 {
     color: rgb(25, 215, 240);
   }
@@ -95,6 +91,8 @@
     margin-left: auto;
     margin-right: auto;
     border: 1px solid rgb(182, 238, 255);
+    padding: 1.5em;
+    background: white;
   }
   .capsule  + .capsule {
     border-top: none;
@@ -131,12 +129,20 @@
 
   table {
     border-collapse: collapse;
+    vertical-align: middle;
   }
     
   tr.highlight {
     border: 3px solid #249dee;
   }
   
+  tr.oneline {
+    white-space: nowrap;
+    overflow: hidden;
+    width: 125px;
+    height: 25px;
+  }
+
   .noselect {
     -webkit-touch-callout: none; /* iOS Safari */
       -webkit-user-select: none; /* Safari */
@@ -149,4 +155,38 @@
 
   .right{
     float:right
+  }
+
+  .tooltip {
+    position: relative;
+    text-align: right;
+    display: inline;
+  }
+
+  .tooltip img {
+    height: 1em;
+  }
+  
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px 0;
+    position: absolute;
+    z-index: 1;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -60px;
+    
+    /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
   }

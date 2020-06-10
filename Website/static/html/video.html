@@ -17,116 +17,187 @@
       <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
         <div class="capsule">
           <h3 class=noselect onclick="hide(this)">Background Video Settings</h3>
-          <table id=tableVisual hidden>
-            <tr>
-              <td>
-                <label for="visualType">Select background type</label>
-              </td>
-              <td>
-                <table>
-                  <tr>
-                    <td>
-                      <label for="videoType">Video</label>
-                      <input type="radio" name="visualType" id="videoType" value="video" onchange="videoTypeChange('video')" required/>
-                    </td>
-                    <td>
-                      <label for="imageType">Image</label>
-                      <input type="radio" name="visualType" id="imageType" value="image" onchange="videoTypeChange('image')"/>
-                    </td>
-                    <td>
-                      <label for="solidType">Solid Colour</label>
-                      <input type="radio" name="visualType" id="solidType" value="solid" onchange="videoTypeChange('solid')"/>
-                    </td>
-                  </tr>
-                </table>
-              </td>
-            </tr>
-            <tr class="all video image" hidden>
-              <td>
-                <label for="videoUpload" class="all video">Upload video</label>
-                <label for="videoUpload" class="all image">Upload image</label>
-              </td>
-              <td>
-                <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()"/>
-              </td>
-            </tr>
-            <tr class="all solid" hidden>
-              <td>
-                <label for="background_colour">Background colour</label>
-              </td>
-              <td>
-                <input type="color" name="background_colour" id="background_colour" value="#000000" required>
-              </td>
-            </tr>
-            <tr class="all video" hidden>
-              <td>
-                <label for="video_start">Time to start the video</label>
-              </td>
-              <td>
-                <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000" required/>
-              </td>
-            </tr>
-            <tr class="all video" hidden>
-              <td>
-                <label for="video_end">Time to end the video (0 means leave untill the end)</label>
-              </td>
-              <td>
-                <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000" required/>
-              </td>
-            </tr>
-            <tr class="all video" hidden>
-              <td>
-                <label for="video_speed">Video playback speed</label>
-              </td>
-              <td>
-                <input type="number" id="video_speed" name="video_speed" min="0.01" value="1" step="0.01" max="10" required/>
-              </td>
-            </tr>
-            <tr class="all video image solid" hidden>
-              <td>
-                <label for="video_fade_in">Number of seconds for fade at the start</label>
-              </td>
-              <td>
-                <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required/>
-              </td>
-            </tr>
-            <tr class="all video image solid" hidden>
-              <td>
-                <label for="video_fade_out">Number of seconds for fade at the end</label>
-              </td>
-              <td>
-                <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0" required/>
-              </td>
-            </tr>
-            <tr class="all video" hidden>
-              <td>
-                <label for=crop_video>Crop Video to match audio length?</label>
-              </td>
-              <td>
-                <input type="checkbox" id="crop_video" name="crop_video" checked/>
-              </td>
-            </tr>
+          <table id=tableVisual width=100% hidden>
+            <colgroup>
+              <col span="1" width=50%>
+              <col span="1" width=5%>
+              <col span="1" width=45%>
+            </colgroup>
+            <tbody>
+              <tr>
+                <td>
+                  <label for="visualType">Select background type</label>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <table>
+                    <tr class="oneline">
+                      <td>
+                        <label for="videoType">Video</label>
+                        <input type="radio" name="visualType" id="videoType" value="video"
+                          onchange="videoTypeChange('video')" required />
+                      </td>
+                      <td>
+                        <label for="imageType">Image</label>
+                        <input type="radio" name="visualType" id="imageType" value="image"
+                          onchange="videoTypeChange('image')" />
+                      </td>
+                      <td>
+                        <label for="solidType">Solid Colour</label>
+                        <input type="radio" name="visualType" id="solidType" value="solid"
+                          onchange="videoTypeChange('solid')" />
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr class="all video image" hidden>
+                <td>
+                  <label for="videoUpload" class="all video">Upload video</label>
+                  <label for="videoUpload" class="all image">Upload image</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Upload your background media</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()" />
+                </td>
+              </tr>
+              <tr class="all solid" hidden>
+                <td>
+                  <label for="background_colour">Background colour</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Colour of the background</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="color" name="background_colour" id="background_colour" value="#000000" required>
+                </td>
+              </tr>
+              <tr class="all video" hidden>
+                <td>
+                  <label for="video_start">Start video</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Crop the video to start at this point</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000" required />
+                </td>
+              </tr>
+              <tr class="all video" hidden>
+                <td>
+                  <label for="video_end">End video</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Crop the video to end at this point, ignored if set to 0</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000" required />
+                </td>
+              </tr>
+              <tr class="all video" hidden>
+                <td>
+                  <label for="video_speed">Video speed</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Playback speed of the video</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="video_speed" name="video_speed" min="0.01" value="1" step="0.01" max="10"
+                    required />
+                </td>
+              </tr>
+              <tr class="all video image solid" hidden>
+                <td>
+                  <label for="video_fade_in">Fade in</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Fade in video at the start (seconds)</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required />
+                </td>
+              </tr>
+              <tr class="all video image solid" hidden>
+                <td>
+                  <label for="video_fade_out">Fade out</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Fade out video at the end (seconds)</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0" required />
+                </td>
+              </tr>
+              <tr class="all video" hidden>
+                <td>
+                  <label for=crop_video>Crop video</label>
+                </td>
+                <td>
+                  <div class="tooltip">
+                    <img src="static/images/extraInfo.png">
+                    <span class="tooltiptext noselect">Crop video to match the length of provided audio</span>
+                  </div>
+                </td>
+                <td>
+                  <input type="checkbox" id="crop_video" name="crop_video" checked />
+                </td>
+              </tr>
+            </tbody>
           </table>
         </div>
 
 
         <div class="capsule">
           <h3 class=noselect onclick="hide(this)">Audio Settings</h3>
-          <table id=tableAudio hidden>
+          <table id=tableAudio width=100% hidden>
+            <colgroup>
+              <col span="1" width=50%>
+              <col span="1" width=5%>              
+              <col span="1" width=45%>
+            </colgroup>
             <tr>
               <td>
                 <label for="audioSource">Select audio source</label>
               </td>
               <td>
+                
+              </td>
+              <td>
                 <table>
-                  <tr>
+                  <tr class="oneline">
                     <td>
                       <label for="videoSource">Video</label>
-                      <input type="radio" name="audioSource" id="videoSource" value="video" onchange="audioSourceChange('video')" required/>
+                      <input type="radio" name="audioSource" id="videoSource" value="video"
+                        onchange="audioSourceChange('video')" required />
                     </td>
                     <td>
                       <label for="audioSource">Audio</label>
-                      <input type="radio" name="audioSource" id="audioSource" value="audio" onchange="audioSourceChange('audio')"/>
+                      <input type="radio" name="audioSource" id="audioSource" value="audio"
+                        onchange="audioSourceChange('audio')" />
                     </td>
                   </tr>
                 </table>
@@ -134,7 +205,13 @@
             </tr>
             <tr class="advanced" hidden>
               <td>
-                <label for="advanced_options">Show seperate audio options</label>
+                <label for="advanced_options">Advanced Audio</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Change speed and crop audio seperately to video</span>
+                </div>
               </td>
               <td>
                 <input type="checkbox" id="advanced_options" onchange="advancedOption()">
@@ -142,67 +219,118 @@
             </tr>
             <tr class="all audio" hidden>
               <td>
-                <label for="audioUpload">Upload Audio (Optional)</label>
+                <label for="audioUpload">Upload Audio</label>
               </td>
               <td>
-                <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()"/>
-              </td>
-            </tr>
-            <tr class="all audio" hidden>
-              <td>
-                <label for="audio_start">Time to start the audio</label>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Upload your audio</span>
+                </div>
               </td>
               <td>
-                <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01" max="100000" class="copy" required/>
+                <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()" />
               </td>
             </tr>
             <tr class="all audio" hidden>
               <td>
-                <label for="audio_end">Time to end the audio</label>
+                <label for="audio_start">Start audio</label>
               </td>
               <td>
-                <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01" max="100000" class="copy" required/>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Crop the audio to start at this point</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01" max="100000"
+                  class="copy" required />
               </td>
             </tr>
             <tr class="all audio" hidden>
               <td>
-                <label for="audio_speed">Audio playback speed</label>
+                <label for="audio_end">End audio</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Crop the audio to end at this point, ignored if set to 0</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01" max="100000"
+                  class="copy" required />
+              </td>
+            </tr>
+            <tr class="all audio" hidden>
+              <td>
+                <label for="audio_speed">Audio speed</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Playback speed of the audio</span>
+                </div>
               </td>
               <td>
                 <input type="number" id="audio_speed" name="audio_speed" min="0.5" value="1" step="0.01" max="2"
-                class="copy" required/>
+                  class="copy" required />
               </td>
             </tr>
             <tr class="all audio" hidden>
               <td>
-                <label for=crop_audio>Crop Audio to match video length?</label>
+                <label for="audio_fade_in">Fade in</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Fade in audio at the start (seconds)</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0" class="copy" required />
+              </td>
+            </tr>
+            <tr class="all audio" hidden>
+              <td>
+                <label for="audio_fade_out">Fade out</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Fade out audio at the end (seconds)</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0" class="copy"
+                  required />
+              </td>
+            </tr>
+            <tr class="all audio" hidden>
+              <td>
+                <label for=crop_audio>Crop Audio</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Crop audio to match the length of provided video</span>
+                </div>
               </td>
               <td>
                 <input type="checkbox" id="crop_audio" name="crop_audio" />
               </td>
             </tr>
-            <tr class="all audio" hidden>
-              <td>
-                <label for="audio_fade_in">Fade audio in (seconds)</label>
-              </td>
-              <td>
-                <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0" class="copy" required/>
-              </td>
-            </tr>
-            <tr class="all audio" hidden>
-              <td>
-                <label for="audio_fade_out">Fade audio out (seconds)</label>
-              </td>
-              <td>
-                <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0" class="copy" required/>
-              </td>
-            </tr>
             <tr id="row_fill_time" hidden>
               <td>
-                Caclculate speed to match video time to audio time
+                Fill time
               </td>
+            <td>
+              <div class="tooltip">
+                <img src="static/images/extraInfo.png">
+                <span class="tooltiptext noselect">Calculate video speed to fill length of audio</span>
+              </div>
+            </td>
               <td>
-                <button type="button" onclick="fillTime()">Go</button>
+                <button type="button" onclick="fillTime()">Calculate</button>
               </td>
             </tr>
 
@@ -211,37 +339,66 @@
 
         <div class="capsule">
           <h3 class=noselect onclick="hide(this)">Text Settings</h3>
-          <table id=tableText hidden>
+          <table id=tableText width=100% hidden>
+            <colgroup>
+              <col span="1" width=50%>
+              <col span="1" width=5%>
+              <col span="1" width=45%>
+            </colgroup>
             <tr>
               <td>
                 <label for="font_size">Font size</label>
               </td>
               <td>
-                <input type="number" id="font_size" name="font_size" min="1" value="100" max="1000" step="1" required/>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Set the size of the font</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="font_size" name="font_size" min="1" value="100" max="1000" step="1" required />
               </td>
             </tr>
             <tr>
               <td>
-                <label for="textColour">Choose the colour of the text</label>
+                <label for="textColour">Text colour</label>
               </td>
               <td>
-                <input id="textColour" name="textColour" type="color" value="#ffffff" required/>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Set the colour of the text</span>
+                </div>
+              </td>
+              <td>
+                <input id="textColour" name="textColour" type="color" value="#ffffff" required />
               </td>
             </tr>
             <tr>
               <td>
-                <label for="visibleShadow">View a shadow behind the text?</label>
+                <label for="visibleShadow">Shadow</label>
               </td>
               <td>
-                <input type="checkbox" id="visibleShadow" name="visibleShadow" onchange="shadowChange()" checked/>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Show a shadow behind the text</span>
+                </div>
+              </td>
+              <td>
+                <input type="checkbox" id="visibleShadow" name="visibleShadow" onchange="shadowChange()" checked />
               </td>
             </tr>
             <tr class="shadow_properties">
               <td>
-                <label for="shadowColour">Choose the colour of the shadow</label>
+                <label for="shadowColour">Shadow colour</label>
               </td>
               <td>
-                <input id="shadowColour" name="shadowColour" type="color" value="#000000" required/>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Set the colour of the text shadow</span>
+                </div>
+              </td>
+              <td>
+                <input id="shadowColour" name="shadowColour" type="color" value="#000000" required />
               </td>
             </tr>
             <tr class="shadow_properties">
@@ -249,15 +406,28 @@
                 <label for="shadowX">Shadow offset</label>
               </td>
               <td>
-                <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="5" step="1" min="-2000" max="2000" required>
-                , 
-                <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="5" step="1" min="-2000" max="2000" required>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Offset from text to shadow (positive bottom right)</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="5" step="1" min="-2000"
+                  max="2000" required>
+                ,
+                <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="5" step="1" min="-2000"
+                  max="2000" required>
               </td>
             </tr>
-
             <tr>
               <td>
                 <label for="text_position">Text position</label>
+              </td>
+              <td>
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Set the position of the text</span>
+                </div>
               </td>
               <td>
                 <table>
@@ -302,7 +472,14 @@
                 <label for="text_width">Max text width</label>
               </td>
               <td>
-                <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1" required/> %
+                <div class="tooltip">
+                  <img src="static/images/extraInfo.png">
+                  <span class="tooltiptext noselect">Percentage of the screen to use before wraping text</span>
+                </div>
+              </td>
+              <td>
+                <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1" required />
+                %
               </td>
             </tr>
 
@@ -341,7 +518,7 @@
 
         <input type="text" id="videoExt" name="videoExt" readonly hidden>
         <input type="text" id="audioExt" name="audioExt" readonly hidden>
-        <input type="text" id="uuid" name="uuid" readonly hidden>        
+        <input type="text" id="uuid" name="uuid" readonly hidden>
       </form>
     </aside>
 
@@ -355,14 +532,20 @@
       <article>
         <h2>Lyrics</h2>
         <label for="verses"> Show a full verse at a time </label>
-        <input type="checkbox" id="verses" onchange="updated()"/>
+        <div class="tooltip">
+          <img src="static/images/extraInfo.png">
+          <span class="tooltiptext noselect">Use a double return to seperate verses</span>
+        </div>
+        <input type="checkbox" id="verses" onchange="updated()" />
         <br>
-        <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off" onkeyup="textAreaAdjust(this)"
-          placeholder="Insert the lyrics of the song here" onchange="updated()"></textarea>
+        <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off"
+          onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
+          onchange="updated()"></textarea>
       </article>
     </section>
   </main>
 </body>
 
 <script src="/static/js/video.js"></script>
+
 </html>
