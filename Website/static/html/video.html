@@ -16,8 +16,9 @@
       </div>
       <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this)">Background Video Settings</h3>
-          <table id=tableVisual width=100% hidden>
+          <h3 class=noselect onclick="hide(this.nextElementSibling)">Background Video Settings</h3>
+          <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
+          <table id=tableVisual width=100%>
             <colgroup>
               <col span="1" width=50%>
               <col span="1" width=5%>
@@ -35,16 +36,24 @@
                     <tr class="oneline">
                       <td>
                         <label for="videoType">Video</label>
+                      </td>
+                      <td>
+                        <label for="imageType">Image</label>
+                      </td>
+                      <td>
+                        <label for="solidType">Solid Colour</label>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
                         <input type="radio" name="visualType" id="videoType" value="video"
                           onchange="videoTypeChange('video')" required />
                       </td>
                       <td>
-                        <label for="imageType">Image</label>
                         <input type="radio" name="visualType" id="imageType" value="image"
                           onchange="videoTypeChange('image')" />
                       </td>
                       <td>
-                        <label for="solidType">Solid Colour</label>
                         <input type="radio" name="visualType" id="solidType" value="solid"
                           onchange="videoTypeChange('solid')" />
                       </td>
@@ -168,12 +177,14 @@
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
 
 
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this)">Audio Settings</h3>
-          <table id=tableAudio width=100% hidden>
+          <h3 class=noselect onclick="hide(this.nextElementSibling)">Audio Settings</h3>
+          <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
+          <table id=tableAudio width=100%>
             <colgroup>
               <col span="1" width=50%>
               <col span="1" width=5%>              
@@ -336,10 +347,12 @@
 
           </table>
         </div>
+      </div>
 
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this)">Text Settings</h3>
-          <table id=tableText width=100% hidden>
+          <h3 class=noselect onclick="hide(this.nextElementSibling)">Text Settings</h3>
+          <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
+          <table id=tableText width=100%>
             <colgroup>
               <col span="1" width=50%>
               <col span="1" width=5%>
@@ -485,28 +498,47 @@
 
           </table>
         </div>
-        <div class="capsule" id=tab hidden>
-          <h3 class=noselect onclick="hide(this, true)">Uploaded Video</h3>
-          <div padding=0>
-            <video id="video1" width=100% class="all video" controls>
-              Please upload a video
-            </video>
-            <img id="image1" width=100% class="all image" alt="Unable to show image">
+        </div>
+        <div class="expandable minimised" id=tab>
+          <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Video</h3>
+          <div id=hider class="expandable minimised">
+            <table>
+              <tr><td>
+                <video id="video1" width=100% class="all video mediaplayer" controls>
+                  Please upload a video
+                </video>
+                <img id="image1" width=100% class="all image" alt="Unable to show image">
+              </td></tr>
+            </table>
           </div>
         </div>
         <div class="capsule" id=tab hidden>
-          <h3 class=noselect onclick="hide(this, true)">Uploaded Audio</h3>
-          <div>
-            <audio id="audio1" controls>
-              Please upload an mp3
-            </audio>
+          <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Audio</h3>
+          <div id=hider class="expandable minimised">
+            <table>
+              <tr><td>
+                <audio id="audio1" class="all audio mediaplayer" controls>
+                  Please upload an mp3
+                </audio>
+              </td></tr>
+            </table>
           </div>
         </div>
         <div class="capsule">
-          <h3 class=noselect onclick="hide(this)">Preview frame</h3>
-          <div id=tab hidden>
-            <img id="previewImg" width="100%" src="" hidden /><br />
-            <button type="button" onclick="previewFrame()">Preview</button><br />
+          <h3 class=noselect onclick="hide(this.nextElementSibling)">Preview frame</h3>
+          <div id=tab class="expandable minimised">
+            <table id=tablePreview>
+              <tr>
+                <td>
+                  <img id="previewImg" width="100%" src="" onload="onPreviewLoad()" hidden />
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <button type="button" onclick="previewFrame()">Preview</button>
+                </td>
+              </tr>
+            </table>
           </div>
         </div>
         <h1 id="csvHeading" hidden>CSV to copy</h1>
@@ -522,10 +554,12 @@
       </form>
     </aside>
 
-    <section hidden>
+    <section>
       <article>
         <h2>Timing</h2>
-        <table id="table1"></table>
+        <div class="expandable minimised">
+          <table id="table1"></table>
+        </div>
       </article>
     </section>
     <section>

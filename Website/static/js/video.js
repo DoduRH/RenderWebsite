@@ -36,8 +36,8 @@ function videoChange() {
     url = (URL || webkitURL).createObjectURL(fileBlob)
 
     console.log("Set as source")
-    myVideo.closest('#tab').hidden = false
-    myVideo.parentElement.hidden = false
+    /*myVideo.closest('#tab').hidden = false
+    myVideo.parentElement.hidden = false*/
 
     if (videoUpload.files[0].type.includes("video")) {
         myImage.hidden = true
@@ -58,23 +58,62 @@ function videoChange() {
     }
 }
 
+window.onresize = function() {
+    elms = document.getElementsByClassName("expanded")
+    for (let i = 0; i < elms.length; i++) {
+        e = elms[i]
+        e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+    }
+}
 
 myVideo.oncanplay = function (e) {
     if (videoUpload.files[0].type.includes("video")) {
         if (myVideo.videoWidth * myVideo.videoHeight > 1920 * 1080) {
-            myVideo.closest('#tab').hidden = true
             videoUpload.value = ""
             alert("Video resolution too high please select another file, 1080p max")
             return
         }
     } else {
         if (myImage.naturalWidth * myImage.naturalHeight > 1920 * 1080) {
-            myVideo.closest('#tab').hidden = true
             videoUpload.value = ""
             alert("Image resolution too high please select another file, max 1920x1080")
             return
         }
     }
+}
+
+myVideo.onloadeddata = function(e) {
+    changeVisualAreaSize()
+}
+
+myImage.onload = function(e) {
+    changeVisualAreaSize()
+}
+
+function changeVisualAreaSize() {
+    console.log("Loaded video")
+    myVideo.closest('#tab').classList.remove("expandable", "minimised")
+    myVideo.closest('#tab').classList.add("capsule")
+
+    e = myVideo.closest('#hider')
+    e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+    e.classList.add("expanded")
+    e.classList.remove("minimised")
+}
+
+myAudio.onloadeddata = function(e) {
+    changeAudioAreaSize()
+}
+
+function changeAudioAreaSize() {
+    console.log("Loaded audio")
+    myAudio.closest('#tab').classList.remove("expandable", "minimised")
+    myAudio.closest('#tab').classList.add("capsule")
+
+    e = myAudio.closest('#hider')
+    e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+    e.classList.add("expanded")
+    e.classList.remove("minimised")
 }
 
 function setMaxMediaValues() {
@@ -141,6 +180,7 @@ function audioChange() {
     reader.readAsDataURL(audioUpload.files[0])
 
     setMaxMediaValues()
+    changeAudioAreaSize()
 }
 
 function changeSpeed(elm, s) {
@@ -312,7 +352,11 @@ function previewFrame() {
         '&shady=' + shady
 
     previewImg.src = address
+}
+
+function onPreviewLoad() {
     previewImg.hidden = false
+    document.getElementById("tablePreview").parentElement.style = "--extendedHeight: " + document.getElementById("tablePreview").offsetHeight + "px;"
 }
 
 function focusOnNoScoll(elm) {
@@ -380,7 +424,11 @@ function updated() {
     console.log("Updating table")
     textAreaAdjust(lyrics)
     if (lyrics.value == "") {
-        tbl.parentElement.parentElement.hidden = true
+        e = tbl.closest('div')
+        e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+        e.classList.remove("expanded")
+        e.classList.add("minimised")
+
         document.getElementById("text_tl").required = false
     } else {
         document.getElementById("text_tl").required = true
@@ -395,7 +443,6 @@ function updated() {
             '<th><button onclick="time_start()">Start</button></th>' +
             '<th><button onclick="time_stop()">Stop</button></th></tr>' // this may be an issue
 
-        tbl.parentElement.parentElement.hidden = false
         start_times = []
         stop_times = []
         if (tableLength > 0) {
@@ -438,6 +485,10 @@ function updated() {
                 document.getElementById("stop_" + j).value = stop_times[j]
             }
         }
+        e = tbl.closest('div')
+        e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+        e.classList.add("expanded")
+        e.classList.remove("minimised")
     }
 }
 
@@ -512,9 +563,11 @@ function fontCheck(curId, min, max) {
 }
 
 function showElementError(elm, msg) {
-    if (elm.offsetHeight == 0) {
-        hide(elm.closest("div").children[0])
-    }
+    e = elm.closest('div')
+    e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
+    e.classList.add("expanded")
+    e.classList.remove("minimised")
+    
     elm.setCustomValidity(msg)
     elm.reportValidity()
 }
@@ -702,10 +755,14 @@ function getVisualType() {
     } else if (document.getElementById("solidType").checked) {
         return "solid"
     }
-    return false
+    return ""
 }
 
 function htmlValidation() {
+    if (getVisualType() == "") {
+        showElementError(document.getElementById("videoType"), "Select background type")
+        return false
+    }
     if (!setMaxMediaValues()) {
         return false
     }
@@ -723,6 +780,11 @@ function htmlValidation() {
     }
 
     visualType = getVisualType()
+
+    if (visualType == "") {
+        showElementError(document.getElementById("videoType"), "Select background type")
+        return false
+    }
 
     if (document.getElementById("videoSource").checked) {
         audioSource = "video"
@@ -878,14 +940,15 @@ async function submitForm() {
     }
 }
 
-function hide(t, media = false) {
+function hide(e, media=false, index=0) {
     console.log("Toggle")
-    e = t.nextElementSibling
     if (media) {
-        e.children[0].pause()
+        e.getElementsByClassName("mediaplayer")[0].pause()
     }
 
-    e.hidden = !e.hidden
+    e.style = "--extendedHeight: " + e.children[index].offsetHeight + "px;"
+    e.classList.toggle("expanded")
+    e.classList.toggle("minimised")
 }
 
 function update_highlight() {
@@ -954,9 +1017,9 @@ function videoTypeChange(newType) {
     }
 
     if (newType == "solid" || !filetype.includes(newType)) {
-        myVideo.closest("#tab").hidden = true
+        // REMINDER: hide the video element?
     } else {
-        myVideo.closest("#tab").hidden = false
+        // REMINDER: show the video element?
         displayElements = myVideo.closest("#tab").getElementsByClassName("all")
         for (let i = 0; i < displayElements.length; i++) {
             if (!displayElements[i].hidden) {
@@ -964,6 +1027,7 @@ function videoTypeChange(newType) {
             }
         }
     }
+    document.getElementById("tableVisual").parentElement.style = "--extendedHeight: " + document.getElementById("tableVisual").offsetHeight + "px;"
 }
 
 function advancedOption() {
@@ -991,6 +1055,7 @@ function audioSourceChange(newSource) {
     } else {
         adv.closest("tr").hidden = true
     }
+    document.getElementById("tableAudio").parentElement.style = "--extendedHeight: " + document.getElementById("tableAudio").offsetHeight + "px;"
 }
 
 function shadowChange() {
@@ -1001,6 +1066,7 @@ function shadowChange() {
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !t.checked
     }
+    document.getElementById("tableText").parentElement.style = "--extendedHeight: " + document.getElementById("tableText").offsetHeight + "px;"
 }
 
 document.addEventListener('DOMContentLoaded', function () {

@@ -139,8 +139,6 @@
   tr.oneline {
     white-space: nowrap;
     overflow: hidden;
-    width: 125px;
-    height: 25px;
   }
 
   .noselect {
@@ -156,6 +154,24 @@
   .right{
     float:right
   }
+
+  .expandable {
+    background: #fff;
+    overflow: hidden;
+    color: #000;
+  
+    transition: all;
+    transition-timing-function: linear;
+    transition-duration: .3s;
+   }
+
+   .expanded {
+    height: var(--extendedHeight);
+   }
+
+   .minimised {
+   height: 0;
+   }
 
   .tooltip {
     position: relative;
