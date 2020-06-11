@@ -168,16 +168,10 @@ function setMaxMediaValues() {
 
 function audioChange() {
     console.log("New audio")
-    var reader = new FileReader()
-    reader.onload = function (e) {
-        console.log("Set as source")
-        myAudio.src = this.result
-        myAudio.closest('#tab').hidden = false
+    fileBlob = audioUpload.files[0]
+    url = (URL || webkitURL).createObjectURL(fileBlob)
 
-        myMedia = myAudio
-    }
-
-    reader.readAsDataURL(audioUpload.files[0])
+    myAudio.src = url
 
     setMaxMediaValues()
     changeAudioAreaSize()
