@@ -414,9 +414,16 @@ function numLostFocus(num) {
     lastFocus = num
 }
 
-function updated() {
+function setCookie(t) {
+    if (t.value != "") {
+        document.cookie = t.id + '=' + encodeURIComponent(t.value)
+    }
+}
+
+function updated(t) {
     console.log("Updating table")
     textAreaAdjust(lyrics)
+    setCookie(t)
     if (lyrics.value == "") {
         e = tbl.closest('div')
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
@@ -456,11 +463,11 @@ function updated() {
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(start_' +
                 i +
-                ')"> </td><td> <input type="number" id="stop_' +
+                ')" onchange="setCookie(this)"> </td><td> <input type="number" id="stop_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(stop_' +
                 i +
-                ')"> </td></tr>'
+                ')" onchange="setCookie(this)"> </td></tr>'
 
             i++
         })
@@ -1063,7 +1070,73 @@ function shadowChange() {
     document.getElementById("tableText").parentElement.style = "--extendedHeight: " + document.getElementById("tableText").offsetHeight + "px;"
 }
 
+function confirmDeleteTimingInfo () {
+    if (lyrics.value != "" && confirm("Do you want to remove lyrics and timing information FOREVER?")) {
+        deleteTimingInfo()
+    }
+}
+
+function deleteTimingInfo() {
+    regStart = /(start_[0-9]|stop_[0-9])/g
+    while ((match = regStart.exec(document.cookie)) != null) {
+        deleteCookie(match[0])
+    }
+    deleteCookie("lyricsArea")
+    loadFromCookies()
+}
+
+function deleteCookie(cname) {
+    var name = cname + "="
+    var decodedCookie = decodeURIComponent(document.cookie)
+    var ca = decodedCookie.split(';')
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i]
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1)
+      }
+      if (c.indexOf(name) == 0) {
+        // Found cookie with cname
+        document.cookie = name + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        return
+      }
+    }
+    return
+}
+
+function getCookie(cname) {
+    var name = cname + "="
+    var decodedCookie = decodeURIComponent(document.cookie)
+    var ca = decodedCookie.split(';')
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i]
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1)
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length)
+      }
+    }
+    return ""
+}
+
+function loadFromCookies() {
+    lyrics.value = getCookie("lyricsArea")
+    updated(lyrics)
+
+    if (lyrics.value == "") {
+        tbl.parentElement.classList.add("minimised")
+    } else {
+        tbl.parentElement.classList.add("expanded")
+        len = lyrics.value.split("\n").length
+        for (let i = 0; i < len; i++) {
+            document.getElementById("start_" + i).value = getCookie("start_" + i)
+            document.getElementById("stop_" + i).value = getCookie("stop_" + i)
+        }
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    loadFromCookies()
     textAreaAdjust(lyrics)
     getID()
 }, false)

@@ -557,7 +557,7 @@
     <section>
       <article>
         <h2>Timing</h2>
-        <div class="expandable minimised">
+        <div class="expandable">
           <table id="table1"></table>
         </div>
       </article>
@@ -574,7 +574,9 @@
         <br>
         <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off"
           onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
-          onchange="updated()"></textarea>
+          onchange="updated(this)"></textarea>
+      <br>
+      <button onclick="confirmDeleteTimingInfo()">Remove lyrics and timing</button>
       </article>
     </section>
   </main>

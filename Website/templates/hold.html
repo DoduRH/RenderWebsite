@@ -21,6 +21,32 @@
 <script>
   const video_id = '{{ video_id }}';
 
+  function deleteCookie(cname) {
+    var name = cname + "="
+    var decodedCookie = decodeURIComponent(document.cookie)
+    var ca = decodedCookie.split(';')
+    for(var i = 0; i <ca.length; i++) {
+      var c = ca[i]
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1)
+      }
+      if (c.indexOf(name) == 0) {
+        // Found cookie with cname
+        document.cookie = name + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+        return
+      }
+    }
+    return
+}
+
+  function deleteTimingInfo() {
+    regStart = /(start_[0-9]|stop_[0-9])/g
+    while ((match = regStart.exec(document.cookie)) != null) {
+        deleteCookie(match[0])
+    }
+    deleteCookie("lyricsArea")
+  }
+
   function request() {
     console.log("starting request...")
     fetch('/get_file?videoID='.concat(video_id))
@@ -37,6 +63,7 @@
         console.error('Error:', error);
       });
   }
+  deleteTimingInfo()
 
   timerID = setInterval(request, 15000)
   request()
