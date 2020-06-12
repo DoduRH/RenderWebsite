@@ -1119,6 +1119,17 @@ function getCookie(cname) {
     return ""
 }
 
+function videoTime(e, t, loc) {
+    if (e.key == " ") {
+        if (loc == "video") {
+            media = myVideo
+        } else if (loc == "audio") {
+            media = getAudioSource() 
+        }
+        t.value = media.currentTime.toFixed(2)
+    }
+}
+
 function loadFromCookies() {
     lyrics.value = getCookie("lyricsArea")
     updated(lyrics)
