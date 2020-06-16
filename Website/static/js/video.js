@@ -601,16 +601,16 @@ function done() {
                         return false
                     }
                 } else {
-                    if (myMedia != null) {
+                    if (getAudioSource(null) == null) {
+                        alert("No audio content present")
+                        return false
+                    } else {
                         if (start_time == "") {
                             showElementError(document.getElementById("start_" + i), "Please enter a start time for this line")
                             return false
                         }
-                        stop_time = myMedia.duration
-                    } else {
-                        showElementError(videoUpload, "Please upload a video")
-                        return false
-                    }
+                        stop_time = getAudioSource().duration
+                    }  
                 }
             }
 
@@ -650,7 +650,7 @@ function getVideoDuration() {
     return (videoEndTime - videoStartTime) / videoSpeed.value
 }
 
-function getAudioSource() {
+function getAudioSource(defaultValue=myVideo) {
     // Find audio source
     if (document.getElementById("videoSource").checked) {
         return myVideo
@@ -658,7 +658,7 @@ function getAudioSource() {
         return myAudio
     } else {
         console.log("No audio source selected")
-        return myVideo
+        return defaultValue
     }
 }
 

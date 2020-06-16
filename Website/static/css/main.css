@@ -129,11 +129,26 @@
     border-collapse: collapse;
     vertical-align: middle;
   }
-    
-  tr.highlight {
-    border: 3px solid #249dee;
+  table.highlightable {
+    border-collapse: separate;
+    border-spacing: 0px;
   }
-  
+  tr.highlight td {
+    border: 3px solid #249dee;
+    border-left: 0;
+    border-right: 0;
+  }
+
+  tr.highlight td:first-of-type {
+    border-left: 3px solid #249dee;
+  }
+
+  tr.highlight td:last-of-type {
+    border-right: 3px solid #249dee;
+  }
+  tr:not(.highlight) td {
+    border: 3px solid transparent;
+  }
   tr.oneline {
     white-space: nowrap;
     overflow: hidden;
