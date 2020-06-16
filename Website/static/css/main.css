@@ -207,7 +207,7 @@
   
   .tooltip .tooltiptext {
     visibility: hidden;
-    width: 120px;
+    width: 220px;
     background-color: black;
     color: #fff;
     text-align: center;
@@ -217,7 +217,7 @@
     z-index: 1;
     bottom: 100%;
     left: 50%;
-    margin-left: -60px;
+    margin-left: -110px;
     
     /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
     opacity: 0;
