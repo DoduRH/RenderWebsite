@@ -5,6 +5,7 @@ from PIL import ImageFont, Image
 import os
 from magic import Magic 
 from re import compile as re_comp
+from time import sleep
 
 m = Magic(mime=True)
 
@@ -368,18 +369,33 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
 
     video_comp = video_comp
-    # composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", crf="28").overwrite_output() # CRF 33 also looks alright
+    progress_file = "/tmp/progress_" + str(video_id) + ".txt"
     composition = (
         ffmpeg
-        .output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info")
+        .output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info", progress=progress_file)
         .global_args("-nostats")
         .overwrite_output()
     )
     print(composition.get_args())
 
-    composition.run()
+    composition.run_async()
+    done = False
+    while not done:
+        sleep(1)
+        with open(progress_file) as f:
+            a = f.readlines()
+        if a[-1].rstrip() == "progress=end":
+            done = True
+        else:
+            i = -2
+            latest = {}
+            while not a[i].startswith("progress") and -i < len(a):
+                line = a[i].split("=")
+                latest[line[0]] = line[1]
+                i -= 1
+            print(latest)
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
 
-    delete_files([output_name, video_loc, words_loc, audio_loc])        
+    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])        
 
     return "VideoOutput_" + str(video_id) + ".mp4"
