@@ -34,18 +34,20 @@
     padding: .75em;
     color: white;
     font-weight: 600;
-    text-transform: lowercase;
-    width: 33.33%;
   }
   a {
     outline: none;
     text-decoration: none;
   }
   footer {
+    background: rgb(36, 159, 230);
     color: white;
     padding: 2em;
     text-align: center;
     height: 100px;
+    position: fixed; 
+    bottom:0; 
+    width:100%;
   }
   h1, h2, h3, h4, h5, h6 {
     margin: 0 0 .5em 0;
