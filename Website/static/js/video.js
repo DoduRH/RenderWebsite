@@ -64,6 +64,8 @@ window.onresize = function() {
         e = elms[i]
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
     }
+
+    document.getElementsByTagName("header")[0].style = "width: " + window.innerWidth + "px;"
 }
 
 myVideo.oncanplay = function (e) {

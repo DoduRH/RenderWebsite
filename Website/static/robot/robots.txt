@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /video
+
+Disallow: /hold?*
+Disallow: /get_file?*
+Disallow: /prev?*
+Disallow: /getUUID
+Disallow: /getSignedURL
+Disallow: /uploader
+Disallow: /download?*
