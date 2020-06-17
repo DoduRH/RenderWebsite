@@ -396,6 +396,7 @@ def robot():
 
 @app.errorhandler(Exception)
 def errorPage(e):
+    print("Error occured from ip", request.remote_addr, "trying to access", request.base_url)
     return error(str(e.code), e.description)
 
 
