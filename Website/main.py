@@ -373,6 +373,11 @@ def download():
     return redirect(url)
 
 
+@app.route('/contact')
+def contact():
+    return app.send_static_file('html/contact.html')
+
+
 @app.route('/privacy-policy')
 def privacy():
     return send_from_directory('static/pdf', 'privacy-policy.pdf')
