@@ -597,7 +597,7 @@ function done() {
             if (stop_time == "") {
                 if (loops > i + 1) {
                     stop_time = document.getElementById("start_" + (i + 1)).value
-                    if (stop_time <= start_time) {
+                    if (parseFloat(stop_time) <= parseFloat(start_time)) {
                         showElementError(document.getElementById("start_" + i), "Timing error here")
                         return false
                     }
