@@ -172,6 +172,7 @@ function audioChange() {
     url = (URL || webkitURL).createObjectURL(fileBlob)
 
     myAudio.src = url
+    myMedia = myAudio
 
     setMaxMediaValues()
     changeAudioAreaSize()
