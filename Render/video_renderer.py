@@ -337,14 +337,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         )
     # VIDEO END
 
-
-    video_fade_in, video_fade_out = video_fade
-    if video_fade_in > 0:
-        video_comp = video_comp.filter("fade", type="in", start_time=0, duration=video_fade_in)
-
-    if video_fade_out > 0:
-        video_comp = video_comp.filter("fade", type="out", start_time=video_duration-video_fade_out, duration=video_fade_out)
-
     # Create filters for text
     if not shadow_visible:
         shadow_offset = [0, 0]
@@ -366,6 +358,13 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + 
             '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + 
             (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
+
+    video_fade_in, video_fade_out = video_fade
+    if video_fade_in > 0:
+        video_comp = video_comp.filter("fade", type="in", start_time=0, duration=video_fade_in)
+
+    if video_fade_out > 0:
+        video_comp = video_comp.filter("fade", type="out", start_time=video_duration-video_fade_out, duration=video_fade_out)
 
     video_comp = video_comp
     # composition = ffmpeg.output(audio_comp, video_comp, output_name, preset="veryfast", crf="28").overwrite_output() # CRF 33 also looks alright
