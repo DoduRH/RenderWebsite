@@ -111,10 +111,6 @@ def is_valid_uuid(uuid_to_test, version=4):
 def is_valid_colour(str_to_test):
     return bool(rrggbbString.match(str_to_test))
 
-@app.route("/")
-def home():
-    return render_template('home.html', version=1)
-
 
 @app.route('/favicon.ico')
 def favicon():
@@ -371,6 +367,11 @@ def download():
 
     print("downloading")
     return redirect(url)
+
+
+@app.route("/")
+def home():
+    return app.send_static_file('html/home.html')
 
 
 @app.route('/contact')
