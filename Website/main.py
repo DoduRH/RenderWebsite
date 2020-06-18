@@ -194,7 +194,7 @@ def getSignedURL():
 
 @app.route("/video")
 def render_video_page():
-    return app.send_static_file('html/video.html')
+    return redirect("/")
 
 
 @app.route('/hold')
@@ -371,7 +371,7 @@ def download():
 
 @app.route("/")
 def home():
-    return app.send_static_file('html/home.html')
+    return app.send_static_file('html/video.html')
 
 
 @app.route('/contact')
@@ -405,4 +405,4 @@ if __name__ == '__main__':
     # Engine, a webserver process such as Gunicorn will serve the app. This
     # can be configured by adding an `entrypoint` to app.yaml.
     print("Starting server")
-    app.run(host='127.0.0.1', port=8087, debug=True)
+    app.run(host='127.0.0.1', port=8087, debug=True, ssl_context='adhoc')

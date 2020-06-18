@@ -75,24 +75,25 @@
   div table {
     color: rgb(0, 0, 0);
   }
-  main {
-    background: rgb(171, 220, 233);
-    padding-bottom: 1.5em;
-  }
-  main section,
-  main aside {
+  .column {
     float: left;
-    padding: 1.5em;
-    padding-bottom: 0;
+    padding: 10px;
   }
-  main article {
-    padding: 1.5em;
-    background: white;
-    border-radius: 3px;
+  .advert {
+    width: 320px;
   }
-  main article p {
-    color: rgb(92, 179, 205);
-    line-height: 1.5;
+  .settings {
+    width: 50%;
+  }
+  .lyrics {
+    width: 50%;
+  }
+
+  /* Clear floats after the columns */
+  .row:after {
+    content: "";
+    display: table;
+    clear: both;
   }
   .capsule {
     margin-left: auto;
@@ -112,28 +113,29 @@
     border-bottom-left-radius: 5px;
     border-bottom-right-radius: 5px;
   }
-  @media (min-width: 800px) {
-    header,
-    main {
+  @media (min-width: 900px) {
+    header {
       overflow: hidden;
-    }
-    main section,
-    main aside {
-      float: left;
-      width: 40%;
-    }
-    main section {
-      width: 60%;
-      padding-right: 0;
     }
     header h1 {
       float: left;
     }
     header nav {
       float: right;
+    } 
+  }
+  
+  @media screen and (max-width: 900px) {
+    .column {
+      width: 100%;
+    }
+    .lyricsArea {
+      overflow: scroll;
     }
   }
-
+  .lyricsArea {
+    overflow: hidden;
+  }
   table {
     border-collapse: collapse;
     vertical-align: middle;

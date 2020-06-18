@@ -11,14 +11,14 @@
 <body>
   <div class="cookie-notice">
     <div class="cookie-notice-flex">
-        <p>This site uses cookies to function properly.
-          By continuing to use this site, you agree to our use of cookies.  
-          To see our privacy policy, click <a href="/privacy-policy" target="_blank">here</a> </p>
-        <span class="cookie-notice-dismiss">
-            <svg viewBox="0 0 24 24">
-                <path d="M 2 2 L 22 22 M 2 22 L22 2" />
-            </svg>
-        </span>
+      <p>This site uses cookies to function properly.
+        By continuing to use this site, you agree to our use of cookies.
+        To see our privacy policy, click <a href="/privacy-policy" target="_blank">here</a> </p>
+      <span class="cookie-notice-dismiss">
+        <svg viewBox="0 0 24 24">
+          <path d="M 2 2 L 22 22 M 2 22 L22 2" />
+        </svg>
+      </span>
     </div>
   </div>
   <header>
@@ -32,8 +32,8 @@
     </nav>
   </header>
   <div class=content>
-    <main>
-      <aside>
+    <div class=row>
+      <div class="settings column">
         <div class="capsule" hidden>
           <h3>Errors</h3>
           <p id="errorDisplay"></p>
@@ -121,7 +121,8 @@
                     <td>
                       <div class="tooltip">
                         <img src="static/images/extraInfo.png">
-                        <span class="tooltiptext noselect">Crop the video to start at this point, select it and press
+                        <span class="tooltiptext noselect">Crop the video to start at this point, select it and
+                          press
                           space to set to current video time</span>
                       </div>
                     </td>
@@ -396,7 +397,8 @@
                   <td>
                     <div class="tooltip">
                       <img src="static/images/extraInfo.png">
-                      <span class="tooltiptext noselect" style="top: 100%; bottom: auto">Set the size of the font</span>
+                      <span class="tooltiptext noselect" style="top: 100%; bottom: auto">Set the size of the
+                        font</span>
                     </div>
                   </td>
                   <td>
@@ -589,18 +591,15 @@
           <input type="text" id="audioExt" name="audioExt" readonly hidden>
           <input type="text" id="uuid" name="uuid" readonly hidden>
         </form>
-      </aside>
-
-      <section>
-        <article>
+      </div>
+      <div class="column lyrics">
+        <div class="capsule">
           <h2>Timing</h2>
           <div class="expandable">
             <table id="table1" class="highlightable"></table>
           </div>
-        </article>
-      </section>
-      <section>
-        <article>
+        </div>
+        <div class="capsule">
           <h2>Lyrics</h2>
           <label for="verses"> Show a full verse at a time </label>
           <div class="tooltip">
@@ -609,14 +608,14 @@
           </div>
           <input type="checkbox" id="verses" onchange="updated()" />
           <br>
-          <textarea id="lyricsArea" style="overflow: hidden" font-family="Arial" width="253px" wrap="off"
+          <textarea id="lyricsArea" class="lyricsArea" font-family="Arial" width="253px" wrap="off"
             onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
             onchange="updated(this)"></textarea>
           <br>
           <button onclick="confirmDeleteTimingInfo()">Remove lyrics and timing</button>
-        </article>
-      </section>
-    </main>
+        </div>
+      </div>
+    </div>
   </div>
   <footer>
     &copy; 2020
