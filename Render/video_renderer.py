@@ -60,7 +60,7 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
+    #blob.download_to_filename(destination_file_name)
 
     fname = destination_file_name.split(".")[-1]
 
@@ -99,7 +99,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         end=""
     )
 
-    blob.upload_from_filename(source_file_name)
+    #blob.upload_from_filename(source_file_name)
 
     print("Success")
 
@@ -380,22 +380,29 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     composition.run_async()
     done = False
+    total_frames = int(duration * framerate)
     while not done:
         sleep(1)
         with open(progress_file) as f:
             a = f.readlines()
-        if a[-1].rstrip() == "progress=end":
+        i = -2
+        latest = {'frame': 0, 'progress': a[-1].split("=")[1]}
+        while not a[i].startswith("progress") and -i < len(a):
+            line = a[i].split("=")
+            latest[line[0]] = line[1]
+            i -= 1
+
+        if latest['progress'].rstrip() == "end":
             done = True
+            # Set DB to 100
+            print(100)
         else:
-            i = -2
-            latest = {}
-            while not a[i].startswith("progress") and -i < len(a):
-                line = a[i].split("=")
-                latest[line[0]] = line[1]
-                i -= 1
-            print(latest)
+            # Update database with this
+            print(int(int(latest["frame"])*100/total_frames))
+
+
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
 
-    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])        
+    #delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])        
 
     return "VideoOutput_" + str(video_id) + ".mp4"
