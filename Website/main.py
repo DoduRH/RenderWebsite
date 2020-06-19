@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, send_file, send_from_directory, redirect, url_for, jsonify
+from flask_cors import CORS
 from img_preview import generate_img
 import os
 import json
@@ -13,6 +14,7 @@ import threading
 from re import compile as reg
 
 app = Flask(__name__)
+CORS(app)
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
 
@@ -24,6 +26,15 @@ uploadClient = storage.Client.from_service_account_json(path)
 downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
 
 rrggbbString = reg(r'#[a-fA-F0-9]{6}$')
+
+
+@app.before_request
+def before_request():
+    if request.url.startswith('http://'):
+        url = request.url.replace('http://', 'https://', 1)
+        code = 301
+        return redirect(url, code=code)
+
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
@@ -194,7 +205,7 @@ def getSignedURL():
 
 @app.route("/video")
 def render_video_page():
-    return redirect("/")
+    return redirect(url_for("home"))
 
 
 @app.route('/hold')
@@ -392,6 +403,11 @@ def faq():
 @app.route('/robots.txt')
 def robot():
     return app.send_static_file('robot/robots.txt')
+
+
+@app.route('/bdd3501b8fab8393994b158beccf8a63.html')
+def verify():
+    return app.send_static_file('bdd3501b8fab8393994b158beccf8a63.html')
 
 
 @app.errorhandler(Exception)
