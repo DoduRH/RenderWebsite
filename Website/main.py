@@ -70,9 +70,6 @@ def size_blob(bucket_name, blob_name):
     """Returns a blob's size in bytes."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
-    
-    if not blob_exists(bucket_name, blob_name, False):
-        return 0
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -369,7 +366,7 @@ def download():
     video_id = get_args(request, "videoID")
     path = "VideoOutput_" + video_id + ".mp4"
     if not blob_exists("addlyrics-content", path):
-        return render_template('home.html', version=4)
+        return error("Download not available")
 
     blob = downloadBucket.blob(path)
     url = blob.generate_signed_url(
