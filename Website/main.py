@@ -252,20 +252,20 @@ def uploader():
 
         try:
             font_size = int(get_value(r, 'font_size', 50))
-            video_usable = (float(get_value(r, 'video_start', 0)), float(get_value(r, 'video_end', 0)))
-            audio_usable = (float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0)))
+            video_usable = [float(get_value(r, 'video_start', 0)), float(get_value(r, 'video_end', 0))]
+            audio_usable = [float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0))]
             font = get_value(r, 'font', 'Arial-Bold')
             text_position = get_value(r, "text_position", "mm")
             text_width = float(get_value(r, "text_width", 90))/100
             video_speed = float(get_value(r, 'video_speed', 1))
             audio_speed = float(get_value(r, 'audio_speed', 1))
             view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
-            shadow_offset = (int(get_value(r, 'shadow_offset_x', 5)), int(get_value(r, 'shadow_offset_y', 5)))
+            shadow_offset = [int(get_value(r, 'shadow_offset_x', 5)), int(get_value(r, 'shadow_offset_y', 5))]
             text_colour = get_value(r, 'textColour', 'ffffff')
             shadow_colour = get_value(r, 'shadowColour', '000000')
             background_colour = get_value(r, 'background_colour', '000000')
-            video_fade = (float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0)))
-            audio_fade = (float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0)))
+            video_fade = [float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0))]
+            audio_fade = [float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0))]
             crop_video = get_value(r, 'crop_video', 'off') == 'on'
             crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
         except ValueError:
@@ -306,6 +306,36 @@ def uploader():
         
         if video_usable[1] != 0 and video_usable[1] <= video_usable[0]:
             return error("Video timestamps don't make sense")
+
+        data = {
+            'args': {
+                "video_id": str(t), 
+                "csv_name": csv_name,
+                "video_name": video_name,
+                "audio_name": audio_name,
+                "background_colour": background_colour,
+                "text_position": text_position,
+                "text_width": text_width,
+                "video_usable": video_usable,
+                "audio_usable": audio_usable,
+                "font": font,
+                "font_size": font_size,
+                "video_speed": video_speed,
+                "audio_speed": audio_speed,
+                "view_shadow": view_shadow,
+                "shadow_offset": shadow_offset,
+                "text_colour": text_colour,
+                "shadow_colour": shadow_colour,
+                "video_fade": video_fade,
+                "audio_fade": audio_fade,
+                "crop_video": crop_video,
+                "crop_audio": crop_audio
+            },
+            'progress': 0,
+            'start-time': datetime.datetime.now()
+        }
+
+        sqlConnector.set_document(t, data)
 
         # Create arguments for the queue
         args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
@@ -348,13 +378,6 @@ def uploader():
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
 
-        data = {
-            'args': json.dumps(args),
-            'progress': 0,
-            'start-time': datetime.datetime.now()
-        }
-
-        sqlConnector.set_document(t, data)
         return redirect(url_for('hold', videoID=t))
 
 
