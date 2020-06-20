@@ -7,7 +7,6 @@ from magic import Magic
 from re import compile as re_comp
 from time import sleep
 import sqlConnector
-import mysql.connector
 
 m = Magic(mime=True)
 
