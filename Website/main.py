@@ -11,6 +11,7 @@ from mimetypes import guess_type as guessmime
 from time import sleep
 import threading
 from re import compile as reg
+import sqlConnector
 
 app = Flask(__name__)
 
@@ -342,7 +343,7 @@ def uploader():
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
 
-        print('Created task {}'.format(response.name))
+        sqlConnector.insert_row(("video_id", "args"), (t, json.dumps(args)))
         return redirect(url_for('hold', videoID=t))
 
 
@@ -350,10 +351,11 @@ def uploader():
 def get_file():
     video_id = get_args(request, "videoID")
     path = "VideoOutput_" + video_id + ".mp4"
-    if blob_exists("addlyrics-content", path):
-        return jsonify({"progress": "done"})
+    progress = sqlConnector.get_value(sql_filter="video_id = '" + video_id + "' AND start_time >= NOW() - INTERVAL 1 DAY", columns="progress")
+    if progress == []:
+        return jsonify({"progress": "ERROR"})
     else:
-        return jsonify({"progress": "nothing"})
+        return jsonify({"progress": progress[0][0]})
 
 
 @app.route('/download', methods=['GET'])

@@ -6,6 +6,8 @@ import os
 from magic import Magic 
 from re import compile as re_comp
 from time import sleep
+import sqlConnector
+import mysql.connector
 
 m = Magic(mime=True)
 
@@ -60,7 +62,7 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
-    #blob.download_to_filename(destination_file_name)
+    blob.download_to_filename(destination_file_name)
 
     fname = destination_file_name.split(".")[-1]
 
@@ -99,9 +101,43 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         end=""
     )
 
-    #blob.upload_from_filename(source_file_name)
+    blob.upload_from_filename(source_file_name)
 
     print("Success")
+
+
+def reverse_readline(filename, buf_size=8192):
+    """A generator that returns the lines of a file in reverse order"""
+    with open(filename) as fh:
+        segment = None
+        offset = 0
+        fh.seek(0, os.SEEK_END)
+        file_size = remaining_size = fh.tell()
+        while remaining_size > 0:
+            offset = min(file_size, offset + buf_size)
+            fh.seek(file_size - offset)
+            buffer = fh.read(min(remaining_size, buf_size))
+            remaining_size -= buf_size
+            lines = buffer.split('\n')
+            # The first line of the buffer is probably not a complete line so
+            # we'll save it and append it to the last line of the next buffer
+            # we read
+            if segment is not None:
+                # If the previous chunk starts right from the beginning of line
+                # do not concat the segment to the last line of new chunk.
+                # Instead, yield the segment first 
+                if buffer[-1] != '\n':
+                    lines[-1] += segment
+                else:
+                    yield segment
+            segment = lines[0]
+            for index in range(len(lines) - 1, 0, -1):
+                if lines[index]:
+                    yield lines[index]
+        # Don't yield None if the file was empty
+        if segment is not None:
+            yield segment
+
 
 def delete_files(files):
     filenames = []
@@ -176,7 +212,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     else:
         audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
 
-    output_name = "/tmp/VideoOutput_" + str(video_id) + ".mp4"
+    output_name = "/tmp/VideoOutput_" + video_id + ".mp4"
 
     video_probe = ffmpeg.probe(video_loc)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
@@ -369,7 +405,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
 
     video_comp = video_comp
-    progress_file = "/tmp/progress_" + str(video_id) + ".txt"
+    progress_file = "/tmp/progress_" + video_id + ".txt"
     composition = (
         ffmpeg
         .output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info", progress=progress_file)
@@ -381,28 +417,35 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     composition.run_async()
     done = False
     total_frames = int(duration * framerate)
+    mydb = sqlConnector.get_connection()
     while not done:
-        sleep(1)
-        with open(progress_file) as f:
-            a = f.readlines()
-        i = -2
-        latest = {'frame': 0, 'progress': a[-1].split("=")[1]}
-        while not a[i].startswith("progress") and -i < len(a):
-            line = a[i].split("=")
-            latest[line[0]] = line[1]
-            i -= 1
+        sleep(2)
+
+        skip = True
+        for r in reverse_readline(progress_file):
+            if skip:
+                skip = False
+                latest = {'frame': 0, 'progress': r.split("=")[1]}
+            else:
+                if r.startswith("progress"):
+                    break
+                line = r.split("=")
+                latest[line[0]] = line[1]
 
         if latest['progress'].rstrip() == "end":
             done = True
-            # Set DB to 100
-            print(100)
+            progress = "99"
         else:
-            # Update database with this
-            print(int(int(latest["frame"])*100/total_frames))
+            progress = str(min(99, int(int(latest["frame"])*100/total_frames)))
 
+        sqlConnector.update_value("video_id = '" + video_id + "'", "progress", progress, connection=mydb)
 
-    upload_blob("addlyrics-content", output_name, "VideoOutput_" + str(video_id) + ".mp4")
+    
+    upload_blob("addlyrics-content", output_name, "VideoOutput_" + video_id + ".mp4")
+    
+    sqlConnector.update_value("video_id = '" + video_id + "'", "progress", "100", connection=mydb)
+    mydb.close()
 
-    #delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])        
+    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
-    return "VideoOutput_" + str(video_id) + ".mp4"
+    return "VideoOutput_" + video_id + ".mp4"
