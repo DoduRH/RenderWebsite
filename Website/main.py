@@ -12,6 +12,8 @@ from mimetypes import guess_type as guessmime
 from time import sleep
 import threading
 from re import compile as reg
+import sqlConnector
+import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -79,9 +81,6 @@ def size_blob(bucket_name, blob_name):
     """Returns a blob's size in bytes."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
-    
-    if not blob_exists(bucket_name, blob_name, False):
-        return 0
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -344,23 +343,29 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        # import taskSim as client
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
 
-        print('Created task {}'.format(response.name))
+        data = {
+            'args': json.dumps(args),
+            'progress': 0,
+            'start-time': datetime.datetime.now()
+        }
+
+        sqlConnector.set_document(t, data)
         return redirect(url_for('hold', videoID=t))
 
 
 @app.route('/get_file', methods=['GET'])
 def get_file():
     video_id = get_args(request, "videoID")
-    path = "VideoOutput_" + video_id + ".mp4"
-    if blob_exists("addlyrics-content", path):
-        return jsonify({"progress": "done"})
+    progress = sqlConnector.get_progress(video_id)
+    if progress is None:
+        return jsonify({"progress": "ERROR"})
     else:
-        return jsonify({"progress": "nothing"})
+        return jsonify({"progress": progress})
 
 
 @app.route('/download', methods=['GET'])
@@ -368,7 +373,7 @@ def download():
     video_id = get_args(request, "videoID")
     path = "VideoOutput_" + video_id + ".mp4"
     if not blob_exists("addlyrics-content", path):
-        return render_template('home.html', version=4)
+        return error("Download not available")
 
     blob = downloadBucket.blob(path)
     url = blob.generate_signed_url(

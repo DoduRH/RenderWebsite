@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Please Hold</title>
   <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/hold.css">
 </head>
 
 <body>
@@ -20,6 +21,11 @@
       <article>
         <h2 id="head">Please hold while we render your video</h2>
         <a href="/">Add lyrics to another video?</a>
+      </article>
+      <article>
+        <div id="myProgress">
+          <div id="myBar" style="width: 0%"></div>
+        </div>
       </article>
     </section>
   </main>
@@ -54,16 +60,43 @@
     deleteCookie("lyricsArea")
   }
 
+  function progressBar(target) {
+    var elem = document.getElementById("myBar")
+    var width = parseInt(elem.style.width.replace("%", ""))
+    var target = parseInt(target)
+    var id = setInterval(frame, 50)
+    console.log(id)
+    function frame() {
+      if (width >= target) {
+        clearInterval(id)
+      } else {
+        if (target > width) {
+          width++
+        } else {
+          width--
+        }
+        elem.style.width = width + "%"
+      }
+    }
+  }
+
   function request() {
     console.log("starting request...")
     fetch('/get_file?videoID='.concat(video_id))
       .then(response => response.json())
       .then(data => {
-        if (data['progress'] == "done") {
-          clearInterval(timerID)
-          window.location.href = "/download?videoID=".concat(video_id)
-          document.title = "Your download should begin shortly"
-          document.getElementById("head").innerHTML = "You download should begin shortly"
+        console.log(data['progress'])
+        if (data['progress'] == "ERROR") {
+          document.getElementById("head").innerHTML = "Somthing went wrong, sorry for the inconvenience"
+        } else {
+          progressBar(data['progress'])
+          if (data['progress'] == "100" && !downloaded) {
+            downloaded == true
+            clearInterval(timerID)
+            window.location.href = "/download?videoID=".concat(video_id)
+            document.title = "Your download should begin shortly"
+            document.getElementById("head").innerHTML = "You download should begin shortly"
+          }
         }
       })
       .catch((error) => {
@@ -71,8 +104,8 @@
       });
   }
   deleteTimingInfo()
-
-  timerID = setInterval(request, 15000)
+  var downloaded = false
+  timerID = setInterval(request, 2000)
   request()
 
 </script>
