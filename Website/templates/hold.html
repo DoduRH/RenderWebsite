@@ -83,7 +83,8 @@
           document.getElementById("head").innerHTML = "Somthing went wrong, sorry for the inconvenience"
         } else {
           progressBar(data['progress'])
-          if (data['progress'] == "100") {
+          if (data['progress'] == "100" && !downloaded) {
+            downloaded == true
             clearInterval(timerID)
             window.location.href = "/download?videoID=".concat(video_id)
             document.title = "Your download should begin shortly"
@@ -96,7 +97,7 @@
       });
   }
   deleteTimingInfo()
-
+  var downloaded = false
   timerID = setInterval(request, 2000)
   request()
 

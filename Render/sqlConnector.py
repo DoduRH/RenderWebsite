@@ -1,49 +1,22 @@
-import mysql.connector
+from google.cloud import firestore
+from pytz import UTC
+import datetime
 
 
-def get_connection():
-    mydb = mysql.connector.connect(
-        host="35.205.56.208",
-        user="root",
-        password="jbGf8ANmy361v05a",
-        database="renders"
-    )
-    return mydb
-
-
-def insert_row(columns, values, table="entries"):
+def set_document(document, data, merge=False):
     ''' Insert values into columns in table '''
-    mydb = get_connection()
-    sql = "INSERT INTO " + table + " (" + ", ".join(columns) + ") VALUES (%s" + ", %s"*(len(columns)-1) + ")"
-    mycursor = mydb.cursor()
-    mycursor.execute(sql, values)
-    mydb.commit()
-    mycursor.close()
-    mydb.close()
+    mydb = firestore.Client()
+    data['edit-time'] = datetime.datetime.now()
+    mydb.collection('renders').document(document).set(data, merge)
 
 
-def get_value(sql_filter, columns="*", table="entries"):
+def get_progress(document, last24hours=True):
     ''' Get value from columns (default all) in tables matching sqlfilter '''
-    mydb = get_connection()
-    sql = "SELECT " + columns + " FROM " + table + " WHERE " + sql_filter
-    mycursor = mydb.cursor()
-    mycursor.execute(sql)
-    results = mycursor.fetchall()
-    mycursor.close()
-    mydb.close()
-    return results
+    mydb = firestore.Client()
+    doc = mydb.collection('renders').document(document).get()
+    doc_dict = doc.to_dict()
 
-
-def update_value(video_id, colummn, value, table="entries", connection=None):
-    ''' Update column of video_id in table to value '''
-    if connection is None:
-        mydb = get_connection()
+    if doc.exists and UTC.localize(datetime.datetime.now() + datetime.timedelta(hours=24)) > doc_dict['edit-time']:
+        return doc_dict['progress']
     else:
-        mydb = connection
-    sql = "UPDATE " + table + " SET " + colummn + " = '" + str(value) + "' WHERE " + video_id
-    mycursor = mydb.cursor()
-    mycursor.execute(sql)
-    mydb.commit()
-    mycursor.close()
-    if connection is None:
-        mydb.close()
+        return None

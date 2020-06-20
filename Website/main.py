@@ -12,6 +12,7 @@ from time import sleep
 import threading
 from re import compile as reg
 import sqlConnector
+import datetime
 
 app = Flask(__name__)
 
@@ -338,24 +339,29 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        # import taskSim as client
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
 
-        sqlConnector.insert_row(("video_id", "args"), (t, json.dumps(args)))
+        data = {
+            'args': json.dumps(args),
+            'progress': 0,
+            'start-time': datetime.datetime.now()
+        }
+
+        sqlConnector.set_document(t, data)
         return redirect(url_for('hold', videoID=t))
 
 
 @app.route('/get_file', methods=['GET'])
 def get_file():
     video_id = get_args(request, "videoID")
-    path = "VideoOutput_" + video_id + ".mp4"
-    progress = sqlConnector.get_value(sql_filter="video_id = '" + video_id + "' AND start_time >= NOW() - INTERVAL 1 DAY", columns="progress")
-    if progress == []:
+    progress = sqlConnector.get_progress(video_id)
+    if progress is None:
         return jsonify({"progress": "ERROR"})
     else:
-        return jsonify({"progress": progress[0][0]})
+        return jsonify({"progress": progress})
 
 
 @app.route('/download', methods=['GET'])

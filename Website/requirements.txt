@@ -4,4 +4,5 @@ pillow
 gunicorn
 google-cloud-storage
 google-cloud-tasks==1.5.0
+google-cloud-firestore
 googleapis-common-protos==1.51.0

@@ -417,7 +417,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     composition.run_async()
     done = False
     total_frames = int(duration * framerate)
-    mydb = sqlConnector.get_connection()
     while not done:
         sleep(2)
 
@@ -436,15 +435,13 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             done = True
             progress = "99"
         else:
-            progress = str(min(99, int(int(latest["frame"])*100/total_frames)))
+            progress = min(99, int(int(latest["frame"])*100/total_frames))
 
-        sqlConnector.update_value("video_id = '" + video_id + "'", "progress", progress, connection=mydb)
+        sqlConnector.set_document(video_id, {'progress': progress}, merge=True)
 
-    
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + video_id + ".mp4")
     
-    sqlConnector.update_value("video_id = '" + video_id + "'", "progress", "100", connection=mydb)
-    mydb.close()
+    sqlConnector.set_document(video_id, {'progress': 100}, merge=True)
 
     delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
