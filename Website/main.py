@@ -20,7 +20,7 @@ CORS(app)
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
 
-MAX_MEDIA_SIZE = 300000000  # 300MB between audio and video
+MAX_MEDIA_SIZE = 310000000  # 300MB between audio and video
 
 uploadBucketName = "addlyrics-content"
 path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
@@ -373,7 +373,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        import taskSim as client
+        # import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
