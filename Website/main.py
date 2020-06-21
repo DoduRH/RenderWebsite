@@ -14,6 +14,7 @@ import threading
 from re import compile as reg
 import sqlConnector
 import datetime
+import base64
 
 app = Flask(__name__)
 CORS(app)
@@ -109,6 +110,12 @@ def get_args(r, name, default=None):
     else:
         return default
 
+def get_from_dict(d, name, default=None):
+    if name in d.keys():
+        return d.get(name)
+    else:
+        return default
+
 def is_valid_uuid(uuid_to_test, version=4):
     try:
         uuid_obj = UUID(uuid_to_test, version=version)
@@ -138,32 +145,33 @@ def delay_delete(delay, path):
     return
 
 
-@app.route("/prev")
+@app.route("/prev", methods=["POST"])
 def prev():
     r = request
     try:
-        maincol = '#' + get_args(r, "maincol", "ffffff")
-        background_type = get_args(r, 'bgtype', "solid")
-        background_colour = '#' + get_args(r, 'background', "000000")
-        visible = bool(get_args(r, "visible", "true") == "true")
-        shadowcolour = '#' + get_args(r, "shadow", "000000")
-        fontsize = int(get_args(r, "fontsize", 100))
-        position = get_args(r, "position", "mm")
-        max_width = int(get_args(r, "maxWidth", 90)) / 100
-        dimentions = (int(get_args(r, "dimx", 1920)), int(get_args(r, "dimy", 1080)))
-        text = get_args(r, "text", "Add my lyrics")
-        shadow_offset = (int(get_args(r, "shadx", 5)), int(get_args(r, "shady", 5)))
+        maincol = '#' + get_from_dict(r.json, "maincol", "ffffff")
+        background_type = get_from_dict(r.json, 'bgtype', "solid")
+        background_colour = '#' + get_from_dict(r.json, 'background', "000000")
+        visible = get_from_dict(r.json, "visible", "true")
+        shadowcolour = '#' + get_from_dict(r.json, "shadow", "000000")
+        fontsize = int(get_from_dict(r.json, "fontsize", 100))
+        position = get_from_dict(r.json, "position", "mm")
+        max_width = int(get_from_dict(r.json, "maxWidth", 90)) / 100
+        text = get_from_dict(r.json, "text", "")
+        shadow_offset = (int(get_from_dict(r.json, "shadx", 5)), int(get_from_dict(r.json, "shady", 5)))
+        if (background_type != "solid"):
+            image_data = get_from_dict(r.json, "media")
+        else:
+            image_data = ""
     except ValueError:
         return send_file("images/errorImage.jpg")  # make this an image eventually
 
-    if text == "":
-        text = "Add my lyrics"
     if shadowcolour == "#":
         shadowcolour = '#000000'
     if background_colour == "#":
         background_colour = '#000000'
 
-    img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, dimentions)
+    img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, image_data)
 
     if 'error' in img_loc.lower():
         return send_file("images/errorImage")

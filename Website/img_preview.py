@@ -3,6 +3,7 @@ from PIL import ImageFont, Image
 from uuid import uuid4
 from re import compile as re_comp
 from os import remove
+import base64
 
 
 def wraptext(font, fontsize, text, width):
@@ -55,6 +56,14 @@ class position():
     def getXPos(self):
         return self.x
 
+
+def save_image(imageData, name):
+    with open(name, "wb") as fh:
+        fh.write(base64.decodebytes(imageData.split(",")[1].encode()))
+    
+    return name
+
+
 def hex2rgb(hexcode):
     # Convert 6 char hex to tuplet RGB
     hexcode = hexcode.lower().replace("#", "")
@@ -76,12 +85,23 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
     Image.new('RGB', dim, hex2rgb(background_colour)).save(filename)
     return filename
 
-def generate_img(text, text_colour, view_shadow, background_type, background_colour, shadow_colour, shadow_offset, fontsize, text_position, max_width, dim):
+def generate_img(text, text_colour, view_shadow, background_type, background_colour, shadow_colour, shadow_offset, fontsize, text_position, max_width, image):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     preview_id = str(uuid4())
     filename = "/tmp/img_" + preview_id + ".jpg"
 
-    if dim[0] > 1920 or dim[1] > 1080:
+    if background_type == "solid":
+        imagename = generate_solid_background(preview_id, background_colour)
+        dim = (1920, 1080)
+    else:
+        imagename = "/tmp/og_img_" + preview_id + ".png"
+        imagename = save_image(image, imagename)
+
+        image_probe = ffmpeg.probe(imagename)
+        image_streams = [stream for stream in image_probe["streams"] if stream["codec_type"] == "video"]
+        dim = (image_streams[0]['width'], image_streams[0]['height'])
+
+    if dim[0] * dim[1] > 1080 * 1920:
         return "ERROR: Image dimensions too large"  # could put error pic, video dimentions too big
 
     lines, height = wraptext(font, fontsize, text, dim[0] * max_width)
@@ -89,17 +109,10 @@ def generate_img(text, text_colour, view_shadow, background_type, background_col
     if not view_shadow:
         shadow_offset = [0, 0]
 
-    if background_type == "solid":
-        imagename = generate_solid_background(preview_id, background_colour)
-    else:
-        imagename = "images/testImage.jpg"
-
     render = ffmpeg.input(imagename)
 
     if background_type == "solid":
         render = render.filter('scale', w=1920, h=1080)
-    else:
-        render = render.crop(x=0, y=0, width=dim[0], height=dim[1])
 
     for i, txt in enumerate(lines):
         render = render.drawtext(fontfile=font, text=txt, fontcolor=text_colour, 
@@ -113,9 +126,8 @@ def generate_img(text, text_colour, view_shadow, background_type, background_col
         .run()
     )
 
-    if background_type == "solid":
-        print("Deleting", imagename, end=" - ")
-        remove(imagename)
-        print("Done")
+    print("Deleting", imagename, end=" - ")
+    remove(imagename)
+    print("Done")
 
     return filename

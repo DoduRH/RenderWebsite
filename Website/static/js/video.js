@@ -281,15 +281,82 @@ function getRadioValue(name) {
     return false
 }
 
+function imgToBase64(img) {
+    const canvas = document.createElement('canvas')
+    const ctx = canvas.getContext('2d')
+    canvas.width = img.naturalWidth
+    canvas.height = img.naturalHeight
+  
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL('image/png');
+  }
+
+function captureVideo(video) {
+    var canvas = document.createElement("canvas")
+    var ctx = canvas.getContext("2d")
+    canvas.width = video.videoWidth
+    canvas.height = video.videoHeight
+
+    ctx.drawImage(video, 0, 0)
+    return canvas.toDataURL('image/png')
+}
+
+function get_first_text() {
+    var rows = tbl.getElementsByTagName('tr')
+    var upper
+    for (var i = 1; i < rows.length; i++) {
+        row = rows[i]
+        cols = row.getElementsByTagName('td')
+
+        // Stop value not there
+        if (cols[2].children[0].value == "") {
+            if (rows.length == i + 1) {
+                upper = myMedia.duration
+            } else {
+                // Next row start value not there
+                if (rows[i + 1].getElementsByTagName('td')[1].children[0].value == "") {
+                    // Dont highlight row
+                    upper = cols[1].children[0].value
+                } else {
+                    // upper = next row start value
+                    upper = rows[i + 1].getElementsByTagName('td')[1].children[0].value
+                }
+            }
+        } else {
+            // upper = stop value
+            upper = cols[2].children[0].value
+        }
+
+        if (cols[1].children[0].value == "") {
+            lower = myMedia.duration
+        } else {
+            lower = cols[1].children[0].value
+        }
+
+        // currentTime between start and stop times
+        if (lower <= myMedia.currentTime && myMedia.currentTime < upper) {
+            return cols[0].innerText
+        }
+    }
+    return ""
+}
+
 function previewFrame() {
     previewImg.hidden = true
     textPosition = getRadioValue("text_position")
     visualType = getVisualType()
-    if (visualType != "solid" && videoUpload.files.length == 0) {
-        console.log("No preview for you")
-        showElementError(videoUpload, "Please upload a video")
-        return
-    } else if (!htmlValidation()) {
+    if (visualType != "solid") {
+        if (videoUpload.files.length == 0) {
+            console.log("No preview for you")
+            showElementError(videoUpload, "Please upload a video")
+            return
+        } else if (visualType == "video") {
+            imageData = captureVideo(myVideo)
+        } else if (visualType == "image") {
+            imageData = imgToBase64(myImage)
+        }
+    }
+    if (!htmlValidation()) {
         return
     } else {
         if (visualType == "solid") {
@@ -311,7 +378,7 @@ function previewFrame() {
     if (document.getElementById("visibleShadow").checked) {
         visible = true
         shadx = document.getElementById("shadow_offset_x").value
-        shady = document.getElementById("shadow_offset_x").value
+        shady = document.getElementById("shadow_offset_y").value
         shadow = document.getElementById("shadowColour").value.replace("#", "")
     } else {
         visible = false
@@ -320,10 +387,9 @@ function previewFrame() {
         shadow = "000000"
     }
 
-    if (document.getElementById("verses").checked) {
-        text = lyrics.value.split("\n\n")[0].split("\n").join("|")
-    } else {
-        text = lyrics.value.split("\n")[0]
+    text = get_first_text()
+    if (text != "" && document.getElementById("verses").checked) {
+        text = text.split("\n").join("|")
     }
 
     maincol = document.getElementById("textColour").value.replace("#", "")
@@ -333,22 +399,37 @@ function previewFrame() {
     backgroundType = getVisualType()
     background = document.getElementById("background_colour").value.replace("#", "")
 
-    address = '/prev' +
-        '?text=' + text +
-        '&maincol=' + maincol +
-        '&bgtype=' + backgroundType +
-        '&background=' + background +
-        "&visible=" + visible +
-        "&shadow=" + shadow +
-        '&fontsize=' + size +
-        "&position=" + position +
-        '&maxWidth=' + maxWidth +
-        "&dimx=" + dimx +
-        '&dimy=' + dimy +
-        "&shadx=" + shadx +
-        '&shady=' + shady
+    args = {
+        'text': text,
+        'maincol': maincol,
+        'bgtype': backgroundType,
+        'background': background,
+        'visible': visible,
+        'shadow': shadow,
+        'fontsize': size,
+        'position': position,
+        'maxWidth': maxWidth,
+        'shadx': shadx,
+        'shady': shady
+    }
+    if (visualType != "solid") {
+        args['media'] = imageData
+    }
 
-    previewImg.src = address
+    fetch('/prev',{
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(args)
+        }
+      ).then(
+        response => response.blob()
+      ).then(
+        success => previewImg.src = URL.createObjectURL(success)
+      ).catch(
+        error => console.log(error) // Handle the error response object
+      );
 }
 
 function onPreviewLoad() {
