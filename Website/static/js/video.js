@@ -504,7 +504,17 @@ function setCookie(t) {
     }
 }
 
-function updated(t) {
+function update_all_verse() {
+    updated(lyrics)
+    document.cookie = "verses=" + encodeURIComponent(document.getElementById("verses").checked)
+
+    elms = tbl.getElementsByTagName("input")
+    for (let i = 0; i < elms.length; i++) {
+        setCookie(elms[i])
+    }
+}
+
+function updated(t, cookie=true) {
     console.log("Updating table")
     textAreaAdjust(lyrics)
     setCookie(t)
@@ -1155,7 +1165,7 @@ function shadowChange() {
 }
 
 function confirmDeleteTimingInfo () {
-    if (lyrics.value != "" && confirm("Do you want to remove lyrics and timing information FOREVER?")) {
+    if (confirm("Do you want to remove lyrics and timing information FOREVER?")) {
         deleteTimingInfo()
     }
 }
@@ -1165,6 +1175,7 @@ function deleteTimingInfo() {
     while ((match = regStart.exec(document.cookie)) != null) {
         deleteCookie(match[0])
     }
+    deleteCookie("verses")
     deleteCookie("lyricsArea")
     loadFromCookies()
 }
@@ -1215,6 +1226,7 @@ function videoTime(e, t, loc) {
 }
 
 function loadFromCookies() {
+    document.getElementById("verses").checked = getCookie("verses") == "true"
     lyrics.value = getCookie("lyricsArea")
     updated(lyrics)
 
@@ -1222,7 +1234,11 @@ function loadFromCookies() {
         tbl.parentElement.classList.add("minimised")
     } else {
         tbl.parentElement.classList.add("expanded")
-        len = lyrics.value.split("\n").length
+        if (document.getElementById("verses").checked) {
+            len = lyrics.value.split("\n\n").length
+        } else {
+            len = lyrics.value.split("\n").length
+        }
         for (let i = 0; i < len; i++) {
             document.getElementById("start_" + i).value = getCookie("start_" + i)
             document.getElementById("stop_" + i).value = getCookie("stop_" + i)
@@ -1231,24 +1247,11 @@ function loadFromCookies() {
 }
 
 function cookieDisplay() {
-// Reset preference
-localStorage.removeItem('__cookiesAccepted__');
-
-
 (function() {
-
     'use strict';
-    
-    
     var storageKey = '__cookiesAccepted__';
-    
-    
     if (!isStorageAllowed() || isSetPreference()) return;
-    
-    
     initializeNotice();
-
-    
     function initializeNotice() {
         var el = document.getElementsByClassName('cookie-notice')[0];
         var dismissEl = el.getElementsByClassName('cookie-notice-dismiss')[0];
@@ -1261,16 +1264,13 @@ localStorage.removeItem('__cookiesAccepted__');
         }, false);
     }
     
-    
     function setPreferenceAccepted() {
         localStorage.setItem(storageKey, true);
     }
     
-    
     function isSetPreference() {
         return JSON.parse(localStorage.getItem(storageKey) || false);
     }
-    
     
     function isStorageAllowed() {
         var test = '__localStorageTest__';
@@ -1285,8 +1285,6 @@ localStorage.removeItem('__cookiesAccepted__');
             return false;
         }
     };
-    
-    
 }());
 }
 
