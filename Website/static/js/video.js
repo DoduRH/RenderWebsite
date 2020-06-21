@@ -518,14 +518,23 @@ function updated(t, cookie=true) {
     console.log("Updating table")
     textAreaAdjust(lyrics)
     setCookie(t)
+
+    // Set required for text
+    tableText = document.getElementById("tableText")
+    elms = tableText.getElementsByTagName("input")
+    for (let i=0; i < elms.length; i++) {
+        elms[i].required = (lyrics.value != "")
+    }
+
     if (lyrics.value == "") {
+        document.getElementById("tableText").closest(".capsule").hidden = true
+        deleteCookie("lyricsArea")
         e = tbl.closest('div')
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
         e.classList.remove("expanded")
         e.classList.add("minimised")
-
-        document.getElementById("text_tl").required = false
     } else {
+        document.getElementById("tableText").closest(".capsule").hidden = false
         document.getElementById("text_tl").required = true
         if (document.getElementById("verses").checked) {
             lines = lyrics.value.split("\n\n")
