@@ -514,6 +514,10 @@ function update_all_verse() {
     }
 }
 
+function setoverflow(t, value) {
+    t.closest(".expandable").style.overflow = value
+}
+
 function updated(t, cookie=true) {
     console.log("Updating table")
     textAreaAdjust(lyrics)

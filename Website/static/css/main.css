@@ -231,6 +231,10 @@
     opacity: 1;
   }
 
+  .tooltiptext.offset-right {
+    margin-left: -40px;
+  }
+
   /* Cookie banner */
   .cookie-notice {
     display: none;
