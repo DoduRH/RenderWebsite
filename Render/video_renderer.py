@@ -5,6 +5,7 @@ from PIL import ImageFont, Image
 import os
 from magic import Magic 
 from re import compile as re_comp
+from re import split as reg_split
 from time import sleep
 import sqlConnector
 
@@ -220,8 +221,15 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     if "video" in visual_type:
         in_file = ffmpeg.input(video_loc)
-        bitrate = eval(video_streams[0]['bit_rate'])
-        framerate = eval(video_streams[0]['r_frame_rate'])
+        if 'bit_rate' in video_streams[0].keys():
+            bitrate = eval(video_streams[0]['bit_rate'])
+        else:
+            bitrate = 3000000
+
+        if 'r_frame_rate' in video_streams[0].keys():
+            framerate = eval(video_streams[0]['r_frame_rate'])
+        else:
+            framerate = 25
         video_comp = in_file.video
 
         # Calculate video duration
@@ -244,7 +252,11 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     if solid_background:
         video_width = 1920
         video_height = 1080
-        video_comp = video_comp.filter('scale', w=video_width, h=video_height)
+        video_comp = (
+            video_comp
+            .filter('scale', w=video_width, h=video_height)
+            .filter('setdar', '16/9')
+        )
     else:
         video_width = video_streams[0]['width']
         video_height = video_streams[0]['height']
@@ -377,8 +389,11 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     if not shadow_visible:
         shadow_offset = [0, 0]
 
+    word_count = 0
+
     FADE_DURATION = 0.125
     for i, line in enumerate(data):
+        word_count += len(reg_split(" |\|", line[0]))
         start_text = float(line[1])
         end_text = float(line[2])
 
@@ -410,7 +425,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         .global_args("-nostats")
         .overwrite_output()
     )
-    print(composition.get_args())
+    # print(composition.compile())
 
     composition.run_async()
     done = False
@@ -440,6 +455,16 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     upload_blob("addlyrics-content", output_name, "VideoOutput_" + video_id + ".mp4")
     
     sqlConnector.set_document(video_id, {'progress': 100}, merge=True)
+    
+    # Increment counters
+    video_size_in = os.path.getsize(video_loc)
+    if audio_loc == video_loc:
+        audio_size_in = 0
+    else:
+        audio_size_in = os.path.getsize(audio_loc)
+    video_size_out = os.path.getsize("/tmp/VideoOutput_" + video_id + ".mp4")
+
+    sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
 
     delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 

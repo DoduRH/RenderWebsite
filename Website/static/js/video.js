@@ -139,18 +139,18 @@ function setMaxMediaValues() {
 
     if (visualType == "video" && videoUpload.files[0].type.includes("video")) {
         // Video is used for visuals
-        video_result = getVideoDuration()
+        video_result = myVideo.duration
         videoDuration = video_result
 
         if (audioUpload.files.length == 1) {
-            audioDuration = getAudioDuration()
+            audioDuration = myAudio.duration
         } else {
             audioDuration = video_result
         }
     } else {
         // Image or solid colour is used for visuals
         if (audioUpload.files.length == 1) {
-            audioDuration = getAudioDuration()
+            audioDuration = myAudio.duration
             videoDuration = audioDuration
         } else {
             alert("No audio content is present")
@@ -342,7 +342,12 @@ function get_first_text() {
 }
 
 function previewFrame() {
-    previewImg.hidden = true
+    if (previewing) {
+        console.log("Preview in progress")
+        return
+    }
+    var previewing = true
+    previewImg.closest("div").style = "--extendedHeight: " + previewImg.closest("div").children[0].offsetHeight + "px;"
     textPosition = getRadioValue("text_position")
     visualType = getVisualType()
     if (visualType != "solid") {
@@ -430,6 +435,8 @@ function previewFrame() {
       ).catch(
         error => console.log(error) // Handle the error response object
       );
+      previewing = false
+      previewImg.closest("div").style = "--extendedHeight: " + previewImg.closest("div").children[0].offsetHeight + "px;"
 }
 
 function onPreviewLoad() {
@@ -527,7 +534,9 @@ function updated(t, cookie=true) {
     tableText = document.getElementById("tableText")
     elms = tableText.getElementsByTagName("input")
     for (let i=0; i < elms.length; i++) {
-        elms[i].required = (lyrics.value != "")
+        if (elms[i].type != "checkbox") {
+            elms[i].required = (lyrics.value != "")
+        }
     }
 
     if (lyrics.value == "") {
@@ -819,7 +828,7 @@ function checkForm() {
         }
     }
 
-    if (audioEnd.value != 0 && audioEnd.value < audioStart.value) {
+    if (audioEnd.value != 0 && parseFloat(audioEnd.value) < parseFloat(audioStart.value)) {
         showElementError(audioEnd, "Audio end must be less than audio start")
         return false
     }
@@ -1141,6 +1150,7 @@ function videoTypeChange(newType) {
 function advancedOption() {
     if (document.getElementById("advanced_options").checked) {
         audioSourceChange("audio")
+        audioUpload.closest("tr").hidden = true
     } else {
         audioSourceChange("video")
     }

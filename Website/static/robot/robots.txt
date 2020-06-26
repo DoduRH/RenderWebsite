@@ -8,3 +8,11 @@ Disallow: /getUUID
 Disallow: /getSignedURL
 Disallow: /uploader
 Disallow: /download?*
+
+Noindex: /hold?*
+Noindex: /get_file?*
+Noindex: /prev?*
+Noindex: /getUUID
+Noindex: /getSignedURL
+Noindex: /uploader
+Noindex: /download?*

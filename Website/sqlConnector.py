@@ -11,7 +11,7 @@ def set_document(document, data, merge=False):
 
 
 def get_progress(document, last24hours=True):
-    ''' Get value from columns (default all) in tables matching sqlfilter '''
+    ''' Get progress for document '''
     mydb = firestore.Client()
     doc = mydb.collection('renders').document(document).get()
     doc_dict = doc.to_dict()
@@ -20,3 +20,16 @@ def get_progress(document, last24hours=True):
         return doc_dict['progress']
     else:
         return None
+
+def increment_stats(video_size_in, audio_size_in, video_size_out, video_length, word_count):
+    ''' Increment statistics '''
+    stats = db.collection(u'statistics').document(u'stats')
+
+    stats.update({
+        "video_size_in": firestore.Increment(video_size_in),
+        "audio_size_in": firestore.Increment(audio_size_in),
+        "video_size_out": firestore.Increment(video_size_out),
+        "video_length": firestore.Increment(video_length),
+        "words_added": firestore.Increment(word_count),
+        "total_renders": firestore.Increment(1)
+    })

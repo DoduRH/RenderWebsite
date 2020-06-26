@@ -286,6 +286,7 @@ def uploader():
 
         # CSV file
         csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
+        word_count = 0
 
         if csv_contents != '':
             try:
@@ -295,8 +296,12 @@ def uploader():
 
             if audio_speed != 1 or audio_usable[0] != 0:
                 for i, row in enumerate(data):
+                    word_count += len(row[0].split(" "))
                     for j, cell in enumerate(row[1:]):
                         data[i][j+1] = str(max(0, round((float(cell) - audio_usable[0]) * (1/audio_speed), 2)))
+            else:
+                for i, row in enumerate(data):
+                    word_count += len(row[0].split(" "))
 
             csv_name = 'csv_' + str(t) + ".csv"
             local_csv = "/tmp/" + csv_name
@@ -428,7 +433,12 @@ def contact():
 
 @app.route('/privacy-policy')
 def privacy():
-    return send_from_directory('static/pdf', 'privacy-policy.pdf')
+    return app.send_static_file('pdf/privacy-policy.pdf')
+
+
+@app.route('/how-to')
+def howto():
+    return app.send_static_file('html/howto.html')
 
 
 @app.route('/faq')
@@ -441,15 +451,18 @@ def robot():
     return app.send_static_file('robot/robots.txt')
 
 
-@app.route('/bdd3501b8fab8393994b158beccf8a63.html')
-def verify():
-    return app.send_static_file('bdd3501b8fab8393994b158beccf8a63.html')
+# @app.route('/bdd3501b8fab8393994b158beccf8a63.html')
+# def verify():
+#     return app.send_static_file('bdd3501b8fab8393994b158beccf8a63.html')
 
 
 @app.errorhandler(Exception)
 def errorPage(e):
-    print("Error occured from ip", request.remote_addr, "trying to access", request.base_url, "code", e.code, "description", e.description)
-    return error(str(e.code), e.description)
+    print("Error occured from ip", request.remote_addr, "trying to access", request.base_url, "error", e)
+    try:
+        return error(str(e.code), e.description)
+    except:
+        return error("Somthing went wrong")
 
 
 if __name__ == '__main__':

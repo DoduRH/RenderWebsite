@@ -14,7 +14,7 @@
     <div class="cookie-notice-flex">
       <p>This site uses cookies to function properly.
         By continuing to use this site, you agree to our use of cookies.
-        To see our privacy policy, click <a href="/privacy-policy" target="_blank">here</a> </p>
+        To see our privacy policy, click <a href="/privacy-policy" target="_blank" rel="noreferrer noopener">here</a> </p>
       <span class="cookie-notice-dismiss">
         <svg viewBox="0 0 24 24">
           <path d="M 2 2 L 22 22 M 2 22 L22 2" />
@@ -29,6 +29,7 @@
     <nav>
       <a href="/">Add lyrics</a>
       <a href="/contact">Contact</a>
+      <a href="/how-to">How to</a>
       <!--<a href="/faq">FAQ</a>-->
     </nav>
   </header>
@@ -599,15 +600,9 @@
       </div>
       <div class="column lyrics">
         <div class="capsule">
-          <h2>Timing</h2>
-          <div class="expandable">
-            <table id="table1" class="highlightable"></table>
-          </div>
-        </div>
-        <div class="capsule">
           <h2>Lyrics</h2>
           <label for="verses"> Show a full verse at a time </label>
-          <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
+          <div class="tooltip">
             <img src="static/images/extraInfo.png">
             <span class="tooltiptext noselect">Use a double return to seperate verses</span>
           </div>
@@ -618,6 +613,12 @@
             onchange="updated(this)"></textarea>
           <br>
           <button onclick="confirmDeleteTimingInfo()">Remove lyrics and timing</button>
+        </div>
+        <div class="capsule">
+          <h2>Timing</h2>
+          <div class="expandable">
+            <table id="table1" class="highlightable"></table>
+          </div>
         </div>
       </div>
     </div>
