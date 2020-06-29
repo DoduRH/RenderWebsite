@@ -393,7 +393,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     FADE_DURATION = 0.125
     for i, line in enumerate(data):
-        word_count += len(reg_split(" |\|", line[0]))
+        word_count += len(reg_split(r" |\|", line[0]))
         start_text = float(line[1])
         end_text = float(line[2])
 
