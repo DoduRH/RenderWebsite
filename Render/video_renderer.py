@@ -189,7 +189,7 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
     return filename
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio):
+def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
         words_loc = download_blob("addlyrics-content", words_loc, ('text'))
@@ -352,6 +352,11 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         framerate = max(25, new_rate)
         video_comp = video_comp.filter("fps", framerate)
 
+    if crop_image != [0, 0, video_width, video_height] and crop_image != [0, 0, 0, 0]:
+        video_comp = video_comp.crop(x=crop_image[0], y=crop_image[1], width=abs(crop_image[2] - crop_image[0]), height=abs(crop_image[3] - crop_image[1]))
+        video_width = abs(crop_image[2] - crop_image[0])
+        video_height = abs(crop_image[3] - crop_image[1])
+
     if video_speed != 1:
         video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
 
@@ -430,6 +435,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     composition.run_async()
     done = False
     total_frames = int(duration * framerate)
+    latest = {'progress': 0}
     while not done:
         sleep(2)
 

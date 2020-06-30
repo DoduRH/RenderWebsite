@@ -1159,6 +1159,10 @@ async function submitForm() {
     }
 
     if (valid) {
+        document.getElementById("videoTop").value = Math.round(videoTop)
+        document.getElementById("videoLeft").value = Math.round(videoLeft)
+        document.getElementById("videoBottom").value = Math.round(videoBottom)
+        document.getElementById("videoRight").value = Math.round(videoRight)
         document.getElementById("uuid").value = video_id
         document.getElementById("submitbutton").innerHTML = "Submitting From Data..."
         document.getElementById("theform").submit()

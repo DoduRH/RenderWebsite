@@ -276,6 +276,10 @@ def uploader():
             audio_fade = [float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0))]
             crop_video = get_value(r, 'crop_video', 'off') == 'on'
             crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
+            video_top = int(get_value(r, 'videoTop', 0))
+            video_left = int(get_value(r, 'videoLeft', 0))
+            video_bottom = int(get_value(r, 'videoBottom', 0))
+            video_right = int(get_value(r, 'videoRight', 0))
         except ValueError:
             return error("Error, unable to interpret inputs")
 
@@ -342,7 +346,8 @@ def uploader():
                 "video_fade": video_fade,
                 "audio_fade": audio_fade,
                 "crop_video": crop_video,
-                "crop_audio": crop_audio
+                "crop_audio": crop_audio,
+                "crop_image": [video_left, video_top, video_right, video_bottom]
             },
             'progress': 0,
             'start-time': datetime.datetime.now()
@@ -351,7 +356,7 @@ def uploader():
         sqlConnector.set_document(t, data)
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio]
+        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, [video_left, video_top, video_right, video_bottom]]
 
         ##########
         # Q code #
@@ -386,7 +391,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        # import taskSim as client
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
