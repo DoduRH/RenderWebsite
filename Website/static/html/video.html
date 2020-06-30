@@ -7,6 +7,7 @@
   <meta name="keywords" content="video lyric word song overlay editing" />
   <title>Add lyrics to a video</title>
   <link rel="stylesheet" href="/static/css/main.css">
+  <link rel="stylesheet" href="/static/css/video.css">
 </head>
 
 <body>
@@ -539,13 +540,22 @@
           <div class="expandable minimised" id=tab>
             <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Video</h3>
             <div id=hider class="expandable minimised">
-              <table>
-                <tr>
-                  <td>
-                    <video id="video1" width=100% class="all video mediaplayer" controls>
-                      Please upload a video
-                    </video>
+              <table width=100%>
+                <tr width=100%>
+                  <td width=100%>
+                    <video id="video1" height=0 class="all video mediaplayer" controls></video>
                     <img id="image1" width=100% class="all image" alt="Unable to show image">
+
+                    <canvas id="visualCanvas"></canvas>
+                    <div id="video-controls" class="controls" data-state="visible">
+                      <button id="playpause" type="button" data-state="play"></button>
+                      <div class="progress">
+                         <progress id="progress" value="0" min="0">
+                            <span id="progress-bar"></span>
+                         </progress>
+                      </div>
+                      <button id="mutevideo" type="button" data-state="sound"></button>
+                   </div>
                   </td>
                 </tr>
               </table>

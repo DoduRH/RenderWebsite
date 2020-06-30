@@ -1,5 +1,7 @@
 var myVideo = document.getElementById("video1")
 var myImage = document.getElementById("image1")
+var canvas = document.getElementById("visualCanvas")
+var ctx = canvas.getContext('2d')
 var myAudio = document.getElementById("audio1")
 var videoUpload = document.getElementById("videoUpload")
 var audioUpload = document.getElementById("audioUpload")
@@ -69,6 +71,7 @@ window.onresize = function() {
 }
 
 myVideo.oncanplay = function (e) {
+    console.log("canplay")
     if (videoUpload.files[0].type.includes("video")) {
         if (myVideo.videoWidth * myVideo.videoHeight > 1920 * 1080) {
             videoUpload.value = ""
@@ -84,7 +87,20 @@ myVideo.oncanplay = function (e) {
     }
 }
 
+document.getElementById('progress').addEventListener('click', function (e) {
+    var viewportOffset = this.getBoundingClientRect()
+    x = e.pageX - viewportOffset.left
+    clickedValue = x * this.max / this.offsetWidth
+
+    myVideo.currentTime = clickedValue * myVideo.duration
+})
+
 myVideo.onloadeddata = function(e) {
+    console.log("onloadeddata")
+    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
+    canvas.width = myVideo.videoWidth
+    canvas.height = myVideo.videoHeight
+    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
     changeVisualAreaSize()
 }
 
@@ -199,62 +215,41 @@ video_speed.onchange = function () {
 }
 
 myVideo.onplay = (e) => {
-    if (myVideo == myMedia) {
-        console.log("Playing media")
-        timerID = setInterval(update_highlight, 100)
+    document.getElementById("playpause").dataset.state = "pause"
+    
+    function loop() {
+        if (!myVideo.paused && !myVideo.ended) {
+            var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
+
+            canvas.width = myVideo.videoWidth
+            canvas.height = myVideo.videoHeight
+            ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+            setTimeout(loop, 1000 / 30) // drawing at 30fps
+        }
     }
+    loop()
 }
 
 myVideo.onpause = (e) => {
-    update_highlight()
-    if (myVideo == myMedia) {
-        console.log("Pausing media")
-        clearInterval(timerID)
-    }
+    document.getElementById("playpause").dataset.state = "pause"
 }
 
-myVideo.onseeking = (e) => {
-    if (myVideo == myMedia) {
-        console.log("Playing media")
-        timerID = setInterval(update_highlight, 100)
-    }
+myVideo.oncanplaythrough = (e) => {
+    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
+    canvas.width = myVideo.videoWidth
+    canvas.height = myVideo.videoHeight
+    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
 }
 
-myVideo.onseeked = (e) => {
-    if (myVideo == myMedia) {
-        console.log("Pausing media")
-        clearInterval(timerID)
-    }
-    update_highlight()
+myVideo.onpause = (e) => {
+    document.getElementById("playpause").dataset.state = "play"
 }
 
-myAudio.onplay = (e) => {
-    if (myAudio == myMedia) {
-        console.log("Playing media")
-        timerID = setInterval(update_highlight, 100)
-    }
-}
-
-myAudio.onpause = (e) => {
-    update_highlight()
-    if (myAudio == myMedia) {
-        console.log("Pausing media")
-        clearInterval(timerID)
-    }
-}
-
-myAudio.onseeking = (e) => {
-    if (myAudio == myMedia) {
-        console.log("Playing media")
-        timerID = setInterval(update_highlight, 100)
-    }
-}
-
-myAudio.onseeked = (e) => {
-    update_highlight()
-    if (myAudio == myMedia) {
-        console.log("Pausing media")
-        clearInterval(timerID)
+myVideo.onvolumechange = (e) => {
+    if (myVideo.muted) {
+        document.getElementById("mutevideo").dataset.state = "mute"
+    } else {
+        document.getElementById("mutevideo").dataset.state = "sound"
     }
 }
 
@@ -1069,6 +1064,7 @@ function hide(e, media=false, index=0) {
 }
 
 function update_highlight() {
+    // Do highlighting
     var rows = tbl.getElementsByTagName('tr')
     var upper
     for (var i = 1; i < rows.length; i++) {
@@ -1107,6 +1103,17 @@ function update_highlight() {
             row.className = ""
         }
     }
+}
+
+myVideo.ontimeupdate = (e) => {
+    // do table highlighting
+    update_highlight()
+    // do progress bar
+    document.getElementById("progress").value = myVideo.currentTime / myVideo.duration
+}
+
+myAudio.ontimeupdate = (e) => {
+    update_highlight()
 }
 
 async function getID() {
@@ -1311,9 +1318,34 @@ function cookieDisplay() {
 }());
 }
 
+playpause.addEventListener('click', function(e) {
+    if (myVideo.paused || myVideo.ended) myVideo.play();
+    else myVideo.pause();
+ })
+
+ mutevideo.addEventListener('click', function(e) {
+    myVideo.muted = !myVideo.muted
+ })
+
+function videoControlSetup() {
+    var supportsProgress = (document.createElement('progress').max !== undefined)
+    if (!supportsProgress) progress.setAttribute('data-state', 'fake')
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()
     textAreaAdjust(lyrics)
     getID()
     cookieDisplay()
+    videoControlSetup()
 }, false)
+
+
+function addListenerMulti(el, s, fn) {
+    s.split(' ').forEach(e => el.addEventListener(e, fn, false));
+  }
+  
+  var video = myVideo
+  addListenerMulti(video, 'abort canplay canplaythrough durationchange emptied encrypted  ended error interruptbegin interruptend loadeddata loadedmetadata loadstart mozaudioavailable pause play playing progress ratechange seeked seeking stalled suspend timeupdate volumechange waiting', function(e){
+      console.log(e.type);
+  });

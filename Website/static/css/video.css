@@ -1,0 +1,93 @@
+canvas {
+   width: 100%;
+}
+
+.controls {
+    width:100%;
+    height:17px; /* of figure's height */
+    position:relative;
+ }
+
+ .controls[data-state=hidden] {
+    display:none;
+ }
+ 
+ .controls[data-state=visible] {
+    display:block;
+ }
+
+ .controls > * {
+    float:left;
+    width:3.90625%;
+    height:100%;
+    margin-left:0.1953125%;
+    display:block;
+ }
+ 
+ .controls > *:first-child {
+    margin-left:0;
+ }
+
+ .controls .progress {
+    cursor:pointer;
+    width:91.8%;
+ }
+
+ .controls button {
+    border:none;
+    cursor:pointer;
+    background:transparent;
+    background-size:contain;
+    background-repeat:no-repeat;
+ }
+
+ .controls button:hover, .controls button:focus {
+    opacity:0.5;
+ }
+
+ .controls button[data-state="play"] {
+    background-image: url('/static/images/playButton.png');
+ }
+ 
+ .controls button[data-state="pause"] {
+    background-image: url('/static/images/pauseButton.png');
+ }
+
+ .controls button[data-state="mute"] {
+    background-image: url('/static/images/muteButton.png');
+ }
+
+ .controls button[data-state="sound"] {
+   background-image: url('/static/images/soundButton.png');
+}
+
+ .controls progress {
+    display:block;
+    width:100%;
+    height:81%;
+    margin-top:0.125rem;
+    border:none;
+    color:#0095dd;
+    -moz-border-radius:2px;
+    -webkit-border-radius:2px;
+    border-radius:2px;
+ }
+
+ .controls progress[data-state="fake"] {
+    background:#e6e6e6;
+    height:65%;
+ }
+ .controls progress span {
+    width:0%;
+    height:100%;
+    display:inline-block;
+    background-color:#2a84cd;  
+ }
+
+ .controls progress::-moz-progress-bar {
+    background-color:#0095dd;
+ }
+ 
+ .controls progress::-webkit-progress-value {
+    background-color:#0095dd;
+ }
