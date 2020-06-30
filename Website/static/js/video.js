@@ -8,10 +8,10 @@ var audioUpload = document.getElementById("audioUpload")
 var videoExt = document.getElementById("videoExt")
 var audioExt = document.getElementById("audioExt")
 
-var videoTop = 100
-var videoBottom = 500
-var videoLeft = 50
-var videoRight = 200
+var videoTop = 0
+var videoBottom = 1080
+var videoLeft = 0
+var videoRight = 1920
 
 var videoStart = document.getElementById("video_start")
 var videoEnd = document.getElementById("video_end")
@@ -83,6 +83,8 @@ myVideo.oncanplay = function (e) {
             alert("Video resolution too high please select another file, 1080p max")
             return
         }
+        videoRight = myVideo.videoWidth
+        videoBottom = myVideo.videoHeight
     } else {
         if (myImage.naturalWidth * myImage.naturalHeight > 1920 * 1080) {
             videoUpload.value = ""
@@ -272,7 +274,7 @@ mousedown = false
 canvas.onmousedown = (e) => {
     mousedown = true
     pos = getCursorPosition(canvas, e)
-    croping_video(pos)
+    croping_video(pos, e.shiftKey)
 }
 
 canvas.onmouseup = (e) => {
@@ -286,7 +288,7 @@ canvas.onmouseleave = (e) => {
 canvas.onmousemove = (e) => {
     if (mousedown) {
         pos = getCursorPosition(canvas, e)
-        croping_video(pos)
+        croping_video(pos, e.shiftKey)
     }
 }
 
@@ -308,7 +310,7 @@ function getCursorPosition(c, event) {
     return [x/canvas.offsetWidth * canvas.width, y/canvas.offsetHeight * canvas.height]
 }
 
-function croping_video(pos) {
+function croping_video(pos, maintain_ratio) {
     // Find closest corner
     corners = [[videoLeft, videoTop], [videoRight, videoTop], [videoLeft, videoBottom], [videoRight, videoBottom]]
 
@@ -323,19 +325,43 @@ function croping_video(pos) {
         distance.push(dis)
     })
 
+    //r - l / b - t  = aspect
     minIndex = distance.indexOf(Math.min(...distance))
+    if (maintain_ratio) {
+        aspect = myVideo.videoWidth / myVideo.videoHeight
+    }
     if (minIndex == 0) {
-        videoLeft = pos[0]
-        videoTop = pos[1]
+        if (maintain_ratio) {
+            videoLeft = pos[0]
+            videoTop = Math.min(myVideo.videoHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+        } else {
+            videoLeft = pos[0]
+            videoTop = pos[1]
+        }
     } else if (minIndex == 1) {
-        videoRight = pos[0]
-        videoTop = pos[1]
+        if (maintain_ratio) {
+            videoRight = pos[0]
+            videoTop = Math.min(myVideo.videoHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+        } else {
+            videoRight = pos[0]
+            videoTop = pos[1]
+        }
     } else if (minIndex == 2) {
-        videoLeft = pos[0]
-        videoBottom = pos[1]
+        if (maintain_ratio) {
+            videoLeft = pos[0]
+            videoBottom = Math.min(myVideo.videoHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+        } else {
+            videoLeft = pos[0]
+            videoBottom = pos[1]
+        }
     } else if (minIndex == 3) {
-        videoRight = pos[0]
-        videoBottom = pos[1]
+        if (maintain_ratio) {
+            videoRight = pos[0]
+            videoBottom = Math.min(myVideo.videoHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+        } else {
+            videoRight = pos[0]
+            videoBottom = pos[1]
+        }
     } else {
         console.log("NOPE")
     }
@@ -1432,11 +1458,11 @@ document.addEventListener('DOMContentLoaded', function () {
 }, false)
 
 
-function addListenerMulti(el, s, fn) {
+/*function addListenerMulti(el, s, fn) {
     s.split(' ').forEach(e => el.addEventListener(e, fn, false));
   }
   
   var video = myVideo
   addListenerMulti(video, 'abort canplay canplaythrough durationchange emptied encrypted  ended error interruptbegin interruptend loadeddata loadedmetadata loadstart mozaudioavailable pause play playing progress ratechange seeked seeking stalled suspend timeupdate volumechange waiting', function(e){
       console.log(e.type);
-  });
+  });*/
