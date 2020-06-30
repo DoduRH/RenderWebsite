@@ -8,6 +8,11 @@ var audioUpload = document.getElementById("audioUpload")
 var videoExt = document.getElementById("videoExt")
 var audioExt = document.getElementById("audioExt")
 
+var videoTop = 100
+var videoBottom = 500
+var videoLeft = 50
+var videoRight = 200
+
 var videoStart = document.getElementById("video_start")
 var videoEnd = document.getElementById("video_end")
 var audioStart = document.getElementById("audio_start")
@@ -96,11 +101,7 @@ document.getElementById('progress').addEventListener('click', function (e) {
 })
 
 myVideo.onloadeddata = function(e) {
-    console.log("onloadeddata")
-    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
-    canvas.width = myVideo.videoWidth
-    canvas.height = myVideo.videoHeight
-    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+    draw_video_frame()
     changeVisualAreaSize()
 }
 
@@ -214,16 +215,31 @@ video_speed.onchange = function () {
     changeSpeed(myVideo, videoSpeed.value)
 }
 
+function draw_video_frame() {
+    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
+    ctx.globalAlpha = 1
+    canvas.width = myVideo.videoWidth
+    canvas.height = myVideo.videoHeight
+    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+
+    ctx.globalAlpha = 0.5
+    // Top bar
+    ctx.fillRect(0, 0, myVideo.videoWidth, videoTop)
+    // Bottom bar
+    ctx.fillRect(0, videoBottom, myVideo.videoWidth, myVideo.videoHeight - videoBottom)
+    // Left
+    ctx.fillRect(0, videoTop, videoLeft, videoBottom - videoTop)
+    // Right
+    ctx.fillRect(videoRight, videoTop, myVideo.videoWidth - videoRight, videoBottom - videoTop)
+
+}
+
 myVideo.onplay = (e) => {
     document.getElementById("playpause").dataset.state = "pause"
     
     function loop() {
         if (!myVideo.paused && !myVideo.ended) {
-            var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
-
-            canvas.width = myVideo.videoWidth
-            canvas.height = myVideo.videoHeight
-            ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+            draw_video_frame()
             setTimeout(loop, 1000 / 30) // drawing at 30fps
         }
     }
@@ -235,10 +251,7 @@ myVideo.onpause = (e) => {
 }
 
 myVideo.oncanplaythrough = (e) => {
-    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
-    canvas.width = myVideo.videoWidth
-    canvas.height = myVideo.videoHeight
-    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+    draw_video_frame()
 }
 
 myVideo.onpause = (e) => {
@@ -250,6 +263,84 @@ myVideo.onvolumechange = (e) => {
         document.getElementById("mutevideo").dataset.state = "mute"
     } else {
         document.getElementById("mutevideo").dataset.state = "sound"
+    }
+}
+
+
+crop_timer = null
+mousedown = false
+canvas.onmousedown = (e) => {
+    mousedown = true
+    pos = getCursorPosition(canvas, e)
+    croping_video(pos)
+}
+
+canvas.onmouseup = (e) => {
+    mousedown = false
+}
+
+canvas.onmouseleave = (e) => {
+    mousedown = false
+}
+
+canvas.onmousemove = (e) => {
+    if (mousedown) {
+        pos = getCursorPosition(canvas, e)
+        croping_video(pos)
+    }
+}
+
+function clear_crop() {
+    if (crop_timer !== null) {
+        clearInterval(crop_timer)
+        crop_timer = null
+    }
+}
+
+document.addEventListener('mouseup', clear_crop)
+document.addEventListener('mouseout', clear_crop)
+
+function getCursorPosition(c, event) {
+    const rect = c.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    console.log("x: " + x + " y: " + y)
+    return [x/canvas.offsetWidth * canvas.width, y/canvas.offsetHeight * canvas.height]
+}
+
+function croping_video(pos) {
+    // Find closest corner
+    corners = [[videoLeft, videoTop], [videoRight, videoTop], [videoLeft, videoBottom], [videoRight, videoBottom]]
+
+    function d_squrared(a, b) {
+        return ((a[0] - b[0]) ** 2 + (a[1] - b[1]) ** 2)
+    }
+
+    distance = []
+
+    corners.forEach(corner => {
+        dis = d_squrared(corner, pos)
+        distance.push(dis)
+    })
+
+    minIndex = distance.indexOf(Math.min(...distance))
+    if (minIndex == 0) {
+        videoLeft = pos[0]
+        videoTop = pos[1]
+    } else if (minIndex == 1) {
+        videoRight = pos[0]
+        videoTop = pos[1]
+    } else if (minIndex == 2) {
+        videoLeft = pos[0]
+        videoBottom = pos[1]
+    } else if (minIndex == 3) {
+        videoRight = pos[0]
+        videoBottom = pos[1]
+    } else {
+        console.log("NOPE")
+    }
+    if (myVideo.paused || myVideo.ended) {
+        draw_video_frame()
     }
 }
 
@@ -277,23 +368,23 @@ function getRadioValue(name) {
 }
 
 function imgToBase64(img) {
-    const canvas = document.createElement('canvas')
-    const ctx = canvas.getContext('2d')
-    canvas.width = img.naturalWidth
-    canvas.height = img.naturalHeight
+    const c = document.createElement('canvas')
+    const ctx = c.getContext('2d')
+    c.width = img.naturalWidth
+    c.height = img.naturalHeight
   
     ctx.drawImage(img, 0, 0);
     return canvas.toDataURL('image/png');
   }
 
 function captureVideo(video) {
-    var canvas = document.createElement("canvas")
-    var ctx = canvas.getContext("2d")
-    canvas.width = video.videoWidth
-    canvas.height = video.videoHeight
+    var c = document.createElement("canvas")
+    var ctx = c.getContext("2d")
+    c.width = video.videoWidth
+    c.height = video.videoHeight
 
     ctx.drawImage(video, 0, 0)
-    return canvas.toDataURL('image/png')
+    return c.toDataURL('image/png')
 }
 
 function get_first_text() {
