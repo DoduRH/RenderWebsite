@@ -57,6 +57,11 @@ function videoChange() {
 
         videoStart.max = myVideo.duration
         videoEnd.max = myVideo.duration
+
+        videoTop = 0
+        videoLeft = 0
+        videoBottom = round_even(myVideo.videoHeight)
+        videoRight = round_even(myVideo.videoWidth)
     } else {
         myVideo.hidden = true
         myImage.hidden = false
@@ -310,6 +315,17 @@ function getCursorPosition(c, event) {
     return [x/canvas.offsetWidth * canvas.width, y/canvas.offsetHeight * canvas.height]
 }
 
+function round_even(n) {
+    n = Math.round(n)
+    if (n % 2 == 0) {
+        // Even
+        return n
+    } else {
+        // Odd
+        return n - 1
+    }
+}
+
 function croping_video(pos, maintain_ratio) {
     // Find closest corner
     corners = [[videoLeft, videoTop], [videoRight, videoTop], [videoLeft, videoBottom], [videoRight, videoBottom]]
@@ -319,6 +335,8 @@ function croping_video(pos, maintain_ratio) {
     }
 
     distance = []
+
+    pos = [round_even(pos[0]), round_even(pos[1])]
 
     corners.forEach(corner => {
         dis = d_squrared(corner, pos)
@@ -365,6 +383,11 @@ function croping_video(pos, maintain_ratio) {
     } else {
         console.log("NOPE")
     }
+    videoTop = round_even(videoTop)
+    videoLeft = round_even(videoLeft)
+    videoBottom = round_even(videoBottom)
+    videoRight = round_even(videoRight)
+
     if (myVideo.paused || myVideo.ended) {
         draw_video_frame()
     }
@@ -527,7 +550,11 @@ function previewFrame() {
         'position': position,
         'maxWidth': maxWidth,
         'shadx': shadx,
-        'shady': shady
+        'shady': shady,
+        "videoTop": videoTop,
+        "videoLeft": videoLeft,
+        "videoBottom": videoBottom,
+        "videoRight": videoRight
     }
     if (visualType != "solid") {
         args['media'] = imageData

@@ -85,7 +85,7 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
     Image.new('RGB', dim, hex2rgb(background_colour)).save(filename)
     return filename
 
-def generate_img(text, text_colour, view_shadow, background_type, background_colour, shadow_colour, shadow_offset, fontsize, text_position, max_width, image):
+def generate_img(text, text_colour, view_shadow, background_type, background_colour, shadow_colour, shadow_offset, fontsize, text_position, max_width, image, crop_image):
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     preview_id = str(uuid4())
     filename = "/tmp/img_" + preview_id + ".jpg"
@@ -99,17 +99,23 @@ def generate_img(text, text_colour, view_shadow, background_type, background_col
 
         image_probe = ffmpeg.probe(imagename)
         image_streams = [stream for stream in image_probe["streams"] if stream["codec_type"] == "video"]
-        dim = (image_streams[0]['width'], image_streams[0]['height'])
+        dim = [image_streams[0]['width'], image_streams[0]['height']]
 
     if dim[0] * dim[1] > 1080 * 1920:
         return "ERROR: Image dimensions too large"  # could put error pic, video dimentions too big
 
-    lines, height = wraptext(font, fontsize, text, dim[0] * max_width)
-    text_offset = position(text_position, height)
     if not view_shadow:
         shadow_offset = [0, 0]
 
     render = ffmpeg.input(imagename)
+
+    if crop_image != [0, 0, dim[0], dim[1]] and crop_image != [0, 0, 0, 0]:
+        render = render.crop(x=crop_image[0], y=crop_image[1], width=abs(crop_image[2] - crop_image[0]), height=abs(crop_image[3] - crop_image[1]))
+        dim[0] = abs(crop_image[2] - crop_image[0])
+        dim[1] = abs(crop_image[3] - crop_image[1])
+
+    lines, height = wraptext(font, fontsize, text, dim[0] * max_width)
+    text_offset = position(text_position, height)
 
     if background_type == "solid":
         render = render.filter('scale', w=1920, h=1080)

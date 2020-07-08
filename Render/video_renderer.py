@@ -43,6 +43,24 @@ class position():
         return self.x
 
 
+def aspect(a, b):
+    a = round(a)
+    b = round(b)
+    divide = gcd(a, b)
+    return int(a/divide), int(b/divide)
+
+
+def gcd(a, b):
+    large = max(a, b)
+    small = min(a, b)
+    rem = large % small
+    while rem != 0:
+        large = small
+        small = rem
+        rem = large % small
+    return small
+
+
 def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
     """Downloads a blob from the bucket."""
     # bucket_name = "your-bucket-name"
@@ -62,7 +80,7 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
+    #blob.download_to_filename(destination_file_name)
 
     fname = destination_file_name.split(".")[-1]
 
@@ -353,9 +371,14 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         video_comp = video_comp.filter("fps", framerate)
 
     if crop_image != [0, 0, video_width, video_height] and crop_image != [0, 0, 0, 0]:
-        video_comp = video_comp.crop(x=crop_image[0], y=crop_image[1], width=abs(crop_image[2] - crop_image[0]), height=abs(crop_image[3] - crop_image[1]))
         video_width = abs(crop_image[2] - crop_image[0])
         video_height = abs(crop_image[3] - crop_image[1])
+        ratio = aspect(video_width, video_height)
+        video_comp = (
+            video_comp
+            .crop(x=crop_image[0], y=crop_image[1], width=video_width, height=video_height)
+            .filter('setsar', str(ratio[0]) + '/' + str(ratio[1]))
+        )
 
     if video_speed != 1:
         video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
@@ -373,12 +396,14 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     # Add black screen to end video
     if video_duration < duration and not solid_background:
         filename = generate_solid_background(video_id, "#000000")
+        ratio = aspect(video_width, video_height)
         black_video = (
             ffmpeg            
             .input(filename, loop=True)
             .filter('framerate', fps=framerate)
             .trim(start=0, end=duration - video_duration)
             .filter('scale', w=video_width, h=video_height)
+            .filter('setsar', str(ratio[0]) + '/' + str(ratio[1]))
         )
 
         video_comp = (
@@ -435,7 +460,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     composition.run_async()
     done = False
     total_frames = int(duration * framerate)
-    latest = {'progress': 0}
     while not done:
         sleep(2)
 
@@ -472,6 +496,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
 
-    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
+    #delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
     return "VideoOutput_" + video_id + ".mp4"

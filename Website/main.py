@@ -163,6 +163,10 @@ def prev():
             image_data = get_from_dict(r.json, "media")
         else:
             image_data = ""
+        video_top = int(get_from_dict(r.json, 'videoTop', 0))
+        video_left = int(get_from_dict(r.json, 'videoLeft', 0))
+        video_bottom = int(get_from_dict(r.json, 'videoBottom', 0))
+        video_right = int(get_from_dict(r.json, 'videoRight', 0))
     except ValueError:
         return send_file("images/errorImage.jpg")  # make this an image eventually
 
@@ -171,7 +175,8 @@ def prev():
     if background_colour == "#":
         background_colour = '#000000'
 
-    img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, image_data)
+    crop_image = [video_left, video_top, video_right, video_bottom]
+    img_loc = generate_img(text, maincol, visible, background_type, background_colour, shadowcolour, shadow_offset, fontsize, position, max_width, image_data, crop_image)
 
     if 'error' in img_loc.lower():
         return send_file("images/errorImage")
@@ -324,6 +329,17 @@ def uploader():
         if video_usable[1] != 0 and video_usable[1] <= video_usable[0]:
             return error("Video timestamps don't make sense")
 
+        crop_image = [video_left, video_top, video_right, video_bottom]
+
+        for i, j in enumerate(crop_image):
+            crop_image[i] = 2 * round(j / 2)
+        
+        if video_left > video_right and video_right != 0:
+            error("Video croping doesn't make sense")
+        
+        if video_top > video_bottom and video_bottom != 0:
+            error("Video croping doesn't make sense")
+
         data = {
             'args': {
                 "video_id": str(t), 
@@ -347,7 +363,7 @@ def uploader():
                 "audio_fade": audio_fade,
                 "crop_video": crop_video,
                 "crop_audio": crop_audio,
-                "crop_image": [video_left, video_top, video_right, video_bottom]
+                "crop_image": crop_image
             },
             'progress': 0,
             'start-time': datetime.datetime.now()
@@ -356,7 +372,7 @@ def uploader():
         sqlConnector.set_document(t, data)
 
         # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, [video_left, video_top, video_right, video_bottom]]
+        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image]
 
         ##########
         # Q code #
