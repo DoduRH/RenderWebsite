@@ -80,7 +80,7 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
-    #blob.download_to_filename(destination_file_name)
+    blob.download_to_filename(destination_file_name)
 
     fname = destination_file_name.split(".")[-1]
 
@@ -496,6 +496,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
 
-    #delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
+    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
     return "VideoOutput_" + video_id + ".mp4"
