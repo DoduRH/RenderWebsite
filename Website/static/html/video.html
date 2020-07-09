@@ -543,19 +543,20 @@
               <table width=100%>
                 <tr width=100%>
                   <td width=100%>
-                    <video id="video1" height=0 class="all video mediaplayer" controls></video>
+                    <video id="video1" width=100% class="all video mediaplayer" controls></video>
                     <img id="image1" width=100% class="all image" alt="Unable to show image">
-
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div class="expandable minimised" id=crop_video_capsule>
+            <h3 class=noselect onclick="hide_canvas(this.nextElementSibling)">Crop Video</h3>
+            <div id=hider class="expandable minimised">
+              <table width=100%>
+                <tr width=100%>
+                  <td width=100%>
                     <canvas id="visualCanvas"></canvas>
-                    <div id="video-controls" class="controls" data-state="visible">
-                      <button id="playpause" type="button" data-state="play"></button>
-                      <div class="progress">
-                         <progress id="progress" value="0" min="0">
-                            <span id="progress-bar"></span>
-                         </progress>
-                      </div>
-                      <button id="mutevideo" type="button" data-state="sound"></button>
-                   </div>
                   </td>
                 </tr>
               </table>

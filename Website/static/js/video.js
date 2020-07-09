@@ -45,6 +45,11 @@ function videoChange() {
     console.log("Set as source")
     /*myVideo.closest('#tab').hidden = false
     myVideo.parentElement.hidden = false*/
+    cropVideoCapsule = document.getElementById("crop_video_capsule")
+
+    hidable = cropVideoCapsule.getElementsByClassName("expandable")[0]
+    hidable.classList.remove("maximised")
+    hidable.classList.add("minimised")
 
     if (videoUpload.files[0].type.includes("video")) {
         myImage.hidden = true
@@ -62,11 +67,19 @@ function videoChange() {
         videoLeft = 0
         videoBottom = round_even(myVideo.videoHeight)
         videoRight = round_even(myVideo.videoWidth)
-    } else {
+
+        cropVideoCapsule.classList.add("capsule")
+        cropVideoCapsule.classList.remove("expandable", "minimised")
+    } else if (videoUpload.files[0].type.includes("image")) {
         myVideo.hidden = true
         myImage.hidden = false
 
         myImage.src = url
+        cropVideoCapsule.classList.add("capsule")
+        cropVideoCapsule.classList.remove("expandable", "minimised")
+    } else {
+        cropVideoCapsule.classList.remove("capsule")
+        cropVideoCapsule.classList.add("expandable", "minimised")
     }
 }
 
@@ -99,13 +112,13 @@ myVideo.oncanplay = function (e) {
     }
 }
 
-document.getElementById('progress').addEventListener('click', function (e) {
+/*document.getElementById('progress').addEventListener('click', function (e) {
     var viewportOffset = this.getBoundingClientRect()
     x = e.pageX - viewportOffset.left
     clickedValue = x * this.max / this.offsetWidth
 
     myVideo.currentTime = clickedValue * myVideo.duration
-})
+})*/
 
 myVideo.onloadeddata = function(e) {
     draw_video_frame()
@@ -118,8 +131,9 @@ myImage.onload = function(e) {
 
 function changeVisualAreaSize() {
     console.log("Loaded video")
-    myVideo.closest('#tab').classList.remove("expandable", "minimised")
-    myVideo.closest('#tab').classList.add("capsule")
+    currentTab = myVideo.closest('#tab')
+    currentTab.classList.remove("expandable", "minimised")
+    currentTab.classList.add("capsule")
 
     e = myVideo.closest('#hider')
     e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
@@ -242,7 +256,7 @@ function draw_video_frame() {
 }
 
 myVideo.onplay = (e) => {
-    document.getElementById("playpause").dataset.state = "pause"
+    // document.getElementById("playpause").dataset.state = "pause"
     
     function loop() {
         if (!myVideo.paused && !myVideo.ended) {
@@ -254,16 +268,16 @@ myVideo.onplay = (e) => {
 }
 
 myVideo.onpause = (e) => {
-    document.getElementById("playpause").dataset.state = "pause"
+    // document.getElementById("playpause").dataset.state = "pause"
 }
 
 myVideo.oncanplaythrough = (e) => {
     draw_video_frame()
 }
 
-myVideo.onpause = (e) => {
+/* myVideo.onpause = (e) => {
     document.getElementById("playpause").dataset.state = "play"
-}
+}*/
 
 myVideo.onvolumechange = (e) => {
     if (myVideo.muted) {
@@ -1211,6 +1225,11 @@ function hide(e, media=false, index=0) {
     e.classList.toggle("minimised")
 }
 
+function hide_canvas(e) {
+    draw_video_frame()
+    hide(e)
+}
+
 function update_highlight() {
     // Do highlighting
     var rows = tbl.getElementsByTagName('tr')
@@ -1257,7 +1276,7 @@ myVideo.ontimeupdate = (e) => {
     // do table highlighting
     update_highlight()
     // do progress bar
-    document.getElementById("progress").value = myVideo.currentTime / myVideo.duration
+    // document.getElementById("progress").value = myVideo.currentTime / myVideo.duration
 }
 
 myAudio.ontimeupdate = (e) => {
@@ -1466,7 +1485,7 @@ function cookieDisplay() {
 }());
 }
 
-playpause.addEventListener('click', function(e) {
+/*playpause.addEventListener('click', function(e) {
     if (myVideo.paused || myVideo.ended) myVideo.play();
     else myVideo.pause();
  })
@@ -1478,14 +1497,14 @@ playpause.addEventListener('click', function(e) {
 function videoControlSetup() {
     var supportsProgress = (document.createElement('progress').max !== undefined)
     if (!supportsProgress) progress.setAttribute('data-state', 'fake')
-}
+}*/
 
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()
     textAreaAdjust(lyrics)
     getID()
     cookieDisplay()
-    videoControlSetup()
+    //videoControlSetup()
 }, false)
 
 
