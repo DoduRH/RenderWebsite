@@ -127,6 +127,7 @@ myVideo.onloadeddata = function(e) {
 
 myImage.onload = function(e) {
     changeVisualAreaSize()
+    reset_crop()
 }
 
 function changeVisualAreaSize() {
@@ -237,21 +238,42 @@ video_speed.onchange = function () {
 }
 
 function draw_video_frame() {
-    var videoHeight = (canvas.width / myVideo.videoWidth) * myVideo.videoHeight
+    visualType = getVisualType()
+    if (visualType == "video") {
+        visualMedia = myVideo
+        visualHeight = myVideo.videoHeight
+        visualWidth = myVideo.videoWidth
+    } else if (visualType == "image") {
+        visualMedia = myImage
+        visualHeight = myImage.naturalHeight
+        visualWidth = myImage.naturalWidth
+    } else {
+        return false
+    }
+
+    /*if (visualType == "video") {
+        canvas.width = visualMedia.videoWidth
+        canvas.height = visualMedia.videoHeight
+    } else if (visualType == "image") {
+        canvas.width = visualMedia.naturalWidth
+        canvas.height = visualMedia.naturalHeight
+    }*/
+
+    canvas.width = visualWidth
+    canvas.height = visualHeight
+
     ctx.globalAlpha = 1
-    canvas.width = myVideo.videoWidth
-    canvas.height = myVideo.videoHeight
-    ctx.drawImage(myVideo, 0, 0, canvas.width, videoHeight)
+    ctx.drawImage(visualMedia, 0, 0, canvas.width, canvas.height)
 
     ctx.globalAlpha = 0.5
     // Top bar
-    ctx.fillRect(0, 0, myVideo.videoWidth, videoTop)
+    ctx.fillRect(0, 0, visualWidth, videoTop)
     // Bottom bar
-    ctx.fillRect(0, videoBottom, myVideo.videoWidth, myVideo.videoHeight - videoBottom)
+    ctx.fillRect(0, videoBottom, visualWidth, visualHeight - videoBottom)
     // Left
     ctx.fillRect(0, videoTop, videoLeft, videoBottom - videoTop)
     // Right
-    ctx.fillRect(videoRight, videoTop, myVideo.videoWidth - videoRight, videoBottom - videoTop)
+    ctx.fillRect(videoRight, videoTop, visualWidth - videoRight, videoBottom - videoTop)
 
 }
 
@@ -343,13 +365,27 @@ function round_even(n) {
 function reset_crop() {
     videoTop = 0
     videoLeft = 0
-    videoBottom = round_even(myVideo.videoHeight)
-    videoRight = round_even(myVideo.videoWidth)
+    if (getVisualType() == "video") {
+        videoBottom = round_even(myVideo.videoHeight)
+        videoRight = round_even(myVideo.videoWidth)
+    } else {
+        videoBottom = round_even(myImage.naturalHeight)
+        videoRight = round_even(myImage.naturalWidth)
+    }
 
     draw_video_frame()
 }
 
 function croping_video(pos, maintain_ratio) {
+    visualType = getVisualType()
+    if (visualType == "video") {
+        visualHeight = myVideo.videoHeight
+        visualWidth = myVideo.videoWidth
+    } else {
+        visualHeight = myImage.naturalHeight
+        visualWidth = myImage.naturalWidth
+    }
+
     // Find closest corner
     corners = [[videoLeft, videoTop], [videoRight, videoTop], [videoLeft, videoBottom], [videoRight, videoBottom]]
 
@@ -369,12 +405,12 @@ function croping_video(pos, maintain_ratio) {
     //r - l / b - t  = aspect
     minIndex = distance.indexOf(Math.min(...distance))
     if (maintain_ratio) {
-        aspect = myVideo.videoWidth / myVideo.videoHeight
+        aspect = visualWidth / visualHeight
     }
     if (minIndex == 0) {
         if (maintain_ratio) {
             videoLeft = pos[0]
-            videoTop = Math.min(myVideo.videoHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+            videoTop = Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
         } else {
             videoLeft = pos[0]
             videoTop = pos[1]
@@ -382,7 +418,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 1) {
         if (maintain_ratio) {
             videoRight = pos[0]
-            videoTop = Math.min(myVideo.videoHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+            videoTop = Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
         } else {
             videoRight = pos[0]
             videoTop = pos[1]
@@ -390,7 +426,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 2) {
         if (maintain_ratio) {
             videoLeft = pos[0]
-            videoBottom = Math.min(myVideo.videoHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+            videoBottom = Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
         } else {
             videoLeft = pos[0]
             videoBottom = pos[1]
@@ -398,7 +434,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 3) {
         if (maintain_ratio) {
             videoRight = pos[0]
-            videoBottom = Math.min(myVideo.videoHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+            videoBottom = Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
         } else {
             videoRight = pos[0]
             videoBottom = pos[1]
@@ -411,7 +447,7 @@ function croping_video(pos, maintain_ratio) {
     videoBottom = round_even(videoBottom)
     videoRight = round_even(videoRight)
 
-    if (myVideo.paused || myVideo.ended) {
+    if (visualType == "image" || myVideo.paused || myVideo.ended) {
         draw_video_frame()
     }
 }
