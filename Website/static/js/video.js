@@ -63,10 +63,7 @@ function videoChange() {
         videoStart.max = myVideo.duration
         videoEnd.max = myVideo.duration
 
-        videoTop = 0
-        videoLeft = 0
-        videoBottom = round_even(myVideo.videoHeight)
-        videoRight = round_even(myVideo.videoWidth)
+        reset_crop()
 
         cropVideoCapsule.classList.add("capsule")
         cropVideoCapsule.classList.remove("expandable", "minimised")
@@ -75,6 +72,9 @@ function videoChange() {
         myImage.hidden = false
 
         myImage.src = url
+
+        reset_crop()
+
         cropVideoCapsule.classList.add("capsule")
         cropVideoCapsule.classList.remove("expandable", "minimised")
     } else {
@@ -338,6 +338,15 @@ function round_even(n) {
         // Odd
         return n - 1
     }
+}
+
+function reset_crop() {
+    videoTop = 0
+    videoLeft = 0
+    videoBottom = round_even(myVideo.videoHeight)
+    videoRight = round_even(myVideo.videoWidth)
+
+    draw_video_frame()
 }
 
 function croping_video(pos, maintain_ratio) {
