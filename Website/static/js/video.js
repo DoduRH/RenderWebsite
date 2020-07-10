@@ -27,7 +27,6 @@ var audioSpeed = document.getElementById("audio_speed")
 var videoSpeed = document.getElementById("video_speed")
 var previewImg = document.getElementById("previewImg")
 var lastFocus = null
-var myMedia
 var tableLength = 0
 var timerID
 var c
@@ -39,43 +38,44 @@ var stop_times = []
 
 function videoChange() {
     console.log("New video")
-    fileBlob = videoUpload.files[0]
-    url = (URL || webkitURL).createObjectURL(fileBlob)
-
-    console.log("Set as source")
-
     cropVideoCapsule = document.getElementById("crop_video_capsule")
-
     hidable = cropVideoCapsule.getElementsByClassName("expandable")[0]
-    hidable.classList.remove("maximised")
-    hidable.classList.add("minimised")
 
-    if (videoUpload.files[0].type.includes("video")) {
-        myImage.hidden = true
-        myVideo.hidden = false
-        if (myAudio.src == "") {
-            myMedia = myVideo
+    if (videoUpload.files.length == 1) {
+        fileBlob = videoUpload.files[0]
+        url = (URL || webkitURL).createObjectURL(fileBlob)
+
+        console.log("Set as source")
+        hidable.classList.remove("maximised")
+        hidable.classList.add("minimised")
+
+        if (videoUpload.files[0].type.includes("video")) {
+            myImage.hidden = true
+            myVideo.hidden = false
+            myVideo.src = url
+            changeSpeed(myVideo, videoSpeed.value)
+
+            videoStart.max = myVideo.duration
+            videoEnd.max = myVideo.duration
+
+            reset_crop()
+
+            cropVideoCapsule.classList.add("capsule")
+            cropVideoCapsule.classList.remove("expandable", "minimised")
+        } else if (videoUpload.files[0].type.includes("image")) {
+            myVideo.hidden = true
+            myImage.hidden = false
+
+            myImage.src = url
+
+            reset_crop()
+
+            cropVideoCapsule.classList.add("capsule")
+            cropVideoCapsule.classList.remove("expandable", "minimised")
+        } else {
+            cropVideoCapsule.classList.remove("capsule")
+            cropVideoCapsule.classList.add("expandable", "minimised")
         }
-        myVideo.src = url
-        changeSpeed(myVideo, videoSpeed.value)
-
-        videoStart.max = myVideo.duration
-        videoEnd.max = myVideo.duration
-
-        reset_crop()
-
-        cropVideoCapsule.classList.add("capsule")
-        cropVideoCapsule.classList.remove("expandable", "minimised")
-    } else if (videoUpload.files[0].type.includes("image")) {
-        myVideo.hidden = true
-        myImage.hidden = false
-
-        myImage.src = url
-
-        reset_crop()
-
-        cropVideoCapsule.classList.add("capsule")
-        cropVideoCapsule.classList.remove("expandable", "minimised")
     } else {
         cropVideoCapsule.classList.remove("capsule")
         cropVideoCapsule.classList.add("expandable", "minimised")
@@ -200,12 +200,14 @@ function setMaxMediaValues() {
 
 function audioChange() {
     console.log("New audio")
-    fileBlob = audioUpload.files[0]
-    url = (URL || webkitURL).createObjectURL(fileBlob)
+    if (audioUpload.files.length == 1) {
+        fileBlob = audioUpload.files[0]
+        url = (URL || webkitURL).createObjectURL(fileBlob)
 
-    myAudio.src = url
-    myMedia = myAudio
-
+        myAudio.src = url
+    } else {
+        myAudio.src = ""
+    }
     setMaxMediaValues()
     changeAudioAreaSize()
 }
@@ -424,12 +426,6 @@ function croping_video(pos, maintain_ratio) {
     }
 }
 
-function media_set() {
-    console.log("Media change")
-    myMedia.onchange = (e) => {
-    }
-}
-
 function textAreaAdjust(o) {
     o.style.width = "1px"
     o.style.width = Math.max((25 + o.scrollWidth), 253) + "px"
@@ -477,7 +473,7 @@ function get_first_text() {
         // Stop value not there
         if (cols[2].children[0].value == "") {
             if (rows.length == i + 1) {
-                upper = myMedia.duration
+                upper = getAudioSource().duration
             } else {
                 // Next row start value not there
                 if (rows[i + 1].getElementsByTagName('td')[1].children[0].value == "") {
@@ -494,13 +490,13 @@ function get_first_text() {
         }
 
         if (cols[1].children[0].value == "") {
-            lower = myMedia.duration
+            lower = getAudioSource().duration
         } else {
             lower = cols[1].children[0].value
         }
 
         // currentTime between start and stop times
-        if (lower <= myMedia.currentTime && myMedia.currentTime < upper) {
+        if (lower <= getAudioSource().currentTime && getAudioSource().currentTime < upper) {
             return cols[0].innerText
         }
     }
@@ -623,8 +619,8 @@ function focusOnNoScoll(elm) {
 }
 
 function time_start() {
-    console.log("Start: " + myMedia.currentTime)
-    start_times.push(myMedia.currentTime)
+    console.log("Start: " + getAudioSource().currentTime)
+    start_times.push(getAudioSource().currentTime)
 
     if (lastFocus == null) {
         lastFocus = document.getElementById("start_0")
@@ -635,7 +631,7 @@ function time_start() {
         ) // this may be an issue
     }
 
-    lastFocus.value = myMedia.currentTime.toFixed(2)
+    lastFocus.value = getAudioSource().currentTime.toFixed(2)
     focusOnNoScoll(
         document.getElementById(
             "stop_" + parseInt(lastFocus.id.split("_")[1])
@@ -644,8 +640,8 @@ function time_start() {
 }
 
 function time_stop() {
-    console.log("Stop: " + myMedia.currentTime)
-    stop_times.push(myMedia.currentTime)
+    console.log("Stop: " + getAudioSource().currentTime)
+    stop_times.push(getAudioSource().currentTime)
 
     if (lastFocus == null) {
         lastFocus = document.getElementById("start_0")
@@ -656,7 +652,7 @@ function time_stop() {
         ) // this may be an issue
     }
 
-    lastFocus.value = myMedia.currentTime.toFixed(2)
+    lastFocus.value = getAudioSource().currentTime.toFixed(2)
 
     if (
         lyrics.value.split("\n").length >
@@ -807,7 +803,7 @@ function fillTime() {
         content = myAudio
     }
 
-    audioDuration = getAudioDuration(content)
+    audioDuration = getOutputAudioDuration(content)
 
     videoStartTime = document.getElementById("video_start").value
     if (videoEnd.value == 0) {
@@ -825,10 +821,10 @@ function numberUpdate(curId) {
     console.log("Checking value")
 
     if (curId.value != "") {
-        if (myMedia == null) {
+        if (getAudioSource(null) == null) {
             dur = 1000000
         } else {
-            dur = myMedia.duration.toFixed(2)
+            dur = getAudioSource().duration.toFixed(2)
         }
         curId.value = Math.min(dur, Math.max(0, curId.value)).toFixed(2)
     }
@@ -914,7 +910,7 @@ function done() {
     return true
 }
 
-function getAudioDuration() {
+function getOutputAudioDuration() {
     content = getAudioSource()
 
     audioStartTime = document.getElementById("audio_start").value
@@ -926,7 +922,7 @@ function getAudioDuration() {
     return (audioEndTime - audioStartTime) / audioSpeed.value
 }
 
-function getVideoDuration() {
+function getOutputVideoDuration() {
     videoStartTime = document.getElementById("video_start").value
     if (videoEnd.value == 0) {
         videoEndTime = myVideo.duration
@@ -948,12 +944,12 @@ function getAudioSource(defaultValue=myVideo) {
     }
 }
 
-function getDuration() {
-    audioDuration = getAudioDuration()
+function getOutputDuration() {
+    audioDuration = getOutputAudioDuration()
     if (getVisualType() != "video") {
         return audioDuration
     }
-    videoDuration = getVideoDuration()
+    videoDuration = getOutputVideoDuration()
 
     cropVideo = document.getElementById("crop_video").checked
     cropAudio = document.getElementById("crop_audio").checked
@@ -989,10 +985,11 @@ function checkForm() {
             ) {
                 showElementError(start_elm, "Stop is before start")
                 return false
-            }
-
-            else if (parseFloat(stop_elm.value) > getDuration()) {
-                showElementError(start_elm, "Must be less than than " + getDuration())
+            } else if (parseFloat(start_elm.value) > getAudioSource().duration) {
+                showElementError(start_elm, "Must be less than than " + getAudioSource().duration)
+                return false
+            } else if (parseFloat(stop_elm.value) > getAudioSource().duration) {
+                showElementError(stop_elm, "Must be less than than " + getAudioSource().duration)
                 return false
             }
         }
@@ -1124,7 +1121,7 @@ function checkFileSize() {
 
 function checkDuration() {
     // Check file length
-    duration = getDuration()
+    duration = getOutputDuration()
 
     if (duration > 300) {
         alert("Max video length 5 minutes (after applying speed change)")
@@ -1258,7 +1255,7 @@ function update_highlight() {
         // Stop value not there
         if (cols[2].children[0].value == "") {
             if (rows.length == i + 1) {
-                upper = myMedia.duration
+                upper = getAudioSource().duration
             } else {
                 // Next row start value not there
                 if (rows[i + 1].getElementsByTagName('td')[1].children[0].value == "") {
@@ -1275,13 +1272,13 @@ function update_highlight() {
         }
 
         if (cols[1].children[0].value == "") {
-            lower = myMedia.duration
+            lower = getAudioSource().duration
         } else {
             lower = cols[1].children[0].value
         }
 
         // currentTime between start and stop times
-        if (lower < myMedia.currentTime && myMedia.currentTime < upper) {
+        if (lower < getAudioSource().currentTime && getAudioSource().currentTime < upper) {
             row.className = "highlight"
         } else {
             row.className = ""

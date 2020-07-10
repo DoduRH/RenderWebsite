@@ -8,6 +8,7 @@ from re import compile as re_comp
 from re import split as reg_split
 from time import sleep
 import sqlConnector
+import math
 
 m = Magic(mime=True)
 
@@ -226,7 +227,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     if audio_loc is None:
         if "video" not in visual_type:
             return "ERROR: no audio stream present" 
-        audio_loc = video_loc
+        audio_loc = video_loc # THIS SHOULD NOT BE NEEDED #
     else:
         audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
 
@@ -295,7 +296,13 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         )
 
     audio_streams = [stream for stream in audio_probe["streams"] if stream["codec_type"] == "audio"]
-    audio_stream_duration = float(audio_streams[0]['duration'])
+    if audio_streams == []:
+        audio_stream_duration = video_stream_duration
+        if audio_loc == video_loc:
+            return "ERROR: No audio present in video or audio"
+    else:
+        audio_stream_duration = float(audio_streams[0]['duration'])
+
     if audio_usable[1] <= audio_usable[0]:
         audio_usable[1] = audio_stream_duration
     else:
@@ -377,7 +384,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         video_comp = (
             video_comp
             .crop(x=crop_image[0], y=crop_image[1], width=video_width, height=video_height)
-            .filter('setsar', str(ratio[0]) + '/' + str(ratio[1]))
+            .filter('setdar', str(ratio[0]) + '/' + str(ratio[1]))
         )
 
     if video_speed != 1:
@@ -394,7 +401,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         video_comp = video_comp.trim(start=0, end=audio_duration)
 
     # Add black screen to end video
-    if video_duration < duration and not solid_background:
+    if not math.isclose(video_duration, duration, abs_tol=0.5) and video_duration < duration and not solid_background:
         filename = generate_solid_background(video_id, "#000000")
         ratio = aspect(video_width, video_height)
         black_video = (
@@ -403,7 +410,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             .filter('framerate', fps=framerate)
             .trim(start=0, end=duration - video_duration)
             .filter('scale', w=video_width, h=video_height)
-            .filter('setsar', str(ratio[0]) + '/' + str(ratio[1]))
+            .filter('setdar', str(ratio[0]) + '/' + str(ratio[1]))
         )
 
         video_comp = (
@@ -458,6 +465,20 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     # print(composition.compile())
 
     composition.run_async()
+    sleep(2)
+    # Check render has started sucsessfully
+    escape = False
+    if not os.path.exists(progress_file):
+        escape = True
+    else:
+        with open(progress_file) as f:
+            if len(f.readlines()) <= 1:
+                escape = True
+
+    if escape:
+        delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
+        return "ERROR: Failed to initiate video render"
+
     done = False
     total_frames = int(duration * framerate)
     while not done:
@@ -478,7 +499,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             done = True
             progress = "99"
         else:
-            progress = min(99, int(int(latest["frame"])*100/total_frames))
+            progress = min(99, round(int(latest["frame"])*100/total_frames))
 
         sqlConnector.set_document(video_id, {'progress': progress}, merge=True)
 
@@ -495,6 +516,13 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     video_size_out = os.path.getsize("/tmp/VideoOutput_" + video_id + ".mp4")
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
+    sqlConnector.set_document(video_id, {
+    'video_size_in': video_size_in, 
+    'audio_size_in': audio_size_in, 
+    'video_size_out': video_size_out, 
+    'duration': duration, 
+    'word_count': word_count
+    }, merge=True)
 
     delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
