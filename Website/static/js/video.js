@@ -43,8 +43,7 @@ function videoChange() {
     url = (URL || webkitURL).createObjectURL(fileBlob)
 
     console.log("Set as source")
-    /*myVideo.closest('#tab').hidden = false
-    myVideo.parentElement.hidden = false*/
+
     cropVideoCapsule = document.getElementById("crop_video_capsule")
 
     hidable = cropVideoCapsule.getElementsByClassName("expandable")[0]
@@ -111,14 +110,6 @@ myVideo.oncanplay = function (e) {
         }
     }
 }
-
-/*document.getElementById('progress').addEventListener('click', function (e) {
-    var viewportOffset = this.getBoundingClientRect()
-    x = e.pageX - viewportOffset.left
-    clickedValue = x * this.max / this.offsetWidth
-
-    myVideo.currentTime = clickedValue * myVideo.duration
-})*/
 
 myVideo.onloadeddata = function(e) {
     draw_video_frame()
@@ -251,14 +242,6 @@ function draw_video_frame() {
         return false
     }
 
-    /*if (visualType == "video") {
-        canvas.width = visualMedia.videoWidth
-        canvas.height = visualMedia.videoHeight
-    } else if (visualType == "image") {
-        canvas.width = visualMedia.naturalWidth
-        canvas.height = visualMedia.naturalHeight
-    }*/
-
     canvas.width = visualWidth
     canvas.height = visualHeight
 
@@ -278,8 +261,6 @@ function draw_video_frame() {
 }
 
 myVideo.onplay = (e) => {
-    // document.getElementById("playpause").dataset.state = "pause"
-    
     function loop() {
         if (!myVideo.paused && !myVideo.ended) {
             draw_video_frame()
@@ -289,17 +270,9 @@ myVideo.onplay = (e) => {
     loop()
 }
 
-myVideo.onpause = (e) => {
-    // document.getElementById("playpause").dataset.state = "pause"
-}
-
 myVideo.oncanplaythrough = (e) => {
     draw_video_frame()
 }
-
-/* myVideo.onpause = (e) => {
-    document.getElementById("playpause").dataset.state = "play"
-}*/
 
 myVideo.onvolumechange = (e) => {
     if (myVideo.muted) {
@@ -402,7 +375,6 @@ function croping_video(pos, maintain_ratio) {
         distance.push(dis)
     })
 
-    //r - l / b - t  = aspect
     minIndex = distance.indexOf(Math.min(...distance))
     if (maintain_ratio) {
         aspect = visualWidth / visualHeight
@@ -1320,8 +1292,6 @@ function update_highlight() {
 myVideo.ontimeupdate = (e) => {
     // do table highlighting
     update_highlight()
-    // do progress bar
-    // document.getElementById("progress").value = myVideo.currentTime / myVideo.duration
 }
 
 myAudio.ontimeupdate = (e) => {
@@ -1530,34 +1500,9 @@ function cookieDisplay() {
 }());
 }
 
-/*playpause.addEventListener('click', function(e) {
-    if (myVideo.paused || myVideo.ended) myVideo.play();
-    else myVideo.pause();
- })
-
- mutevideo.addEventListener('click', function(e) {
-    myVideo.muted = !myVideo.muted
- })
-
-function videoControlSetup() {
-    var supportsProgress = (document.createElement('progress').max !== undefined)
-    if (!supportsProgress) progress.setAttribute('data-state', 'fake')
-}*/
-
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()
     textAreaAdjust(lyrics)
     getID()
     cookieDisplay()
-    //videoControlSetup()
 }, false)
-
-
-/*function addListenerMulti(el, s, fn) {
-    s.split(' ').forEach(e => el.addEventListener(e, fn, false));
-  }
-  
-  var video = myVideo
-  addListenerMulti(video, 'abort canplay canplaythrough durationchange emptied encrypted  ended error interruptbegin interruptend loadeddata loadedmetadata loadstart mozaudioavailable pause play playing progress ratechange seeked seeking stalled suspend timeupdate volumechange waiting', function(e){
-      console.log(e.type);
-  });*/
