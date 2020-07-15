@@ -290,7 +290,7 @@ mousedown = false
 canvas.onmousedown = (e) => {
     mousedown = true
     pos = getCursorPosition(canvas, e)
-    croping_video(pos, e.shiftKey)
+    croping_video(pos, e.shiftKey, e.ctrlKey)
 }
 
 canvas.onmouseup = (e) => {
@@ -304,7 +304,7 @@ canvas.onmouseleave = (e) => {
 canvas.onmousemove = (e) => {
     if (mousedown) {
         pos = getCursorPosition(canvas, e)
-        croping_video(pos, e.shiftKey)
+        croping_video(pos, e.shiftKey, e.ctrlKey)
     }
 }
 
@@ -351,7 +351,7 @@ function reset_crop() {
     draw_video_frame()
 }
 
-function croping_video(pos, maintain_ratio) {
+function croping_video(pos, maintain_ratio=false, sixteen_by_nine=false) {
     visualType = getVisualType()
     if (visualType == "video") {
         visualHeight = myVideo.videoHeight
@@ -380,11 +380,14 @@ function croping_video(pos, maintain_ratio) {
     minIndex = distance.indexOf(Math.min(...distance))
     if (maintain_ratio) {
         aspect = visualWidth / visualHeight
+    } else if (sixteen_by_nine) {
+        maintain_ratio = true
+        aspect = 16 / 9
     }
     if (minIndex == 0) {
         if (maintain_ratio) {
             videoLeft = pos[0]
-            videoTop = Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+            videoTop = Math.max(0, Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom)))
         } else {
             videoLeft = pos[0]
             videoTop = pos[1]
@@ -392,7 +395,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 1) {
         if (maintain_ratio) {
             videoRight = pos[0]
-            videoTop = Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom))
+            videoTop = Math.max(0, Math.min(visualHeight - 1, -((videoRight - videoLeft) / aspect - videoBottom)))
         } else {
             videoRight = pos[0]
             videoTop = pos[1]
@@ -400,7 +403,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 2) {
         if (maintain_ratio) {
             videoLeft = pos[0]
-            videoBottom = Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+            videoBottom = Math.max(0, Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop))
         } else {
             videoLeft = pos[0]
             videoBottom = pos[1]
@@ -408,7 +411,7 @@ function croping_video(pos, maintain_ratio) {
     } else if (minIndex == 3) {
         if (maintain_ratio) {
             videoRight = pos[0]
-            videoBottom = Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop)
+            videoBottom = Math.max(0, Math.min(visualHeight - 1, (videoRight - videoLeft) / aspect + videoTop))
         } else {
             videoRight = pos[0]
             videoBottom = pos[1]
@@ -1496,6 +1499,14 @@ function cookieDisplay() {
     };
 }());
 }
+
+document.addEventListener('keydown', function (e) {
+    if (e.code === 'KeyQ') {
+        time_start()
+    } else if (e.code === 'KeyW') {
+        time_stop()
+    }
+})
 
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()

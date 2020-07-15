@@ -296,12 +296,18 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         )
 
     audio_streams = [stream for stream in audio_probe["streams"] if stream["codec_type"] == "audio"]
+    do_audio_filters = True
     if audio_streams == []:
         audio_stream_duration = video_stream_duration
         if audio_loc == video_loc:
-            return "ERROR: No audio present in video or audio"
+            do_audio_filters = False
     else:
-        audio_stream_duration = float(audio_streams[0]['duration'])
+        if "duration" in audio_streams[0].keys():
+            audio_stream_duration = float(audio_streams[0]['duration'])
+        elif "duration" in audio_probe['format']:
+            audio_stream_duration = float(audio_probe['format']['duration'])
+        else:
+            return "ERROR: No audio duration found"
 
     if audio_usable[1] <= audio_usable[0]:
         audio_usable[1] = audio_stream_duration
@@ -377,7 +383,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         framerate = max(25, new_rate)
         video_comp = video_comp.filter("fps", framerate)
 
-    if crop_image != [0, 0, video_width, video_height] and crop_image != [0, 0, 0, 0]:
+    if crop_image != [0, 0, video_width, video_height] and abs(crop_image[2]) < video_width and abs(crop_image[3]) < video_height and crop_image != [0, 0, 0, 0]:
         video_width = abs(crop_image[2] - crop_image[0])
         video_height = abs(crop_image[3] - crop_image[1])
         ratio = aspect(video_width, video_height)
@@ -454,13 +460,17 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
     if video_fade_out > 0:
         video_comp = video_comp.filter("fade", type="out", start_time=video_duration-video_fade_out, duration=video_fade_out)
 
-    video_comp = video_comp
     progress_file = "/tmp/progress_" + video_id + ".txt"
+    if do_audio_filters:
+        streams = [audio_comp, video_comp]
+    else:
+        streams = [video_comp]
+
     composition = (
         ffmpeg
-        .output(audio_comp, video_comp, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info", progress=progress_file)
-        .global_args("-nostats")
+        .output(*streams, output_name, preset="veryfast", t=duration, video_bitrate=min(bitrate, 3000000), loglevel="info", progress=progress_file)
         .overwrite_output()
+        .global_args("-nostats")
     )
     # print(composition.compile())
 
@@ -517,11 +527,11 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
     sqlConnector.set_document(video_id, {
-    'video_size_in': video_size_in, 
-    'audio_size_in': audio_size_in, 
-    'video_size_out': video_size_out, 
-    'duration': duration, 
-    'word_count': word_count
+        'video_size_in': video_size_in, 
+        'audio_size_in': audio_size_in, 
+        'video_size_out': video_size_out, 
+        'duration': duration, 
+        'word_count': word_count
     }, merge=True)
 
     delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
