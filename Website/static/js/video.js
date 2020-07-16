@@ -1501,10 +1501,12 @@ function cookieDisplay() {
 }
 
 document.addEventListener('keydown', function (e) {
-    if (e.code === 'KeyQ') {
-        time_start()
-    } else if (e.code === 'KeyW') {
-        time_stop()
+    if (document.activeElement.id.startsWith("start") || document.activeElement.id.startsWith("stop")) {
+        if (e.code === 'KeyQ') {
+            time_start()
+        } else if (e.code === 'KeyW') {
+            time_stop()
+        }
     }
 })
 

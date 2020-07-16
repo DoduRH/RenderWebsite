@@ -407,7 +407,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        import taskSim as client
+        # import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
@@ -438,7 +438,6 @@ def download():
         method='GET', version="v4", 
         response_disposition='attachment; filename=AddmylyricsVideo.mp4')
 
-    print("downloading")
     return redirect(url)
 
 
@@ -470,11 +469,6 @@ def faq():
 @app.route('/robots.txt')
 def robot():
     return app.send_static_file('robot/robots.txt')
-
-
-# @app.route('/bdd3501b8fab8393994b158beccf8a63.html')
-# def verify():
-#     return app.send_static_file('bdd3501b8fab8393994b158beccf8a63.html')
 
 
 @app.errorhandler(Exception)
