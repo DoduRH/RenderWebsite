@@ -372,17 +372,6 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         audio_comp = audio_comp.filter("afade", type="out", start_time=video_duration-audio_fade_out, duration=audio_fade_out)
 
     # Set-up video
-    if framerate > 30:  # reduce the framerate
-        round_frame = round(framerate)
-        new_rate = 0
-        for i in range(30, 24, -1):  # 30 to 25
-            if round_frame % i == 0:
-                new_rate = i
-                break
-        
-        framerate = max(25, new_rate)
-        video_comp = video_comp.filter("fps", framerate)
-
     if crop_image != [0, 0, video_width, video_height] and abs(crop_image[2]) < video_width and abs(crop_image[3]) < video_height and crop_image != [0, 0, 0, 0]:
         video_width = abs(crop_image[2] - crop_image[0])
         video_height = abs(crop_image[3] - crop_image[1])
@@ -426,6 +415,17 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
                 black_video
             )
         )
+    
+    if framerate > 30:  # reduce the framerate
+        round_frame = round(framerate)
+        new_rate = 0
+        for i in range(30, 24, -1):  # 30 to 25
+            if round_frame % i == 0:
+                new_rate = i
+                break
+        
+        framerate = max(25, new_rate)
+        video_comp = video_comp.filter("fps", framerate)
     # VIDEO END
 
     # Create filters for text
@@ -458,7 +458,7 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
         video_comp = video_comp.filter("fade", type="in", start_time=0, duration=video_fade_in)
 
     if video_fade_out > 0:
-        video_comp = video_comp.filter("fade", type="out", start_time=video_duration-video_fade_out, duration=video_fade_out)
+        video_comp = video_comp.filter("fade", type="out", start_time=duration-video_fade_out, duration=video_fade_out)
 
     progress_file = "/tmp/progress_" + video_id + ".txt"
     if do_audio_filters:
