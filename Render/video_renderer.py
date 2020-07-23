@@ -393,15 +393,15 @@ def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_po
             .filter('setdar', str(ratio[0]) + '/' + str(ratio[1]))
         )
 
-    if video_speed != 1:
-        video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
-
     if video_usable[0] > 0 or video_usable[1] < video_usable[0] + video_duration:
         video_comp = (
             video_comp
             .trim(start=video_usable[0], end=video_usable[1])
             .setpts("PTS-STARTPTS")
         )
+
+    if video_speed != 1:
+        video_comp = video_comp.filter("setpts", str(1/video_speed) + "*PTS")
 
     if crop_video:
         video_comp = video_comp.trim(start=0, end=audio_duration)
