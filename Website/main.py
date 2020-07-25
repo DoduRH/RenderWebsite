@@ -340,39 +340,38 @@ def uploader():
         if video_top > video_bottom and video_bottom != 0:
             error("Video croping doesn't make sense")
 
+        args = {
+            "video_id": str(t), 
+            "csv_name": csv_name,
+            "video_name": video_name,
+            "audio_name": audio_name,
+            "background_colour": background_colour,
+            "text_position": text_position,
+            "text_width": text_width,
+            "video_usable": video_usable,
+            "audio_usable": audio_usable,
+            "font": font,
+            "font_size": font_size,
+            "video_speed": video_speed,
+            "audio_speed": audio_speed,
+            "view_shadow": view_shadow,
+            "shadow_offset": shadow_offset,
+            "text_colour": text_colour,
+            "shadow_colour": shadow_colour,
+            "video_fade": video_fade,
+            "audio_fade": audio_fade,
+            "crop_video": crop_video,
+            "crop_audio": crop_audio,
+            "crop_image": crop_image
+        }
+
         data = {
-            'args': {
-                "video_id": str(t), 
-                "csv_name": csv_name,
-                "video_name": video_name,
-                "audio_name": audio_name,
-                "background_colour": background_colour,
-                "text_position": text_position,
-                "text_width": text_width,
-                "video_usable": video_usable,
-                "audio_usable": audio_usable,
-                "font": font,
-                "font_size": font_size,
-                "video_speed": video_speed,
-                "audio_speed": audio_speed,
-                "view_shadow": view_shadow,
-                "shadow_offset": shadow_offset,
-                "text_colour": text_colour,
-                "shadow_colour": shadow_colour,
-                "video_fade": video_fade,
-                "audio_fade": audio_fade,
-                "crop_video": crop_video,
-                "crop_audio": crop_audio,
-                "crop_image": crop_image
-            },
+            'args': args,
             'progress': 0,
             'start-time': datetime.datetime.now()
         }
 
         sqlConnector.set_document(t, data)
-
-        # Create arguments for the queue
-        args = [str(t), csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image]
 
         ##########
         # Q code #
@@ -407,7 +406,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        # import taskSim as client
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)

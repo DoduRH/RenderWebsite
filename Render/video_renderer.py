@@ -44,6 +44,20 @@ class position():
         return self.x
 
 
+class advanced_dict():
+    def __init__(self, dictionary):
+        self.dictionary = dictionary
+        super().__init__()
+
+    def get_value(self, key, default=None):
+        if key not in self.dictionary.keys():
+            return default
+
+        try:
+            return self.dictionary[key]
+        except KeyError:
+            return default
+
 def aspect(a, b):
     a = round(a)
     b = round(b)
@@ -208,7 +222,34 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
     return filename
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
-def render(video_id, words_loc, video_loc, audio_loc, background_colour, text_position, text_width, video_usable, audio_usable, font, fontsize, video_speed, audio_speed, shadow_visible, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image):
+def render(args):
+
+    # Get values from the dictionary
+    my_dict = advanced_dict(args)
+
+    video_id = my_dict.get_value("video_id")
+    words_loc = my_dict.get_value("csv_name")
+    video_loc = my_dict.get_value("video_name")
+    audio_loc = my_dict.get_value("audio_name")
+    background_colour = my_dict.get_value("background_colour")
+    text_position = my_dict.get_value("text_position")
+    text_width = my_dict.get_value("text_width")
+    video_usable = my_dict.get_value("video_usable")
+    audio_usable = my_dict.get_value("audio_usable")
+    font = my_dict.get_value("font")
+    fontsize = my_dict.get_value("font_size")
+    video_speed = my_dict.get_value("video_speed")
+    audio_speed = my_dict.get_value("audio_speed")
+    shadow_visible = my_dict.get_value("view_shadow")
+    shadow_offset = my_dict.get_value("shadow_offset")
+    text_colour = my_dict.get_value("text_colour")
+    shadow_colour = my_dict.get_value("shadow_colour")
+    video_fade = my_dict.get_value("video_fade")
+    audio_fade = my_dict.get_value("audio_fade")
+    crop_video = my_dict.get_value("crop_video")
+    crop_audio = my_dict.get_value("crop_audio")
+    crop_image = my_dict.get_value("crop_image", [0, 0, 0, 0])
+
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
         words_loc = download_blob("addlyrics-content", words_loc, ('text'))

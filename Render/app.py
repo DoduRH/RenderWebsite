@@ -16,15 +16,15 @@ def main():
     # Testing data
     data = request.form['body']
     # Google run
-    #data = request.data
+    # data = request.data
     print(data)
-    t, csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image = json.loads(data)
+    args = json.loads(data)
 
-    result = render(t, csv_name, video_name, audio_name, background_colour, text_position, text_width, video_usable, audio_usable, font, font_size, video_speed, audio_speed, view_shadow, shadow_offset, text_colour, shadow_colour, video_fade, audio_fade, crop_video, crop_audio, crop_image)
+    result = render(args)
     if "error" == result[0:5].lower():
         print("Error while rendering:", result)
 
-    return t
+    return args["video_id"]
 
 
 if __name__ == '__main__':
