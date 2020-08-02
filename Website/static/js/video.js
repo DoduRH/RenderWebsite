@@ -210,6 +210,7 @@ function audioChange() {
     }
     setMaxMediaValues()
     changeAudioAreaSize()
+    audioSourceChange("audio")
 }
 
 function changeSpeed(elm, s) {
@@ -1338,7 +1339,7 @@ function videoTypeChange(newType) {
 
 function advancedOption() {
     if (document.getElementById("advanced_options").checked) {
-        audioSourceChange("audio")
+        audioSourceChange("advanced_audio")
         audioUpload.closest("tr").hidden = true
     } else {
         audioSourceChange("video")
@@ -1347,12 +1348,14 @@ function advancedOption() {
 
 function audioSourceChange(newSource) {
     console.log(newSource)
-    audioFitTime()
     elements = document.getElementById("tableAudio").getElementsByClassName('all')
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newSource)
     }
-    myAudio.closest("#tab").hidden = (audioUpload.length == 0) || (newSource != "audio")
+    myAudio.closest("#tab").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
+    if ((getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)) {
+        myAudio.pause()
+    }
     adv = document.getElementById("advanced_options")
     if (getRadioValue('audioSource') == "video") {
         adv.closest("tr").hidden = false
