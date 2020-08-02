@@ -1141,11 +1141,11 @@ async function uploadContent() {
         if (videoUpload.files.length != 1) {
             showElementError(videoUpload, "Please select a video")
             return false
-        } else if (audioUpload.files.length == 0 && getVisualType() != "video") {
-            showElementError(audioUpload, "Upload audio to use an image for visuals")
+        } else if (audioUpload.files.length == 0 && getRadioValue("audioSource") == "audio") {
+            showElementError(audioUpload, "Please upload an audio file or select 'Video' as the audio source")
             return false
         }
-
+        
         document.getElementById("submitbutton").innerHTML = "Uploading Video..."
         if (!await uploadElement(videoUpload)) {
             alert("Unable to upload video")
