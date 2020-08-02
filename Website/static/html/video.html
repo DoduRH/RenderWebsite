@@ -405,7 +405,7 @@
                     </div>
                   </td>
                   <td>
-                    <input type="number" id="font_size" name="font_size" min="1" value="100" max="1000" step="1"
+                    <input type="number" id="font_size" name="font_size" min="1" value="60" max="1000" step="1"
                       required />
                   </td>
                 </tr>
@@ -497,7 +497,7 @@
                           <input type="radio" name="text_position" id="text_ml" value="ml">
                         </td>
                         <td>
-                          <input type="radio" name="text_position" id="text_mm" value="mm">
+                          <input type="radio" name="text_position" id="text_mm" value="mm" checked>
                         </td>
                         <td>
                           <input type="radio" name="text_position" id="text_mr" value="mr">
@@ -628,7 +628,7 @@
           <label for="verses"> Show a full verse at a time </label>
           <div class="tooltip">
             <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-            <span class="tooltiptext noselect">Use a double return to seperate verses</span>
+            <span class="tooltiptext noselect">Use a double return to seperate verses<br>For more info check out the how to guide</span>
           </div>
           <input type="checkbox" id="verses" onchange="update_all_verse()" />
           <br>
