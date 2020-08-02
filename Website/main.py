@@ -228,15 +228,20 @@ def hold():
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
-    print("Uploading", request.method)
     if request.method == 'POST':
         r = request
-        print(r.form)
 
         filename = get_value(r, 'uuid')
         if not is_valid_uuid(filename):
             return error("Invalid filename", filename)
         t = filename
+
+        data = {
+            'form': r.form,
+            'progress': 0,
+            'start-time': datetime.datetime.now()
+        }
+        sqlConnector.set_document(t, data, merge=True)
 
         video_ext = get_value(r, 'videoExt', "")
         video_name = "video_" + t + "." + video_ext
@@ -367,11 +372,9 @@ def uploader():
 
         data = {
             'args': args,
-            'progress': 0,
-            'start-time': datetime.datetime.now()
         }
 
-        sqlConnector.set_document(t, data)
+        sqlConnector.set_document(t, data, merge=True)
 
         ##########
         # Q code #
