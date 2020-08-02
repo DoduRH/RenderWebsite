@@ -5,6 +5,8 @@
     text-align: center;
     line-height: 30px;
     color: white;
+    transition-duration: 6s;
+    transition-timing-function: linear;
   }
 
   #myProgress {

@@ -24,7 +24,8 @@
     <div class=column style="width: 60%">
       <div class="capsule">
         <h2 id="head">Please hold while we render your video</h2>
-        <a href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
+        <p>Any problems, please quote your ID: {{ video_id }}</p>
+        <a id=new_vid_link href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
       </div>
       <div class="capsule">
         <div id="myProgress">
@@ -70,22 +71,7 @@
 
   function progressBar(target) {
     var elem = document.getElementById("myBar")
-    var width = parseInt(elem.style.width.replace("%", ""))
-    var target = parseInt(target)
-    var id = setInterval(frame, 16)
-    console.log(id)
-    function frame() {
-      if (width >= target) {
-        clearInterval(id)
-      } else {
-        if (target > width) {
-          width++
-        } else {
-          width--
-        }
-        elem.style.width = width + "%"
-      }
-    }
+    elem.style.width = target + "%"
   }
 
   function request() {
@@ -99,13 +85,14 @@
             clearInterval(timerID)
           }
           errored = true
-          document.getElementById("head").innerHTML = "Somthing went wrong, sorry for the inconvenience"
+          document.getElementById("head").innerHTML = "Something went wrong, sorry for the inconvenience"
         } else {
           if (data['progress'] == "100") {
             clearInterval(timerID)
             window.location.href = "/download?videoID=".concat(video_id)
             document.title = "Your download should begin shortly"
             document.getElementById("head").innerHTML = "You download should begin shortly"
+            document.getElementById("new_vid_link").target = ""
           }
           progressBar(data['progress'])
         }
