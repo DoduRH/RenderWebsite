@@ -476,23 +476,24 @@ def render(args):
     word_count = 0
 
     FADE_DURATION = 0.125
-    for i, line in enumerate(data):
-        word_count += len(reg_split(r" |\|", line[0]))
-        start_text = float(line[1])
-        end_text = float(line[2])
+    if words_loc != "":
+        for i, line in enumerate(data):
+            word_count += len(reg_split(r" |\|", line[0]))
+            start_text = float(line[1])
+            end_text = float(line[2])
 
-        for i, txt in enumerate(line[3]):
-            video_comp = video_comp.drawtext(fontfile=font, text=txt, 
-            fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, 
-            shadowx=shadow_offset[0], shadowy=shadow_offset[1], x=text_offset.getXPos(), 
-            y=text_offset.getYPos(i, len(line[3])), 
-            alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + 
-            str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + 
-            str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + 
-            (end_text - start_text)) + '),1,if(lt(t,' + 
-            str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + 
-            '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + 
-            (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
+            for i, txt in enumerate(line[3]):
+                video_comp = video_comp.drawtext(fontfile=font, text=txt, 
+                fontcolor=text_colour, shadowcolor=shadow_colour, fontsize=fontsize, 
+                shadowx=shadow_offset[0], shadowy=shadow_offset[1], x=text_offset.getXPos(), 
+                y=text_offset.getYPos(i, len(line[3])), 
+                alpha='if(lt(t,' + str(start_text) +'),0,if(lt(t,' + 
+                str(start_text + FADE_DURATION) + '),(t-' + str(start_text) + ')/' + 
+                str(FADE_DURATION) +',if(lt(t,' + str(start_text + FADE_DURATION + 
+                (end_text - start_text)) + '),1,if(lt(t,' + 
+                str(start_text + FADE_DURATION * 2 + (end_text - start_text)) + 
+                '),(' + str(FADE_DURATION) + '-(t-' + str(start_text + FADE_DURATION + 
+                (end_text - start_text)) + '))/' + str(FADE_DURATION) + ',0))))')
 
     video_fade_in, video_fade_out = video_fade
     if video_fade_in > 0:
