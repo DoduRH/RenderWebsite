@@ -1084,6 +1084,43 @@ function htmlValidation() {
         audioSource = "audio"
     }
 
+    // Check media has a duration
+    // Video
+    if (getRadioValue("visualType") == "video") {
+        videoStartTime = parseFloat(document.getElementById("video_start").value)
+        videoEndTime = parseFloat(document.getElementById("video_end").value)
+        
+        // Start out of range
+        if (videoStartTime < 0 || videoStartTime > myVideo.duration) {
+            showElementError(document.getElementById("video_start"), "Please check video timings and try again")
+            return false
+        }
+
+        // End is not 0 so must be less than video length and video_start
+        if (videoEndTime != 0 && (videoStartTime >= videoEndTime || videoEndTime >= myVideo.duration || videoEndTime < 0)) {
+            showElementError(document.getElementById("video_end"), "Please check video timings and try again")
+            return false
+        }
+    }
+    
+    // Audio
+    myMedia = getAudioSource()
+    audioStartTime = parseFloat(document.getElementById("audio_start").value)
+    audioEndTime = parseFloat(document.getElementById("audio_end").value)
+    
+    // Start out of range
+    if (audioStartTime < 0 || audioStartTime > myMedia.duration) {
+        showElementError(document.getElementById("audio_start"), "Please check audio timings and try again")
+        return false
+    }
+
+    // End is not 0 so must be less than audio length and audio_start
+    if (audioEndTime != 0 && (audioStartTime >= audioEndTime || audioEndTime >= myMedia.duration || audioEndTime < 0)) {
+        showElementError(document.getElementById("audio_end"), "Please check audio timings and try again")
+        return false
+    }
+    // END
+
     inputs = document.getElementsByTagName("input")
     for (const elm of inputs) {
         elm.setCustomValidity("") // HERE
