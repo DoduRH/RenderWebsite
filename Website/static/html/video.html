@@ -132,6 +132,7 @@
                     <td>
                       <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000"
                         onkeydown="videoTime(event, this, 'video')" required />
+                        seconds
                     </td>
                   </tr>
                   <tr class="all video" hidden>
@@ -148,6 +149,7 @@
                     <td>
                       <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000"
                         onkeydown="videoTime(event, this, 'video')" required />
+                        seconds
                     </td>
                   </tr>
                   <tr class="all video" hidden>
@@ -172,11 +174,12 @@
                     <td>
                       <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
                         <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Fade in video at the start (seconds)</span>
+                        <span class="tooltiptext noselect">Fade in video at the start</span>
                       </div>
                     </td>
                     <td>
                       <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required />
+                      seconds
                     </td>
                   </tr>
                   <tr class="all video image solid" hidden>
@@ -186,11 +189,12 @@
                     <td>
                       <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
                         <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Fade out video at the end (seconds)</span>
+                        <span class="tooltiptext noselect">Fade out video at the end</span>
                       </div>
                     </td>
                     <td>
                       <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0" required />
+                      seconds
                     </td>
                   </tr>
                   <tr class="all video" hidden>
@@ -288,6 +292,7 @@
                   <td>
                     <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01" max="100000"
                       class="copy" onkeydown="videoTime(event, this, 'audio')" required />
+                      seconds
                   </td>
                 </tr>
                 <tr class="all audio advanced_audio" hidden>
@@ -304,6 +309,7 @@
                   <td>
                     <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01" max="100000"
                       class="copy" onkeydown="videoTime(event, this, 'audio')" required />
+                      seconds
                   </td>
                 </tr>
                 <tr class="all audio advanced_audio" hidden>
@@ -328,12 +334,13 @@
                   <td>
                     <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
                       <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Fade in audio at the start (seconds)</span>
+                      <span class="tooltiptext noselect">Fade in audio at the start</span>
                     </div>
                   </td>
                   <td>
                     <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0" class="copy"
                       required />
+                      seconds
                   </td>
                 </tr>
                 <tr class="all audio advanced_audio" hidden>
@@ -343,12 +350,13 @@
                   <td>
                     <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
                       <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Fade out audio at the end (seconds)</span>
+                      <span class="tooltiptext noselect">Fade out audio at the end</span>
                     </div>
                   </td>
                   <td>
                     <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0" class="copy"
                       required />
+                      seconds
                   </td>
                 </tr>
                 <tr class="all audio advanced_audio" hidden>
