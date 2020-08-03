@@ -94,21 +94,16 @@ window.onresize = function() {
 
 myVideo.oncanplay = function (e) {
     console.log("canplay")
-    if (videoUpload.files[0].type.includes("video")) {
-        if (myVideo.videoWidth * myVideo.videoHeight > 1920 * 1080) {
-            videoUpload.value = ""
-            alert("Video resolution too high please select another file, 1080p max")
-            return
-        }
-        videoRight = myVideo.videoWidth
-        videoBottom = myVideo.videoHeight
-    } else {
-        if (myImage.naturalWidth * myImage.naturalHeight > 1920 * 1080) {
-            videoUpload.value = ""
-            alert("Image resolution too high please select another file, max 1920x1080")
-            return
-        }
+    if (myVideo.videoWidth * myVideo.videoHeight > 1920 * 1080) {
+        videoUpload.value = ""
+        myVideo.hidden = true
+        changeVisualAreaSize()
+        alert("Video resolution too high please select another file, 1080p max")
+        changeVisualAreaSize()
+        return
     }
+    videoRight = myVideo.videoWidth
+    videoBottom = myVideo.videoHeight
 }
 
 myVideo.onloadeddata = function(e) {
@@ -117,6 +112,14 @@ myVideo.onloadeddata = function(e) {
 }
 
 myImage.onload = function(e) {
+    if (myImage.naturalWidth * myImage.naturalHeight > 1920 * 1080) {
+        videoUpload.value = ""
+        myImage.hidden = true
+        changeVisualAreaSize()
+        alert("Image resolution too high please select another file, max 1920x1080 (or 1080x1920)")
+        changeVisualAreaSize()
+        return
+    }
     changeVisualAreaSize()
     reset_crop()
 }
