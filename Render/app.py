@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from video_renderer import render
 import json
+import sqlConnector
 
 import os
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-ed88c47e7d9d.json"
@@ -21,8 +22,12 @@ def main():
     args = json.loads(data)
 
     result = render(args)
-    if "error" == result[0:5].lower():
+    if result[0] == "error":
         print("Error while rendering:", result)
+        data = {
+            "error": result[1]
+        }
+        sqlConnector.set_document(args['video_id'], data, merge=True)
 
     return args["video_id"]
 

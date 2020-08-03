@@ -267,7 +267,7 @@ def render(args):
 
     if audio_loc is None:
         if "video" not in visual_type:
-            return "ERROR: no audio stream present" 
+            return ("error", "no audio stream present")
         audio_loc = video_loc # THIS SHOULD NOT BE NEEDED #
     else:
         audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
@@ -277,7 +277,7 @@ def render(args):
     video_probe = ffmpeg.probe(video_loc)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
     if len(video_streams) == 0:
-        return "ERROR: no video stream detected"
+        return ("error", "no video stream detected")
 
     if "video" in visual_type:
         in_file = ffmpeg.input(video_loc)
@@ -322,7 +322,7 @@ def render(args):
         video_height = video_streams[0]['height']
 
     if video_width * video_height > 1920 * 1080:
-        return "ERROR: Too many pixels"
+        return ("error", "Too many pixels")
 
     # Make audio
     if audio_loc is None:
@@ -348,7 +348,7 @@ def render(args):
         elif "duration" in audio_probe['format']:
             audio_stream_duration = float(audio_probe['format']['duration'])
         else:
-            return "ERROR: No audio duration found"
+            return ("error", "No audio duration found")
 
     if audio_usable[1] <= audio_usable[0]:
         audio_usable[1] = audio_stream_duration
@@ -373,13 +373,13 @@ def render(args):
 
     if duration > 300:
         valid = False
-        return "ERROR: Max video length 5 minutes (after applying speed change)"
+        return ("error", "Max video length 5 minutes (after applying speed change)")
 
     if video_stream_duration < video_usable[0] or video_stream_duration < video_usable[1] or video_duration < video_fade[0] or video_duration < video_fade[1]:
-        return "ERROR: Video timings don't match"
+        return ("error", "Video timings don't match")
 
     if audio_stream_duration < audio_usable[0] or audio_stream_duration < audio_usable[1] or audio_duration < audio_fade[0] or audio_duration < audio_fade[1]:
-        return "ERROR: Audio timings don't match"
+        return ("error", "Audio timings don't match")
 
     max_lines = 0
     text_h = 0
@@ -529,7 +529,7 @@ def render(args):
 
     if escape:
         delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
-        return "ERROR: Failed to initiate video render"
+        return ("error", "Failed to start video render")
 
     done = False
     total_frames = int(duration * framerate)
@@ -578,4 +578,4 @@ def render(args):
 
     delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
 
-    return "VideoOutput_" + video_id + ".mp4"
+    return ("Sucsess", "VideoOutput_" + video_id + ".mp4")

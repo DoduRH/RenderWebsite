@@ -239,7 +239,8 @@ def uploader():
         data = {
             'form': r.form,
             'progress': 0,
-            'start-time': datetime.datetime.now()
+            'start-time': datetime.datetime.now(),
+            'error': ""
         }
         sqlConnector.set_document(t, data, merge=True)
 
@@ -371,7 +372,7 @@ def uploader():
         }
 
         data = {
-            'args': args,
+            'args': args
         }
 
         sqlConnector.set_document(t, data, merge=True)
@@ -420,11 +421,14 @@ def uploader():
 @app.route('/get_file', methods=['GET'])
 def get_file():
     video_id = get_args(request, "videoID")
-    progress = sqlConnector.get_progress(video_id)
-    if progress is None:
-        return jsonify({"progress": "ERROR"})
+    doc_dict = sqlConnector.get_document(video_id)
+    if doc_dict['progress'] is None:
+        return jsonify({"status": "error", "error": "File not found"})
     else:
-        return jsonify({"progress": progress})
+        if doc_dict['error'] == "":
+            return jsonify({"status": "running", "progress": doc_dict['progress']})
+        else:
+            return jsonify({"status": "error", "error": doc_dict['error']})
 
 
 @app.route('/download', methods=['GET'])

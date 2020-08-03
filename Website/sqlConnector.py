@@ -10,14 +10,14 @@ def set_document(document, data, merge=False):
     mydb.collection('renders').document(document).set(data, merge)
 
 
-def get_progress(document, last24hours=True):
+def get_document(document, last24hours=True):
     ''' Get progress for document '''
     mydb = firestore.Client()
     doc = mydb.collection('renders').document(document).get()
     doc_dict = doc.to_dict()
 
     if doc.exists and UTC.localize(datetime.datetime.now() + datetime.timedelta(hours=24)) > doc_dict['edit-time']:
-        return doc_dict['progress']
+        return doc_dict
     else:
         return None
 
