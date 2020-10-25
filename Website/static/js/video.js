@@ -1155,8 +1155,10 @@ function checkFileSize() {
         audioSize = 0
     }
 
-    if (audioSize + videoSize > 300000000) {
-        alert("Unable to upload, combined filesize must be below 300MB")
+    if (audioSize + videoSize > 10 * (10**9)) {
+        alert("Unable to upload, combined filesize must be below 10GB")
+        return false
+    } else if (audioSize + videoSize > 1 * (10**9) && !confirm("This may take a while depending on your internet connection, do you want to continue?")) {
         return false
     } else {
         return true

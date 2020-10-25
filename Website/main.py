@@ -21,7 +21,7 @@ CORS(app)
 
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
 
-MAX_MEDIA_SIZE = 10 * (10 ** 9)  # 10GB between audio and video
+MAX_MEDIA_SIZE = 11 * (10 ** 9)  # 10GB between audio and video
 
 uploadBucketName = "addlyrics-content"
 path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
