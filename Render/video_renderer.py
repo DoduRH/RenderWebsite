@@ -9,6 +9,8 @@ from re import split as reg_split
 from time import sleep
 import sqlConnector
 import math
+from datetime import timedelta
+from mimetypes import guess_type
 
 m = Magic(mime=True)
 
@@ -96,25 +98,28 @@ def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(source_blob_name)
     blob.download_to_filename(destination_file_name)
+    
+    return destination_file_name
 
-    fname = destination_file_name.split(".")[-1]
 
-    mimetype = m.from_file(destination_file_name)
-    valid = False
-    for f in filetype:
-        if f in mimetype:
-            valid = True
+def get_blob_url(bucket_name, source_blob_name, return_size=False):
+    """Returns url for a blob from the bucket."""
+    # bucket_name = "your-bucket-name"
+    # source_blob_name = "storage-object-name"
 
-    if fname not in mimetype and not valid:
-        os.remove(destination_file_name)
-        print("Failed because mimetype didnt match")
-        destination_file_name = ""
+    storage_client = storage.Client()
+
+    bucket = storage_client.bucket(bucket_name)
+    blob = bucket.get_blob(source_blob_name)
+
+    url = blob.generate_signed_url(
+            expiration=timedelta(minutes=60),
+            method='GET', version="v4")
+    
+    if return_size:
+        return [url, blob.size]
     else:
-        print("Success")
-    if giveType:
-        return destination_file_name, mimetype
-    else:
-        return destination_file_name
+        return url
 
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -260,27 +265,29 @@ def render(args):
 
     solid_background = (video_loc == "")
     if not solid_background:
-        video_loc, visual_type = download_blob("addlyrics-content", video_loc, ('video', 'image'), True)
+        video_url, video_size_in = get_blob_url("addlyrics-content", video_loc, True)
+        visual_type = guess_type(video_loc)[0]
     else:
         visual_type = "image"
-        video_loc = generate_solid_background(video_id, background_colour)
+        video_url = generate_solid_background(video_id, background_colour)
 
     if audio_loc is None:
         if "video" not in visual_type:
             return ("error", "no audio stream present")
-        audio_loc = video_loc # THIS SHOULD NOT BE NEEDED #
+        audio_url = video_url # THIS SHOULD NOT BE NEEDED #
+        audio_size_in = 0
     else:
-        audio_loc = download_blob("addlyrics-content", audio_loc, ('audio'))
+        audio_url, audio_size_in = get_blob_url("addlyrics-content", audio_loc, True)
 
     output_name = "/tmp/VideoOutput_" + video_id + ".mp4"
 
-    video_probe = ffmpeg.probe(video_loc)
+    video_probe = ffmpeg.probe(video_url)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
     if len(video_streams) == 0:
         return ("error", "no video stream detected")
 
     if "video" in visual_type:
-        in_file = ffmpeg.input(video_loc)
+        in_file = ffmpeg.input(video_url)
         if 'bit_rate' in video_streams[0].keys():
             bitrate = eval(video_streams[0]['bit_rate'])
         else:
@@ -305,7 +312,7 @@ def render(args):
         bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
-            .input(video_loc, loop=True)
+            .input(video_url, loop=True)
             .filter('framerate', fps=framerate)
         )
 
@@ -329,10 +336,10 @@ def render(args):
         audio_probe = video_probe
         audio_comp = in_file.audio
     else:
-        audio_probe = ffmpeg.probe(audio_loc)
+        audio_probe = ffmpeg.probe(audio_url)
         audio_comp = (
             ffmpeg
-            .input(audio_loc)
+            .input(audio_url)
             .audio
         )
 
@@ -517,25 +524,19 @@ def render(args):
     # print(composition.compile())
 
     composition.run_async()
-    sleep(2)
+    sleep(5)
     # Check render has started sucsessfully
-    escape = False
-    if not os.path.exists(progress_file):
-        escape = True
-    else:
-        with open(progress_file) as f:
-            if len(f.readlines()) <= 1:
-                escape = True
-
-    if escape:
-        delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
-        return ("error", "Failed to start video render")
-
+    failure = 0
     done = False
     total_frames = int(duration * framerate)
+
     while not done:
         sleep(2)
-
+        if not os.path.exists(progress_file):
+            failure += 1
+            if failure >= 30:
+                return ("error", "Render failed to initiate after 1 minute")
+        
         skip = True
         for r in reverse_readline(progress_file):
             if skip:
@@ -560,11 +561,6 @@ def render(args):
     sqlConnector.set_document(video_id, {'progress': 100}, merge=True)
     
     # Increment counters
-    video_size_in = os.path.getsize(video_loc)
-    if audio_loc == video_loc:
-        audio_size_in = 0
-    else:
-        audio_size_in = os.path.getsize(audio_loc)
     video_size_out = os.path.getsize("/tmp/VideoOutput_" + video_id + ".mp4")
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
@@ -576,6 +572,6 @@ def render(args):
         'word_count': word_count
     }, merge=True)
 
-    delete_files([output_name, video_loc, words_loc, audio_loc, progress_file])
+    delete_files([output_name, words_loc, progress_file])
 
     return ("Sucsess", "VideoOutput_" + video_id + ".mp4")
