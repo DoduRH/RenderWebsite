@@ -91,3 +91,7 @@ canvas {
  .controls progress::-webkit-progress-value {
     background-color:#0095dd;
  }
+
+ .frozenHead thead {
+    background-color: #ffffff;
+ }

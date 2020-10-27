@@ -729,9 +729,9 @@ function updated(t, cookie=true) {
         }
         console.log(lines)
         output_tbl =
-            "<tr><th>Line</th>" +
+            "<thead><tr><th>Line</th>" +
             '<th><button onclick="time_start()">Start</button></th>' +
-            '<th><button onclick="time_stop()">Stop</button></th></tr>' // this may be an issue
+            '<th><button onclick="time_stop()">Stop</button></th></tr></thead>'
 
         start_times = []
         stop_times = []
@@ -1560,4 +1560,8 @@ document.addEventListener('DOMContentLoaded', function () {
     textAreaAdjust(lyrics)
     getID()
     cookieDisplay()
+    var $table = $('table.frozenHead');
+    $table.floatThead({
+        position: 'fixed'
+    });
 }, false)
