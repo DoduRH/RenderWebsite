@@ -378,7 +378,7 @@ def render(args):
         else:
             duration = max(video_duration, audio_duration)
 
-    if duration > 300:
+    if duration > 600:
         valid = False
         return ("error", "Max video length 5 minutes (after applying speed change)")
 

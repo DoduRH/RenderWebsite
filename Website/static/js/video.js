@@ -1169,8 +1169,8 @@ function checkDuration() {
     // Check file length
     duration = getOutputDuration()
 
-    if (duration > 300) {
-        alert("Max video length 5 minutes (after applying speed change)")
+    if (duration > 600) {
+        alert("Max video length 10 minutes (after applying speed change)")
         return false
     } else {
         return true
