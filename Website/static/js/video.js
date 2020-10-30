@@ -713,14 +713,14 @@ function updated(t, cookie=true) {
     }
 
     if (lyrics.value == "") {
+        var $table = $('table.frozenHead');
+        $table.floatThead('destroy');
         document.getElementById("tableText").closest(".capsule").hidden = true
         deleteCookie("lyricsArea")
         e = tbl.closest('div')
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
         e.classList.remove("expanded")
         e.classList.add("minimised")
-        var $table = $('table.frozenHead');
-        $table.floatThead('destroy');
     } else {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
