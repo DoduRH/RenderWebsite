@@ -719,7 +719,11 @@ function updated(t, cookie=true) {
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
         e.classList.remove("expanded")
         e.classList.add("minimised")
+        var $table = $('table.frozenHead');
+        $table.floatThead('destroy');
     } else {
+        var $table = $('table.frozenHead');
+        $table.floatThead('destroy');
         document.getElementById("tableText").closest(".capsule").hidden = false
         document.getElementById("text_tl").required = true
         if (document.getElementById("verses").checked) {
@@ -779,6 +783,10 @@ function updated(t, cookie=true) {
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
         e.classList.add("expanded")
         e.classList.remove("minimised")
+        var $table = $('table.frozenHead');
+        $table.floatThead({
+            position: 'absolute'
+        });
     }
 }
 
@@ -1562,6 +1570,6 @@ document.addEventListener('DOMContentLoaded', function () {
     cookieDisplay()
     var $table = $('table.frozenHead');
     $table.floatThead({
-        position: 'fixed'
+        position: 'absolute'
     });
 }, false)
