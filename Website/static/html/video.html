@@ -9,8 +9,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
   <title>Add lyrics to a video</title>
   <!--<link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/video.css">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />-->
+  <link rel="stylesheet" href="/static/css/video.css">-->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js"
@@ -22,15 +21,20 @@
       margin-top: 20px
     }
 
+    .tooltip {
+      position: relative;
+      text-align: right;
+      display: inline;
+    }
+
     .tooltip img {
       height: 1em;
-      width: 1em;
     }
 
     .tooltip .tooltiptext {
       visibility: hidden;
       width: 220px;
-      background-color: black;
+      background-color: rgb(114, 114, 114);
       color: #fff;
       text-align: center;
       border-radius: 6px;
@@ -44,6 +48,15 @@
       /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
       opacity: 0;
       transition: opacity 1s;
+    }
+    
+    .tooltip:hover .tooltiptext {
+      visibility: visible;
+      opacity: 1;
+    }
+  
+    .tooltiptext.offset-right {
+      margin-left: -40px;
     }
 
     .table.is-borderless td,
@@ -59,22 +72,7 @@
     table.header-background th {
       background: #fff;
     }
-
-    .card-header-icon img {
-      height: 0.75em
-    }
   </style>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      let cardToggles = document.getElementsByClassName('card-toggle');
-      for (let i = 0; i < cardToggles.length; i++) {
-        cardToggles[i].addEventListener('click', e => {
-          e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
-        });
-      }
-    });
-  </script>
-
 </head>
 
 <body>
