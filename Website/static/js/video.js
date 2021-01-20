@@ -38,16 +38,17 @@ var stop_times = []
 
 function videoChange() {
     console.log("New video")
-    cropVideoCapsule = document.getElementById("crop_video_capsule")
-    hidable = cropVideoCapsule.getElementsByClassName("expandable")[0]
+    videoContentCard = document.getElementById("uploaded_video_card")
+    cropVideoCard = document.getElementById("crop_video_card")
+    previewFrameCard = document.getElementById("preview_frame_card")
+    showCards = false
+
 
     if (videoUpload.files.length == 1) {
         fileBlob = videoUpload.files[0]
         url = (URL || webkitURL).createObjectURL(fileBlob)
 
         console.log("Set as source")
-        hidable.classList.remove("maximised")
-        hidable.classList.add("minimised")
 
         if (videoUpload.files[0].type.includes("video")) {
             myImage.hidden = true
@@ -59,9 +60,7 @@ function videoChange() {
             videoEnd.max = myVideo.duration
 
             reset_crop()
-
-            cropVideoCapsule.classList.add("capsule")
-            cropVideoCapsule.classList.remove("expandable", "minimised")
+            showCards = true
         } else if (videoUpload.files[0].type.includes("image")) {
             myVideo.hidden = true
             myImage.hidden = false
@@ -69,17 +68,13 @@ function videoChange() {
             myImage.src = url
 
             reset_crop()
-
-            cropVideoCapsule.classList.add("capsule")
-            cropVideoCapsule.classList.remove("expandable", "minimised")
-        } else {
-            cropVideoCapsule.classList.remove("capsule")
-            cropVideoCapsule.classList.add("expandable", "minimised")
+            showCards = true
         }
-    } else {
-        cropVideoCapsule.classList.remove("capsule")
-        cropVideoCapsule.classList.add("expandable", "minimised")
     }
+
+    videoContentCard.hidden = !showCards
+    cropVideoCard.hidden = !showCards
+    previewFrameCard.hidden = !showCards
 }
 
 window.onresize = function() {
@@ -124,7 +119,7 @@ myImage.onload = function(e) {
     reset_crop()
 }
 
-function changeVisualAreaSize() {
+/*function changeVisualAreaSize() {
     console.log("Loaded video")
     currentTab = myVideo.closest('#tab')
     currentTab.classList.remove("expandable", "minimised")
@@ -134,7 +129,7 @@ function changeVisualAreaSize() {
     e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
     e.classList.add("expanded")
     e.classList.remove("minimised")
-}
+}*/
 
 myAudio.onloadeddata = function(e) {
     changeAudioAreaSize()
@@ -715,7 +710,7 @@ function updated(t, cookie=true) {
     if (lyrics.value == "") {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
-        document.getElementById("tableText").closest(".capsule").hidden = true
+        document.getElementById("tableText").closest(".card").hidden = true
         deleteCookie("lyricsArea")
         e = tbl.closest('div')
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
@@ -724,7 +719,7 @@ function updated(t, cookie=true) {
     } else {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
-        document.getElementById("tableText").closest(".capsule").hidden = false
+        document.getElementById("tableText").closest(".card").hidden = false
         document.getElementById("text_tl").required = true
         if (document.getElementById("verses").checked) {
             lines = lyrics.value.split("\n\n")
@@ -1362,9 +1357,10 @@ function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
     audioFitTime()
-    tableElements = document.getElementById("tableVisual").getElementsByClassName('all')
+    tableElements = document.getElementById("tableVisual").getElementsByClassName('is-all-setting')
+    newClass = "is-" + newType + "-setting"
     for (let i = 0; i < tableElements.length; i++) {
-        tableElements[i].hidden = !tableElements[i].className.includes(newType)
+        tableElements[i].hidden = !tableElements[i].className.includes(newClass)
     }
 
     if (videoUpload.files.length == 0) {
@@ -1373,14 +1369,14 @@ function videoTypeChange(newType) {
         filetype = videoUpload.files[0].type
     }
 
-    if (newType == "solid" || !filetype.includes(newType)) {
+    if (newClass == "is-solid-setting" || !filetype.includes(newClass)) {
         // REMINDER: hide the video element?
     } else {
         // REMINDER: show the video element?
-        displayElements = myVideo.closest("#tab").getElementsByClassName("all")
+        displayElements = myVideo.closest("#tab").getElementsByClassName("is-all-setting")
         for (let i = 0; i < displayElements.length; i++) {
             if (!displayElements[i].hidden) {
-                displayElements[i].hidden = !displayElements[i].className.includes(newType)
+                displayElements[i].hidden = !displayElements[i].className.includes(newClass)
             }
         }
     }
@@ -1398,9 +1394,10 @@ function advancedOption() {
 
 function audioSourceChange(newSource) {
     console.log(newSource)
-    elements = document.getElementById("tableAudio").getElementsByClassName('all')
+    newClass = "is-" + newSource + "-setting"
+    elements = document.getElementById("tableAudio").getElementsByClassName('is-all-setting')
     for (let i = 0; i < elements.length; i++) {
-        elements[i].hidden = !elements[i].className.includes(newSource)
+        elements[i].hidden = !elements[i].className.includes(newClass)
     }
     myAudio.closest("#tab").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
     if ((getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)) {

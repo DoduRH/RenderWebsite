@@ -2,17 +2,83 @@
 <html>
 
 <head>
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Quickly and easily add lyrics to your videos" />
   <meta name="keywords" content="video lyric word song overlay editing" />
   <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
   <title>Add lyrics to a video</title>
-  <link rel="stylesheet" href="/static/css/main.css">
+  <!--<link rel="stylesheet" href="/static/css/main.css">
   <link rel="stylesheet" href="/static/css/video.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />-->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js"
+    integrity="sha512-q0XkdCnK0e3QLJgYrtENEEmAv+urSGCQs/xCXF4xs+NoLfNWD+j7iMqNYXtFOQfnYDsfE4Z7phZqaHgYJrGB/g=="
+    crossorigin="anonymous"></script>
+
+  <style>
+    .card+.card {
+      margin-top: 20px
+    }
+
+    .tooltip img {
+      height: 1em;
+      width: 1em;
+    }
+
+    .tooltip .tooltiptext {
+      visibility: hidden;
+      width: 220px;
+      background-color: black;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 5px 0;
+      position: absolute;
+      z-index: 1;
+      bottom: 100%;
+      left: 50%;
+      margin-left: -110px;
+
+      /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+      opacity: 0;
+      transition: opacity 1s;
+    }
+
+    .table.is-borderless td,
+    .table.is-borderless th {
+      border: 0
+    }
+
+    section.section,
+    div.box {
+      background: transparent;
+    }
+
+    table.header-background th {
+      background: #fff;
+    }
+
+    .card-header-icon img {
+      height: 0.75em
+    }
+  </style>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let cardToggles = document.getElementsByClassName('card-toggle');
+      for (let i = 0; i < cardToggles.length; i++) {
+        cardToggles[i].addEventListener('click', e => {
+          e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
+        });
+      }
+    });
+  </script>
+
 </head>
 
 <body>
-  <div class="cookie-notice">
+  <!--<div class="cookie-notice">
     <div class="cookie-notice-flex">
       <p>This site uses cookies to function properly.
         By continuing to use this site, you agree to our use of cookies.
@@ -23,648 +89,745 @@
         </svg>
       </span>
     </div>
-  </div>
-  <header>
-    <a href="/">
-      <h1 style="color:white">Add my lyrics</h1>
-    </a>
-    <nav>
-      <a href="/">Add lyrics</a>
-      <a href="/contact">Contact</a>
-      <a href="/how-to">How to</a>
-      <!--<a href="/faq">FAQ</a>-->
-    </nav>
-  </header>
-  <div class=content>
-    <div class=row>
-      <div class="settings column">
-        <div class="capsule" hidden>
-          <h3>Errors</h3>
-          <p id="errorDisplay"></p>
+  </div>-->
+  <section class="hero is-primary is-fullheight">
+    <div class="hero-head">
+      <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+          <a href="/">
+            <h1 class="title">Add my lyrics</h1>
+          </a>
+          <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false"
+            data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+          </a>
         </div>
-        <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
-          <div class="capsule">
-            <h3 class=noselect onclick="hide(this.nextElementSibling)">Background Video Settings</h3>
-            <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
-              <table id=tableVisual width=100%>
-                <colgroup>
-                  <col span="1" width=50%>
-                  <col span="1" width=5%>
-                  <col span="1" width=45%>
-                </colgroup>
-                <tbody>
-                  <tr>
-                    <td>
-                      <label for="visualType">Select background type</label>
-                    </td>
-                    <td>
-                    </td>
-                    <td>
+        <div id="navbarBasicExample" class="navbar-menu">
+          <div class="navbar-end">
+            <a href="/" class="navbar-item">Add lyrics</a>
+            <a href="/contact" class="navbar-item">Contact</a>
+            <a href="/how-to" class="navbar-item">How to</a>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <div class="hero-body">
+      <div class="is-fullwidth">
+        <div class="columns">
+          <div class="settings column is-half">
+            <form id="theform" action="uploader" method="POST" enctype="multipart/form-data">
+              <section class="section">
+                <div>
+                  <div id=video_settings_card class="card is-fullwidth">
+                    <header class="card-header">
+                      <p class="card-header-title">Background Video Settings</p>
+                      <a class="card-header-icon card-toggle">
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <table id=tableVisual class="table">
+                          <colgroup>
+                            <col span="1" width=50%>
+                            <col span="1" width=5%>
+                            <col span="1" width=45%>
+                          </colgroup>
+                          <tr>
+                            <td>
+                              <label for="visualType">Select background type</label>
+                            </td>
+                            <td></td>
+                            <td>
+                              <table class="table is-borderless">
+                                <tr class="oneline">
+                                  <td>
+                                    <label for="videoType">Video</label>
+                                  </td>
+                                  <td>
+                                    <label for="imageType">Image</label>
+                                  </td>
+                                  <td>
+                                    <label for="solidType">Solid Colour</label>
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td>
+                                    <input type="radio" name="visualType" id="videoType" value="video"
+                                      onchange="videoTypeChange('video')" required />
+                                  </td>
+                                  <td>
+                                    <input type="radio" name="visualType" id="imageType" value="image"
+                                      onchange="videoTypeChange('image')" />
+                                  </td>
+                                  <td>
+                                    <input type="radio" name="visualType" id="solidType" value="solid"
+                                      onchange="videoTypeChange('solid')" />
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting is-image-setting" hidden>
+                            <td>
+                              <label for="videoUpload" class="is-all-setting is-video-setting">Upload video</label>
+                              <label for="videoUpload" class="is-all-setting is-image-setting">Upload image</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Upload your background media</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()" />
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-solid-setting" hidden>
+                            <td>
+                              <label for="background_colour">Background colour</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Colour of the background</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="color" name="background_colour" id="background_colour" value="#000000"
+                                required>
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting" hidden>
+                            <td>
+                              <label for="video_start">Start video</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop the video to start at this point, select it and
+                                  press
+                                  space to set to current video time</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000"
+                                onkeydown="videoTime(event, this, 'video')" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting" hidden>
+                            <td>
+                              <label for="video_end">End video</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop the video to end at this point, ignored if set
+                                  to
+                                  0,
+                                  select it and press space to set to current video time</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000"
+                                onkeydown="videoTime(event, this, 'video')" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting" hidden>
+                            <td>
+                              <label for="video_speed">Video speed</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Playback speed of the video</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="video_speed" name="video_speed" min="0.01" value="1" step="0.01"
+                                max="10" required />
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting is-image-setting is-solid-setting" hidden>
+                            <td>
+                              <label for="video_fade_in">Fade in</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Fade in video at the start</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting is-image-setting is-solid-setting" hidden>
+                            <td>
+                              <label for="video_fade_out">Fade out</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Fade out video at the end</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0"
+                                required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting" hidden>
+                            <td>
+                              <label for=crop_video>Crop video</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop video to match the length of provided
+                                  audio</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="checkbox" id="crop_video" name="crop_video" checked />
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+
+                  <div id=audio_settings_card class="card is-fullwidth">
+                    <header class="card-header">
+                      <p class="card-header-title">Audio Settings</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <table id=tableAudio class="table">
+                          <colgroup>
+                            <col span="1" width=50%>
+                            <col span="1" width=5%>
+                            <col span="1" width=45%>
+                          </colgroup>
+                          <tr>
+                            <td>
+                              <label for="audioSource">Select audio source</label>
+                            </td>
+                            <td>
+
+                            </td>
+                            <td>
+                              <table>
+                                <tr class="oneline">
+                                  <td>
+                                    <label for="videoSource">Video</label>
+                                    <input type="radio" name="audioSource" id="videoSource" value="video"
+                                      onchange="audioSourceChange('video')" required />
+                                  </td>
+                                  <td>
+                                    <label for="audioSource">Audio</label>
+                                    <input type="radio" name="audioSource" id="audioSource" value="audio"
+                                      onchange="audioSourceChange('audio')" />
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-video-setting" hidden>
+                            <td>
+                              <label for="advanced_options">Advanced Audio</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Change speed and crop audio seperately to
+                                  video</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="checkbox" id="advanced_options" onchange="advancedOption()">
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting" hidden>
+                            <td>
+                              <label for="audioUpload">Upload Audio</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Upload your audio</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()" />
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for="audio_start">Start audio</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop the audio to start at this point, select it and
+                                  press
+                                  space to set value to the current audio time</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01"
+                                max="100000" class="copy" onkeydown="videoTime(event, this, 'audio')" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for="audio_end">End audio</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop the audio to end at this point, ignored if set
+                                  to
+                                  0,
+                                  select it and press space to set value to the current audio time</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01"
+                                max="100000" class="copy" onkeydown="videoTime(event, this, 'audio')" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for="audio_speed">Audio speed</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Playback speed of the audio</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="audio_speed" name="audio_speed" min="0.5" value="1" step="0.01"
+                                max="2" class="copy" required />
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for="audio_fade_in">Fade in</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Fade in audio at the start</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0"
+                                class="copy" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for="audio_fade_out">Fade out</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Fade out audio at the end</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0"
+                                class="copy" required />
+                              seconds
+                            </td>
+                          </tr>
+                          <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
+                            <td>
+                              <label for=crop_audio>Crop Audio</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Crop audio to match the length of provided
+                                  video</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="checkbox" id="crop_audio" name="crop_audio" />
+                            </td>
+                          </tr>
+                          <tr id="row_fill_time" class="is-all-setting is-audio-setting is-advanced_audio-setting"
+                            hidden>
+                            <td>
+                              Fill time
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Calculate video speed to fill length of audio</span>
+                              </div>
+                            </td>
+                            <td>
+                              <button type="button" onclick="fillTime()">Calculate</button>
+                            </td>
+                          </tr>
+
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id=text_settings_card class="card is-fullwidth" hidden>
+                    <header class="card-header">
+                      <p class="card-header-title">Text Settings</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <table id=tableText width=100%>
+                          <tr>
+                            <td>
+                              <label for="font_size">Font size</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect" style="top: 100%; bottom: auto">Set the size of the
+                                  font</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="font_size" name="font_size" min="1" value="60" max="1000"
+                                step="1" required />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="textColour">Text colour</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Set the colour of the text</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input id="textColour" name="textColour" type="color" value="#ffffff" required />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="visibleShadow">Shadow</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Show a shadow behind the text</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="checkbox" id="visibleShadow" name="visibleShadow" onchange="shadowChange()"
+                                checked />
+                            </td>
+                          </tr>
+                          <tr class="shadow_properties">
+                            <td>
+                              <label for="shadowColour">Shadow colour</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Set the colour of the text shadow</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input id="shadowColour" name="shadowColour" type="color" value="#000000" required />
+                            </td>
+                          </tr>
+                          <tr class="shadow_properties">
+                            <td>
+                              <label for="shadowX">Shadow offset</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Offset from text to shadow (positive bottom
+                                  right)</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="3" step="1"
+                                min="-2000" max="2000" required>
+                              ,
+                              <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="3" step="1"
+                                min="-2000" max="2000" required>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="text_position">Text position</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Set the position of the text</span>
+                              </div>
+                            </td>
+                            <td>
+                              <div>
+                                <input type="radio" name="text_position" id="text_tl" value="tl">
+                                <input type="radio" name="text_position" id="text_tm" value="tm">
+                                <input type="radio" name="text_position" id="text_tr" value="tr">
+                              </div>
+                              <div>
+                                <input type="radio" name="text_position" id="text_ml" value="ml">
+                                <input type="radio" name="text_position" id="text_mm" value="mm" checked>
+                                <input type="radio" name="text_position" id="text_mr" value="mr">
+                              </div>
+                              <div>
+                                <input type="radio" name="text_position" id="text_bl" value="bl">
+                                <input type="radio" name="text_position" id="text_bm" value="bm">
+                                <input type="radio" name="text_position" id="text_br" value="br">
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <label for="text_width">Max text width</label>
+                            </td>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Percentage of the screen to use before wraping
+                                  text</span>
+                              </div>
+                            </td>
+                            <td>
+                              <input type="number" id="text_width" name="text_width" min="0" value="90" max="100"
+                                step="1" required />
+                              %
+                            </td>
+                          </tr>
+
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div id=uploaded_video_card class="card is-fullwidth" hidden>
+                    <header class="card-header">
+                      <p class="card-header-title">Uploaded Video</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <video id="video1" width=100% class="is-allsetting is-video-setting mediaplayer" controls
+                          hidden></video>
+                        <img id="image1" width=100% class="is-all-setting is-image-setting" alt="Unable to show image"
+                          hidden>
+                      </div>
+                    </div>
+                  </div>
+                  <div id=crop_video_card class="card is-fullwidth" hidden>
+                    <header class="card-header">
+                      <p class="card-header-title">Crop Video</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <table class="table">
+                          <tr>
+                            <td>
+                              <canvas id="visualCanvas" width=100%></canvas>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <button type="button" onclick="reset_crop()">Reset Crop</button>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext noselect">Click on the image above to crop it. The greyed out
+                                  area
+                                  will
+                                  be cut from the final video. Click the button to reset the crop to show the full
+                                  screen.</span>
+                              </div>
+                            </td>
+                          </tr>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                  <div id=uploaded_audio_card class="card is-fullwidth" id=tab hidden>
+                    <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Audio</h3>
+                    <div id=hider class="expandable minimised">
                       <table>
-                        <tr class="oneline">
-                          <td>
-                            <label for="videoType">Video</label>
-                          </td>
-                          <td>
-                            <label for="imageType">Image</label>
-                          </td>
-                          <td>
-                            <label for="solidType">Solid Colour</label>
-                          </td>
-                        </tr>
                         <tr>
                           <td>
-                            <input type="radio" name="visualType" id="videoType" value="video"
-                              onchange="videoTypeChange('video')" required />
-                          </td>
-                          <td>
-                            <input type="radio" name="visualType" id="imageType" value="image"
-                              onchange="videoTypeChange('image')" />
-                          </td>
-                          <td>
-                            <input type="radio" name="visualType" id="solidType" value="solid"
-                              onchange="videoTypeChange('solid')" />
+                            <audio id="audio1" class="all audio mediaplayer" controls>
+                              Please upload an mp3
+                            </audio>
                           </td>
                         </tr>
                       </table>
-                    </td>
-                  </tr>
-                  <tr class="all video image" hidden>
-                    <td>
-                      <label for="videoUpload" class="all video">Upload video</label>
-                      <label for="videoUpload" class="all image">Upload image</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Upload your background media</span>
+                    </div>
+                  </div>
+                  <div id=preview_frame_card class="card is-fullwidth" hidden>
+                    <header class="card-header">
+                      <p class="card-header-title">Preview frame</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <table id=tablePreview>
+                          <tr>
+                            <td>
+                              <img id="previewImg" width="100%" src="" onload="onPreviewLoad()" hidden />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                                onmouseout="setoverflow(this, 'hidden')">
+                                <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                                <span class="tooltiptext offset-right noselect">Check what the video will look like at
+                                  the
+                                  current
+                                  time</span>
+                              </div>
+                              <button type="button" onclick="previewFrame()">Preview</button>
+                            </td>
+                          </tr>
+                        </table>
                       </div>
-                    </td>
-                    <td>
-                      <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()" />
-                    </td>
-                  </tr>
-                  <tr class="all solid" hidden>
-                    <td>
-                      <label for="background_colour">Background colour</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Colour of the background</span>
+                    </div>
+                  </div>
+                  <div id=submit_card class="card is-fullwidth">
+                    <header class="card-header">
+                      <p class="card-header-title">Submit</p>
+                      <a class="card-header-icon card-toggle">
+                        <i class="fa fa-angle-down"></i>
+                      </a>
+                    </header>
+                    <div class="card-content">
+                      <div class="content">
+                        <button id="submitbutton" class="button is-fullwidth" onclick="submitForm()">Submit</button>
                       </div>
-                    </td>
-                    <td>
-                      <input type="color" name="background_colour" id="background_colour" value="#000000" required>
-                    </td>
-                  </tr>
-                  <tr class="all video" hidden>
-                    <td>
-                      <label for="video_start">Start video</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Crop the video to start at this point, select it and
-                          press
-                          space to set to current video time</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="number" id="video_start" name="video_start" min="0" value="0" max="100000"
-                        onkeydown="videoTime(event, this, 'video')" required />
-                        seconds
-                    </td>
-                  </tr>
-                  <tr class="all video" hidden>
-                    <td>
-                      <label for="video_end">End video</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Crop the video to end at this point, ignored if set to 0,
-                          select it and press space to set to current video time</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="number" id="video_end" name="video_end" min="0" value="0" max="100000"
-                        onkeydown="videoTime(event, this, 'video')" required />
-                        seconds
-                    </td>
-                  </tr>
-                  <tr class="all video" hidden>
-                    <td>
-                      <label for="video_speed">Video speed</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Playback speed of the video</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="number" id="video_speed" name="video_speed" min="0.01" value="1" step="0.01" max="10"
-                        required />
-                    </td>
-                  </tr>
-                  <tr class="all video image solid" hidden>
-                    <td>
-                      <label for="video_fade_in">Fade in</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Fade in video at the start</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="number" id="video_fade_in" name="video_fade_in" min="0" value="0" required />
-                      seconds
-                    </td>
-                  </tr>
-                  <tr class="all video image solid" hidden>
-                    <td>
-                      <label for="video_fade_out">Fade out</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Fade out video at the end</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="number" id="video_fade_out" name="video_fade_out" min="0" value="0" required />
-                      seconds
-                    </td>
-                  </tr>
-                  <tr class="all video" hidden>
-                    <td>
-                      <label for=crop_video>Crop video</label>
-                    </td>
-                    <td>
-                      <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                        <span class="tooltiptext noselect">Crop video to match the length of provided audio</span>
-                      </div>
-                    </td>
-                    <td>
-                      <input type="checkbox" id="crop_video" name="crop_video" checked />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+                    </div>
+                  </div>
 
-
-          <div class="capsule">
-            <h3 class=noselect onclick="hide(this.nextElementSibling)">Audio Settings</h3>
-            <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
-              <table id=tableAudio width=100%>
-                <colgroup>
-                  <col span="1" width=50%>
-                  <col span="1" width=5%>
-                  <col span="1" width=45%>
-                </colgroup>
-                <tr>
-                  <td>
-                    <label for="audioSource">Select audio source</label>
-                  </td>
-                  <td>
-
-                  </td>
-                  <td>
-                    <table>
-                      <tr class="oneline">
-                        <td>
-                          <label for="videoSource">Video</label>
-                          <input type="radio" name="audioSource" id="videoSource" value="video"
-                            onchange="audioSourceChange('video')" required />
-                        </td>
-                        <td>
-                          <label for="audioSource">Audio</label>
-                          <input type="radio" name="audioSource" id="audioSource" value="audio"
-                            onchange="audioSourceChange('audio')" />
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr class="advanced" hidden>
-                  <td>
-                    <label for="advanced_options">Advanced Audio</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Change speed and crop audio seperately to video</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="checkbox" id="advanced_options" onchange="advancedOption()">
-                  </td>
-                </tr>
-                <tr class="all audio" hidden>
-                  <td>
-                    <label for="audioUpload">Upload Audio</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Upload your audio</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()" />
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for="audio_start">Start audio</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Crop the audio to start at this point, select it and press
-                        space to set value to the current audio time</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="audio_start" name="audio_start" min="0" value="0" step="0.01" max="100000"
-                      class="copy" onkeydown="videoTime(event, this, 'audio')" required />
-                      seconds
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for="audio_end">End audio</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Crop the audio to end at this point, ignored if set to 0,
-                        select it and press space to set value to the current audio time</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="audio_end" name="audio_end" min="0" value="0" step="0.01" max="100000"
-                      class="copy" onkeydown="videoTime(event, this, 'audio')" required />
-                      seconds
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for="audio_speed">Audio speed</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Playback speed of the audio</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="audio_speed" name="audio_speed" min="0.5" value="1" step="0.01" max="2"
-                      class="copy" required />
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for="audio_fade_in">Fade in</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Fade in audio at the start</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="audio_fade_in" name="audio_fade_in" min="0" value="0" class="copy"
-                      required />
-                      seconds
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for="audio_fade_out">Fade out</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Fade out audio at the end</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="audio_fade_out" name="audio_fade_out" min="0" value="0" class="copy"
-                      required />
-                      seconds
-                  </td>
-                </tr>
-                <tr class="all audio advanced_audio" hidden>
-                  <td>
-                    <label for=crop_audio>Crop Audio</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Crop audio to match the length of provided video</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="checkbox" id="crop_audio" name="crop_audio" />
-                  </td>
-                </tr>
-                <tr id="row_fill_time" class="all audio advanced_audio" hidden>
-                  <td>
-                    Fill time
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Calculate video speed to fill length of audio</span>
-                    </div>
-                  </td>
-                  <td>
-                    <button type="button" onclick="fillTime()">Calculate</button>
-                  </td>
-                </tr>
-
-              </table>
-            </div>
+                  <textarea type="text" id="csv" name="csvFile" value="" readonly hidden></textarea>
+                  <input type="number" id="videoTop" name="videoTop" readonly hidden>
+                  <input type="number" id="videoLeft" name="videoLeft" readonly hidden>
+                  <input type="number" id="videoBottom" name="videoBottom" readonly hidden>
+                  <input type="number" id="videoRight" name="videoRight" readonly hidden>
+                  <input type="text" id="videoExt" name="videoExt" readonly hidden>
+                  <input type="text" id="audioExt" name="audioExt" readonly hidden>
+                  <input type="text" id="uuid" name="uuid" readonly hidden>
+                </div>
+              </section>
+            </form>
           </div>
-
-          <div class="capsule">
-            <h3 class=noselect onclick="hide(this.nextElementSibling)">Text Settings</h3>
-            <div id=textOpts class="expandable minimised" style="--extendedHeight: 100px;">
-              <table id=tableText width=100%>
-                <colgroup>
-                  <col span="1" width=50%>
-                  <col span="1" width=5%>
-                  <col span="1" width=45%>
-                </colgroup>
-                <tr>
-                  <td>
-                    <label for="font_size">Font size</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect" style="top: 100%; bottom: auto">Set the size of the
-                        font</span>
+          <div class="lyrics column">
+            <section class="section">
+              <div>
+                <div id=lyrics_card class="card is-fullwidth">
+                  <header class="card-header">
+                    <p class="card-header-title">Lyrics</p>
+                    <a class="card-header-icon card-toggle">
+                      <i class="fa fa-angle-down"></i>
+                    </a>
+                  </header>
+                  <div class="card-content">
+                    <div class="content">
+                      <label for="verses"> Show a full verse at a time </label>
+                      <div class="tooltip">
+                        <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                        <span class="tooltiptext noselect">Use a double return to seperate verses<br>For more info check
+                          out
+                          the how-to guide</span>
+                      </div>
+                      <input type="checkbox" id="verses" onchange="update_all_verse()" />
+                      <br>
+                      <textarea id="lyricsArea" class="lyricsArea" font-family="Arial" width="253px" wrap="off"
+                        onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
+                        onchange="updated(this)"></textarea>
+                      <br>
+                      <button onclick="confirmDeleteTimingInfo()">Remove lyrics and timing</button>
                     </div>
-                  </td>
-                  <td>
-                    <input type="number" id="font_size" name="font_size" min="1" value="60" max="1000" step="1"
-                      required />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="textColour">Text colour</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Set the colour of the text</span>
+                  </div>
+                </div>
+                <div id=timing_card class="card is-fullwidth">
+                  <header class="card-header">
+                    <p class="card-header-title">Timing</p>
+                    <a class="card-header-icon card-toggle">
+                      <i class="fa fa-angle-down"></i>
+                    </a>
+                  </header>
+                  <div class="card-content">
+                    <div class="content">
+                      <table id="table1" class="highlightable frozenHead header-background"></table>
                     </div>
-                  </td>
-                  <td>
-                    <input id="textColour" name="textColour" type="color" value="#ffffff" required />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="visibleShadow">Shadow</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Show a shadow behind the text</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="checkbox" id="visibleShadow" name="visibleShadow" onchange="shadowChange()" checked />
-                  </td>
-                </tr>
-                <tr class="shadow_properties">
-                  <td>
-                    <label for="shadowColour">Shadow colour</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Set the colour of the text shadow</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input id="shadowColour" name="shadowColour" type="color" value="#000000" required />
-                  </td>
-                </tr>
-                <tr class="shadow_properties">
-                  <td>
-                    <label for="shadowX">Shadow offset</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Offset from text to shadow (positive bottom right)</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="3" step="1" min="-2000"
-                      max="2000" required>
-                    ,
-                    <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="3" step="1" min="-2000"
-                      max="2000" required>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="text_position">Text position</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Set the position of the text</span>
-                    </div>
-                  </td>
-                  <td>
-                    <table>
-                      <tr>
-                        <td>
-                          <input type="radio" name="text_position" id="text_tl" value="tl">
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_tm" value="tm">
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_tr" value="tr">
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <input type="radio" name="text_position" id="text_ml" value="ml">
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_mm" value="mm" checked>
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_mr" value="mr">
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <input type="radio" name="text_position" id="text_bl" value="bl">
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_bm" value="bm">
-                        </td>
-                        <td>
-                          <input type="radio" name="text_position" id="text_br" value="br">
-                        </td>
-                      </tr>
-                    </table>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <label for="text_width">Max text width</label>
-                  </td>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Percentage of the screen to use before wraping text</span>
-                    </div>
-                  </td>
-                  <td>
-                    <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1"
-                      required />
-                    %
-                  </td>
-                </tr>
-
-              </table>
-            </div>
-          </div>
-          <div class="expandable minimised" id=tab>
-            <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Video</h3>
-            <div id=hider class="expandable minimised">
-              <table width=100%>
-                <tr width=100%>
-                  <td width=100%>
-                    <video id="video1" width=100% class="all video mediaplayer" controls></video>
-                    <img id="image1" width=100% class="all image" alt="Unable to show image">
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <div class="expandable minimised" id=crop_video_capsule>
-            <h3 class=noselect onclick="hide_canvas(this.nextElementSibling)">Crop Video</h3>
-            <div id=hider class="expandable minimised">
-              <table width=100%>
-                <tr width=100%>
-                  <td width=100%>
-                    <canvas id="visualCanvas"></canvas>
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <button type="button" onclick="reset_crop()">Reset Crop</button>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext noselect">Click on the image above to crop it.  The greyed out area will be cut from the final video.  Click the button to reset the crop to show the full screen.</span>
-                    </div>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <div class="capsule" id=tab hidden>
-            <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Audio</h3>
-            <div id=hider class="expandable minimised">
-              <table>
-                <tr>
-                  <td>
-                    <audio id="audio1" class="all audio mediaplayer" controls>
-                      Please upload an mp3
-                    </audio>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <div class="capsule">
-            <h3 class=noselect onclick="hide(this.nextElementSibling)">Preview frame</h3>
-            <div id=tab class="expandable minimised">
-              <table id=tablePreview>
-                <tr>
-                  <td>
-                    <img id="previewImg" width="100%" src="" onload="onPreviewLoad()" hidden />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')" onmouseout="setoverflow(this, 'hidden')">
-                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                      <span class="tooltiptext offset-right noselect">Check what the video will look like at the current time</span>
-                    </div>
-                    <button type="button" onclick="previewFrame()">Preview</button>
-                  </td>
-                </tr>
-              </table>
-            </div>
-          </div>
-          <h1 id="csvHeading" hidden>CSV to copy</h1>
-          <textarea type="text" id="csv" name="csvFile" value="" readonly hidden>
-          </textarea>
-          <div class="capsule">
-            <h3 id="submitbutton" class="noselect" onclick="submitForm()">Submit</h3>
-          </div>
-
-          <input type="number" id="videoTop" name="videoTop" readonly hidden>
-          <input type="number" id="videoLeft" name="videoLeft" readonly hidden>
-          <input type="number" id="videoBottom" name="videoBottom" readonly hidden>
-          <input type="number" id="videoRight" name="videoRight" readonly hidden>
-          <input type="text" id="videoExt" name="videoExt" readonly hidden>
-          <input type="text" id="audioExt" name="audioExt" readonly hidden>
-          <input type="text" id="uuid" name="uuid" readonly hidden>
-        </form>
-      </div>
-      <div class="column lyrics">
-        <div class="capsule">
-          <h2>Lyrics</h2>
-          <label for="verses"> Show a full verse at a time </label>
-          <div class="tooltip">
-            <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-            <span class="tooltiptext noselect">Use a double return to seperate verses<br>For more info check out the how to guide</span>
-          </div>
-          <input type="checkbox" id="verses" onchange="update_all_verse()" />
-          <br>
-          <textarea id="lyricsArea" class="lyricsArea" font-family="Arial" width="253px" wrap="off"
-            onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
-            onchange="updated(this)"></textarea>
-          <br>
-          <button onclick="confirmDeleteTimingInfo()">Remove lyrics and timing</button>
-        </div>
-        <div class="capsule">
-          <h2>Timing</h2>
-          <div class="expandable">
-            <table id="table1" class="highlightable frozenHead"></table>
+                  </div>
+                </div>
+              </div>
+            </section>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <footer>
-    &copy; 2020
-  </footer>
+    <div class="hero-foot">
+      &copy; 2021
+    </div>
+  </section>
 </body>
-
 <script src="/static/js/video.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js" 
-integrity="sha512-q0XkdCnK0e3QLJgYrtENEEmAv+urSGCQs/xCXF4xs+NoLfNWD+j7iMqNYXtFOQfnYDsfE4Z7phZqaHgYJrGB/g==" 
-crossorigin="anonymous"></script>
 
 </html>
