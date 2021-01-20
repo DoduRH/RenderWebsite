@@ -119,7 +119,8 @@ myImage.onload = function(e) {
     reset_crop()
 }
 
-/*function changeVisualAreaSize() {
+function changeVisualAreaSize() {
+    return
     console.log("Loaded video")
     currentTab = myVideo.closest('#tab')
     currentTab.classList.remove("expandable", "minimised")
@@ -129,7 +130,7 @@ myImage.onload = function(e) {
     e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
     e.classList.add("expanded")
     e.classList.remove("minimised")
-}*/
+}
 
 myAudio.onloadeddata = function(e) {
     changeAudioAreaSize()
@@ -137,13 +138,8 @@ myAudio.onloadeddata = function(e) {
 
 function changeAudioAreaSize() {
     console.log("Loaded audio")
-    myAudio.closest('#tab').classList.remove("expandable", "minimised")
-    myAudio.closest('#tab').classList.add("capsule")
 
-    e = myAudio.closest('#hider')
-    e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
-    e.classList.add("expanded")
-    e.classList.remove("minimised")
+    e = myAudio.closest('.card').hidden = false
 }
 
 function setMaxMediaValues() {
@@ -1373,7 +1369,7 @@ function videoTypeChange(newType) {
         // REMINDER: hide the video element?
     } else {
         // REMINDER: show the video element?
-        displayElements = myVideo.closest("#tab").getElementsByClassName("is-all-setting")
+        displayElements = myVideo.closest(".card").getElementsByClassName("is-all-setting")
         for (let i = 0; i < displayElements.length; i++) {
             if (!displayElements[i].hidden) {
                 displayElements[i].hidden = !displayElements[i].className.includes(newClass)
@@ -1399,7 +1395,7 @@ function audioSourceChange(newSource) {
     for (let i = 0; i < elements.length; i++) {
         elements[i].hidden = !elements[i].className.includes(newClass)
     }
-    myAudio.closest("#tab").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
+    myAudio.closest(".card").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
     if ((getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)) {
         myAudio.pause()
     }

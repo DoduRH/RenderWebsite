@@ -73,8 +73,32 @@
     table.header-background th {
       background: #fff;
     }
+
+    .card-header-icon img {
+      width: 0.8em;
+    }
+
+    .no-select {
+      -webkit-touch-callout: none; /* iOS Safari */
+        -webkit-user-select: none; /* Safari */
+         -khtml-user-select: none; /* Konqueror HTML */
+           -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+                user-select: none; /* Non-prefixed version, currently
+                                      supported by Chrome and Opera */
+    }
   </style>
 </head>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    let cardToggles = document.getElementsByClassName('card-toggle');
+    for (let i = 0; i < cardToggles.length; i++) {
+      cardToggles[i].addEventListener('click', e => {
+        e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
+      });
+    }
+  });
+</script>
 
 <body>
   <!--<div class="cookie-notice">
@@ -642,6 +666,9 @@
             <div id=uploaded_video_card class="card is-fullwidth" hidden>
               <header class="card-header">
                 <p class="card-header-title">Uploaded Video</p>
+                <a class="card-header-icon card-toggle no-select">
+                  <img class="fa fa-angle-down" src="static/images/Arrow-down.svg"></i>
+                </a>
               </header>
               <div class="card-content">
                 <div class="content">
@@ -651,55 +678,47 @@
                 </div>
               </div>
             </div>
-            <div id=crop_video_card class="card is-fullwidth" hidden>
+            <div id=uploaded_audio_card class="card is-fullwidth" hidden>
               <header class="card-header">
-                <p class="card-header-title">Crop Video</p>
+                <h1 class="card-header-title">Uploaded Audio</h1>
               </header>
               <div class="card-content">
                 <div class="content">
-                  <table class="table">
-                    <tr>
-                      <td>
-                        <canvas id="visualCanvas" width=100%></canvas>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>
-                        <button type="button" onclick="reset_crop()">Reset Crop</button>
-                        <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
-                          onmouseout="setoverflow(this, 'hidden')">
-                          <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
-                          <span class="tooltiptext noselect">Click on the image above to crop it. The greyed out
-                            area
-                            will
-                            be cut from the final video. Click the button to reset the crop to show the full
-                            screen.</span>
-                        </div>
-                      </td>
-                    </tr>
-                  </table>
+                  <audio id="audio1" class="all audio mediaplayer" controls style="width: 100%">
+                    Please upload an mp3
+                  </audio>
                 </div>
               </div>
             </div>
-            <div id=uploaded_audio_card class="card is-fullwidth" id=tab hidden>
-              <h3 class=noselect onclick="hide(this.nextElementSibling, true)">Uploaded Audio</h3>
-              <div id=hider class="expandable minimised">
-                <table>
-                  <tr>
-                    <td>
-                      <audio id="audio1" class="all audio mediaplayer" controls>
-                        Please upload an mp3
-                      </audio>
-                    </td>
-                  </tr>
-                </table>
+            <div id=crop_video_card class="card is-fullwidth" hidden>
+              <header class="card-header">
+                <p class="card-header-title">Crop Video</p>
+                <a class="card-header-icon card-toggle no-select">
+                  <img class="fa fa-angle-down" src="static/images/Arrow-down.svg"></i>
+                </a>
+              </header>
+              <div class="card-content is-hidden">
+                <div class="content">
+                  <canvas id="visualCanvas" style="width: 100%;"></canvas>
+                  <button type="button" onclick="reset_crop()">Reset Crop</button>
+                  <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                    onmouseout="setoverflow(this, 'hidden')">
+                    <img src="https://storage.googleapis.com/addlyrics.appspot.com/extraInfo.png">
+                    <span class="tooltiptext noselect">Click on the image above to crop it. The greyed out area will
+                      be cut from the final video. Click the button to reset the crop to show the full
+                      screen.</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div id=preview_frame_card class="card is-fullwidth" hidden>
               <header class="card-header">
                 <p class="card-header-title">Preview frame</p>
+                <a class="card-header-icon card-toggle no-select">
+                  <img class="fa fa-angle-down" src="static/images/Arrow-down.svg"></i>
+                </a>
               </header>
-              <div class="card-content">
+              <div class="card-content is-hidden">
                 <div class="content">
                   <table id=tablePreview>
                     <tr>
