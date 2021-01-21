@@ -1028,6 +1028,7 @@ function checkForm() {
 async function uploadElement(elm) {
     filename = elm.files[0].name
     const response = await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + filename + "&purpose=" + elm.id)
+    console.log("fetched")
     if (!await response.ok) {
         throw new Error('Network response for fetch was not ok.')
     }

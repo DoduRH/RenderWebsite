@@ -8,6 +8,7 @@
   <meta name="keywords" content="video lyric word song overlay editing" />
   <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
   <title>Add lyrics to a video</title>
+  <link rel="stylesheet" href="/static/css/common.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js"
@@ -99,59 +100,6 @@
 
     table tr td {
       vertical-align: middle !important;
-    }
-
-    /* Cookie banner */
-    .cookie-notice {
-      display: none;
-      position: fixed;
-      bottom: 0;
-      right: 0;
-      left: 0;
-      padding: .7rem 0;
-      color: white;
-      z-index: 1000;
-    }
-
-    .cookie-notice .cookie-notice-flex {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1rem;
-    }
-
-    .cookie-notice p {
-      flex-grow: 1;
-      margin: 0;
-      font-size: 15px;
-    }
-
-    .cookie-notice a {
-      color: white;
-    }
-
-    .cookie-notice .cookie-notice-dismiss {
-      display: inline-flex;
-      padding: 10px;
-      flex-shrink: 0;
-      cursor: pointer;
-    }
-
-    .cookie-notice-dismiss svg {
-      display: block;
-      width: 20px;
-      height: 20px;
-    }
-
-    .cookie-notice-dismiss path {
-      stroke-width: 3px;
-      stroke: white;
-    }
-
-    .cookie-notice-dismiss:hover path {
-      stroke: rgba(white, 0.75);
     }
   </style>
 </head>
@@ -847,7 +795,7 @@
               <div class="card-content">
                 <div class="content">
                   <button id="submitbutton" class="button is-fullwidth is-primary"
-                    onclick="submitForm()">Submit</button>
+                    onclick="submitForm()" type="button">Submit</button>
                 </div>
               </div>
             </div>
@@ -900,7 +848,7 @@
       </div>
     </div>
     <div class="hero-foot">
-      &copy; 2021
+      &copy; <script>document.write(new Date().getFullYear())</script>
     </div>
   </section>
 </body>
