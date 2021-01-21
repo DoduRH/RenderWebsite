@@ -87,6 +87,15 @@
                 user-select: none; /* Non-prefixed version, currently
                                       supported by Chrome and Opera */
     }
+
+    .upload-icon {
+      content: url("/static/images/upload-icon.svg");
+      height: 1.4em;
+    }
+
+    table tr td {
+      vertical-align: middle !important;
+    }
   </style>
 </head>
 <script>
@@ -97,6 +106,18 @@
         e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
       });
     }
+  });
+
+  $(document).ready(function() {
+
+    // Check for click events on the navbar burger icon
+    $(".navbar-burger").click(function() {
+  
+        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+        $(".navbar-burger").toggleClass("is-active");
+        $(".navbar-menu").toggleClass("is-active");
+  
+    });
   });
 </script>
 
@@ -200,7 +221,21 @@
                         </div>
                       </td>
                       <td>
-                        <input type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange()" />
+                        <div class="file is-boxed">
+                          <label class="file-label">
+                            <input class="file-input" type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange(this)" >
+                            <span class="file-cta">
+                              <span class="file-icon">
+                                <i class="upload-icon"></i>
+                              </span>
+                              <span class="file-label">
+                                Choose a file…
+                              </span>
+                            </span>
+                            <span class="file-name is-hidden">
+                            </span>
+                          </label>
+                        </div>
                       </td>
                     </tr>
                     <tr class="is-all-setting is-solid-setting" hidden>
@@ -391,7 +426,21 @@
                         </div>
                       </td>
                       <td>
-                        <input type="file" id="audioUpload" accept="audio/*,video/*" onchange="audioChange()" />
+                        <div class="file is-boxed">
+                          <label class="file-label">
+                            <input class="file-input" type="file" id="audioUpload" accept="video/*,image/*" onchange="audioChange(this)" >
+                            <span class="file-cta">
+                              <span class="file-icon">
+                                <i class="upload-icon"></i>
+                              </span>
+                              <span class="file-label">
+                                Choose a file…
+                              </span>
+                            </span>
+                            <span class="file-name is-hidden">
+                            </span>
+                          </label>
+                        </div>
                       </td>
                     </tr>
                     <tr class="is-all-setting is-audio-setting is-advanced_audio-setting" hidden>
@@ -749,7 +798,7 @@
               </header>
               <div class="card-content">
                 <div class="content">
-                  <button id="submitbutton" class="button is-fullwidth" onclick="submitForm()">Submit</button>
+                  <button id="submitbutton" class="button is-fullwidth is-primary" onclick="submitForm()">Submit</button>
                 </div>
               </div>
             </div>

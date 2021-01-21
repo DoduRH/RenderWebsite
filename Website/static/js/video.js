@@ -36,8 +36,23 @@ var video_id
 var start_times = []
 var stop_times = []
 
-function videoChange() {
+function inputDisplayName(t) {
+    console.log("Changing display name")
+    labelText = t.closest(".file-label").childNodes[5]
+
+    if (t.files.length == 1) {
+        t.closest(".file").classList.add("has-name");
+        labelText.classList.remove("is-hidden");
+        labelText.innerText = t.files[0].name;
+    } else {
+        t.closest(".file").classList.remove("has-name");
+        labelText.classList.add("is-hidden");
+    }
+}
+
+function videoChange(t) {
     console.log("New video")
+    inputDisplayName(t)
     videoContentCard = document.getElementById("uploaded_video_card")
     cropVideoCard = document.getElementById("crop_video_card")
     previewFrameCard = document.getElementById("preview_frame_card")
@@ -192,8 +207,9 @@ function setMaxMediaValues() {
     return true
 }
 
-function audioChange() {
+function audioChange(t) {
     console.log("New audio")
+    inputDisplayName(t)
     if (audioUpload.files.length == 1) {
         fileBlob = audioUpload.files[0]
         url = (URL || webkitURL).createObjectURL(fileBlob)
@@ -1232,7 +1248,7 @@ async function submitForm() {
     valid = true
     uploading = true
 
-    document.getElementById("submitbutton").innerHTML = "Subitting..."
+    document.getElementById("submitbutton").classList.add("is-loading")
 
     if (valid) {
         valid = checkLyricAscii()
@@ -1268,7 +1284,7 @@ async function submitForm() {
         document.getElementById("theform").submit()
     } else {
         console.log("Failed to submit")
-        document.getElementById("submitbutton").innerHTML = "Submit"
+        document.getElementById("submitbutton").classList.remove("is-loading")
         uploading = false
     }
 }
