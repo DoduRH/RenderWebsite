@@ -1520,48 +1520,6 @@ function loadFromCookies() {
     }
 }
 
-function cookieDisplay() {
-(function() {
-    'use strict';
-    var storageKey = '__cookiesAccepted__';
-    if (!isStorageAllowed() || isSetPreference()) return;
-    initializeNotice();
-    function initializeNotice() {
-        var el = document.getElementsByClassName('cookie-notice')[0];
-        var dismissEl = el.getElementsByClassName('cookie-notice-dismiss')[0];
-
-        el.style.display = 'block';
-
-        dismissEl.addEventListener('click', function() {
-            el.style.display = 'none';
-            setPreferenceAccepted();
-        }, false);
-    }
-    
-    function setPreferenceAccepted() {
-        localStorage.setItem(storageKey, true);
-    }
-    
-    function isSetPreference() {
-        return JSON.parse(localStorage.getItem(storageKey) || false);
-    }
-    
-    function isStorageAllowed() {
-        var test = '__localStorageTest__';
-
-        try {
-            localStorage.setItem(test, test);
-            localStorage.removeItem(test);
-
-            return true;
-        } catch (e) {
-            console.warn('Storage not allowed, please allow cookies');
-            return false;
-        }
-    };
-}());
-}
-
 document.addEventListener('keydown', function (e) {
     if (document.activeElement.id.startsWith("start") || document.activeElement.id.startsWith("stop")) {
         if (e.code === 'KeyQ') {

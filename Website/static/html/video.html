@@ -8,8 +8,6 @@
   <meta name="keywords" content="video lyric word song overlay editing" />
   <meta http-equiv="X-UA-Compatible" content="IE=10; IE=9; IE=8; IE=7; IE=EDGE" />
   <title>Add lyrics to a video</title>
-  <!--<link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/video.css">-->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js"
@@ -50,12 +48,12 @@
       opacity: 0;
       transition: opacity 1s;
     }
-    
+
     .tooltip:hover .tooltiptext {
       visibility: visible;
       opacity: 1;
     }
-  
+
     .tooltiptext.offset-right {
       margin-left: -40px;
     }
@@ -79,12 +77,18 @@
     }
 
     .no-select {
-      -webkit-touch-callout: none; /* iOS Safari */
-        -webkit-user-select: none; /* Safari */
-         -khtml-user-select: none; /* Konqueror HTML */
-           -moz-user-select: none; /* Firefox */
-            -ms-user-select: none; /* Internet Explorer/Edge */
-                user-select: none; /* Non-prefixed version, currently
+      -webkit-touch-callout: none;
+      /* iOS Safari */
+      -webkit-user-select: none;
+      /* Safari */
+      -khtml-user-select: none;
+      /* Konqueror HTML */
+      -moz-user-select: none;
+      /* Firefox */
+      -ms-user-select: none;
+      /* Internet Explorer/Edge */
+      user-select: none;
+      /* Non-prefixed version, currently
                                       supported by Chrome and Opera */
     }
 
@@ -96,10 +100,63 @@
     table tr td {
       vertical-align: middle !important;
     }
+
+    /* Cookie banner */
+    .cookie-notice {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      left: 0;
+      padding: .7rem 0;
+      color: white;
+      z-index: 1000;
+    }
+
+    .cookie-notice .cookie-notice-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .cookie-notice p {
+      flex-grow: 1;
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .cookie-notice a {
+      color: white;
+    }
+
+    .cookie-notice .cookie-notice-dismiss {
+      display: inline-flex;
+      padding: 10px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .cookie-notice-dismiss svg {
+      display: block;
+      width: 20px;
+      height: 20px;
+    }
+
+    .cookie-notice-dismiss path {
+      stroke-width: 3px;
+      stroke: white;
+    }
+
+    .cookie-notice-dismiss:hover path {
+      stroke: rgba(white, 0.75);
+    }
   </style>
 </head>
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     let cardToggles = document.getElementsByClassName('card-toggle');
     for (let i = 0; i < cardToggles.length; i++) {
       cardToggles[i].addEventListener('click', e => {
@@ -107,33 +164,22 @@
       });
     }
   });
-
-  $(document).ready(function() {
-
-    // Check for click events on the navbar burger icon
-    $(".navbar-burger").click(function() {
-  
-        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-        $(".navbar-burger").toggleClass("is-active");
-        $(".navbar-menu").toggleClass("is-active");
-  
-    });
-  });
 </script>
 
 <body>
-  <!--<div class="cookie-notice">
+  <div class="cookie-notice has-background-primary-dark">
     <div class="cookie-notice-flex">
       <p>This site uses cookies to function properly.
         By continuing to use this site, you agree to our use of cookies.
-        To see our privacy policy, click <a href="/privacy-policy" target="_blank" rel="noreferrer noopener">here</a> </p>
+        To see our privacy policy, click <a href="/privacy-policy" target="_blank" rel="noreferrer noopener">here</a>
+      </p>
       <span class="cookie-notice-dismiss">
         <svg viewBox="0 0 24 24">
           <path d="M 2 2 L 22 22 M 2 22 L22 2" />
         </svg>
       </span>
     </div>
-  </div>-->
+  </div>
   <section class="hero is-primary is-fullheight">
     <div class="hero-head">
       <nav class="navbar" role="navigation" aria-label="main navigation">
@@ -223,7 +269,8 @@
                       <td>
                         <div class="file is-boxed">
                           <label class="file-label">
-                            <input class="file-input" type="file" id="videoUpload" accept="video/*,image/*" onchange="videoChange(this)" >
+                            <input class="file-input" type="file" id="videoUpload" accept="video/*,image/*"
+                              onchange="videoChange(this)">
                             <span class="file-cta">
                               <span class="file-icon">
                                 <i class="upload-icon"></i>
@@ -428,7 +475,8 @@
                       <td>
                         <div class="file is-boxed">
                           <label class="file-label">
-                            <input class="file-input" type="file" id="audioUpload" accept="video/*,image/*" onchange="audioChange(this)" >
+                            <input class="file-input" type="file" id="audioUpload" accept="video/*,image/*"
+                              onchange="audioChange(this)">
                             <span class="file-cta">
                               <span class="file-icon">
                                 <i class="upload-icon"></i>
@@ -798,7 +846,8 @@
               </header>
               <div class="card-content">
                 <div class="content">
-                  <button id="submitbutton" class="button is-fullwidth is-primary" onclick="submitForm()">Submit</button>
+                  <button id="submitbutton" class="button is-fullwidth is-primary"
+                    onclick="submitForm()">Submit</button>
                 </div>
               </div>
             </div>
@@ -856,5 +905,6 @@
   </section>
 </body>
 <script src="/static/js/video.js"></script>
+<script src="/static/js/common.js"></script>
 
 </html>

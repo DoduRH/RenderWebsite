@@ -413,7 +413,7 @@ def uploader():
         import taskSim as client
 
         # Use the client to build and send the task.
-        response = client.create_task(parent, task)
+        # response = client.create_task(parent, task)
 
         return redirect(url_for('hold', videoID=t))
 
