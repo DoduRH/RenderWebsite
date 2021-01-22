@@ -440,11 +440,9 @@ function croping_video(pos, maintain_ratio=false, sixteen_by_nine=false) {
     }
 }
 
-function textAreaAdjust(o) {
-    o.style.width = "1px"
-    o.style.width = Math.max((25 + o.scrollWidth), 253) + "px"
-    o.style.height = "1px"
-    o.style.height = Math.max(5 + (o.scrollHeight), 25) + "px"
+function textAreaAdjust(t) {
+    t.style.height = "";
+    t.style.height = t.scrollHeight + "px"
 }
 
 function getRadioValue(name) {
@@ -702,7 +700,8 @@ function update_all_verse() {
 }
 
 function setoverflow(t, value) {
-    t.closest(".expandable").style.overflow = value
+    console.log("Set overflow?")
+    // t.closest(".expandable").style.overflow = value
 }
 
 function updated(t, cookie=true) {

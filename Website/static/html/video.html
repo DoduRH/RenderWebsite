@@ -101,6 +101,13 @@
     table tr td {
       vertical-align: middle !important;
     }
+
+    textarea.lyricsArea {
+       overflow-y: hidden;
+       overflow-x: auto;
+       width: 100%;
+       resize:none;
+    }
   </style>
 </head>
 <script>
@@ -826,7 +833,7 @@
                 </div>
                 <input type="checkbox" id="verses" onchange="update_all_verse()" />
                 <br>
-                <textarea id="lyricsArea" class="lyricsArea" font-family="Arial" width="253px" wrap="off"
+                <textarea id="lyricsArea" class="textarea lyricsArea has-fixed-size is-primary" font-family="Arial" wrap="off"
                   onkeyup="textAreaAdjust(this)" placeholder="Insert the lyrics of the song here"
                   onchange="updated(this)"></textarea>
                 <br>
