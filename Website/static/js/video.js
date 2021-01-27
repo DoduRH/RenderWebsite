@@ -740,8 +740,8 @@ function updated(t, cookie=true) {
         console.log(lines)
         output_tbl =
             "<thead><tr><th>Line</th>" +
-            '<th><button onclick="time_start()">Start</button></th>' +
-            '<th><button onclick="time_stop()">Stop</button></th></tr></thead>'
+            '<th><button onclick="time_start()" class="button">Start</button></th>' +
+            '<th><button onclick="time_stop()" class="button">Stop</button></th></tr></thead>'
 
         start_times = []
         stop_times = []
@@ -756,17 +756,17 @@ function updated(t, cookie=true) {
         i = 0
         lines.forEach((line) => {
             output_tbl +=
-                "<tr><td>" +
+                "<tr><td style='width: 100%;'>" +
                 line.replace(/\n/g, "<br>") +
                 '</td><td> <input type="number" id="start_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(start_' +
                 i +
-                ')" onchange="setCookie(this)"> </td><td> <input type="number" id="stop_' +
+                ')" onchange="setCookie(this)" class="hide-arrows"> </td><td> <input type="number" id="stop_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(stop_' +
                 i +
-                ')" onchange="setCookie(this)"> </td></tr>'
+                ')" onchange="setCookie(this)" class="hide-arrows"> </td></tr>'
 
             i++
         })
@@ -1340,9 +1340,9 @@ function update_highlight() {
 
         // currentTime between start and stop times
         if (lower < getAudioSource().currentTime && getAudioSource().currentTime < upper) {
-            row.className = "highlight"
+            row.classList.add("is-selected")
         } else {
-            row.className = ""
+            row.classList.remove("is-selected")
         }
     }
 }
