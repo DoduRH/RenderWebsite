@@ -36,18 +36,34 @@ var video_id
 var start_times = []
 var stop_times = []
 
-function videoChange() {
+function inputDisplayName(t) {
+    console.log("Changing display name")
+    labelText = t.closest(".file-label").childNodes[5]
+
+    if (t.files.length == 1) {
+        t.closest(".file").classList.add("has-name");
+        labelText.classList.remove("is-hidden");
+        labelText.innerText = t.files[0].name;
+    } else {
+        t.closest(".file").classList.remove("has-name");
+        labelText.classList.add("is-hidden");
+    }
+}
+
+function videoChange(t) {
     console.log("New video")
-    cropVideoCapsule = document.getElementById("crop_video_capsule")
-    hidable = cropVideoCapsule.getElementsByClassName("expandable")[0]
+    inputDisplayName(t)
+    videoContentCard = document.getElementById("uploaded_video_card")
+    cropVideoCard = document.getElementById("crop_video_card")
+    previewFrameCard = document.getElementById("preview_frame_card")
+    showCards = false
+
 
     if (videoUpload.files.length == 1) {
         fileBlob = videoUpload.files[0]
         url = (URL || webkitURL).createObjectURL(fileBlob)
 
         console.log("Set as source")
-        hidable.classList.remove("maximised")
-        hidable.classList.add("minimised")
 
         if (videoUpload.files[0].type.includes("video")) {
             myImage.hidden = true
@@ -59,9 +75,7 @@ function videoChange() {
             videoEnd.max = myVideo.duration
 
             reset_crop()
-
-            cropVideoCapsule.classList.add("capsule")
-            cropVideoCapsule.classList.remove("expandable", "minimised")
+            showCards = true
         } else if (videoUpload.files[0].type.includes("image")) {
             myVideo.hidden = true
             myImage.hidden = false
@@ -69,17 +83,13 @@ function videoChange() {
             myImage.src = url
 
             reset_crop()
-
-            cropVideoCapsule.classList.add("capsule")
-            cropVideoCapsule.classList.remove("expandable", "minimised")
-        } else {
-            cropVideoCapsule.classList.remove("capsule")
-            cropVideoCapsule.classList.add("expandable", "minimised")
+            showCards = true
         }
-    } else {
-        cropVideoCapsule.classList.remove("capsule")
-        cropVideoCapsule.classList.add("expandable", "minimised")
     }
+
+    videoContentCard.hidden = !showCards
+    cropVideoCard.hidden = !showCards
+    previewFrameCard.hidden = !showCards
 }
 
 window.onresize = function() {
@@ -125,6 +135,7 @@ myImage.onload = function(e) {
 }
 
 function changeVisualAreaSize() {
+    return
     console.log("Loaded video")
     currentTab = myVideo.closest('#tab')
     currentTab.classList.remove("expandable", "minimised")
@@ -142,13 +153,8 @@ myAudio.onloadeddata = function(e) {
 
 function changeAudioAreaSize() {
     console.log("Loaded audio")
-    myAudio.closest('#tab').classList.remove("expandable", "minimised")
-    myAudio.closest('#tab').classList.add("capsule")
 
-    e = myAudio.closest('#hider')
-    e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
-    e.classList.add("expanded")
-    e.classList.remove("minimised")
+    e = myAudio.closest('.card').hidden = false
 }
 
 function setMaxMediaValues() {
@@ -201,8 +207,9 @@ function setMaxMediaValues() {
     return true
 }
 
-function audioChange() {
+function audioChange(t) {
     console.log("New audio")
+    inputDisplayName(t)
     if (audioUpload.files.length == 1) {
         fileBlob = audioUpload.files[0]
         url = (URL || webkitURL).createObjectURL(fileBlob)
@@ -274,10 +281,6 @@ myVideo.onplay = (e) => {
         }
     }
     loop()
-}
-
-myVideo.oncanplaythrough = (e) => {
-    draw_video_frame()
 }
 
 myVideo.onvolumechange = (e) => {
@@ -433,11 +436,9 @@ function croping_video(pos, maintain_ratio=false, sixteen_by_nine=false) {
     }
 }
 
-function textAreaAdjust(o) {
-    o.style.width = "1px"
-    o.style.width = Math.max((25 + o.scrollWidth), 253) + "px"
-    o.style.height = "1px"
-    o.style.height = Math.max(5 + (o.scrollHeight), 25) + "px"
+function textAreaAdjust(t) {
+    t.style.height = "";
+    t.style.height = t.scrollHeight + "px"
 }
 
 function getRadioValue(name) {
@@ -695,7 +696,8 @@ function update_all_verse() {
 }
 
 function setoverflow(t, value) {
-    t.closest(".expandable").style.overflow = value
+    console.log("Set overflow?")
+    // t.closest(".expandable").style.overflow = value
 }
 
 function updated(t, cookie=true) {
@@ -715,7 +717,7 @@ function updated(t, cookie=true) {
     if (lyrics.value == "") {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
-        document.getElementById("tableText").closest(".capsule").hidden = true
+        document.getElementById("tableText").closest(".card").hidden = true
         deleteCookie("lyricsArea")
         e = tbl.closest('div')
         e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
@@ -724,7 +726,7 @@ function updated(t, cookie=true) {
     } else {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
-        document.getElementById("tableText").closest(".capsule").hidden = false
+        document.getElementById("tableText").closest(".card").hidden = false
         document.getElementById("text_tl").required = true
         if (document.getElementById("verses").checked) {
             lines = lyrics.value.split("\n\n")
@@ -734,8 +736,8 @@ function updated(t, cookie=true) {
         console.log(lines)
         output_tbl =
             "<thead><tr><th>Line</th>" +
-            '<th><button onclick="time_start()">Start</button></th>' +
-            '<th><button onclick="time_stop()">Stop</button></th></tr></thead>'
+            '<th><button onclick="time_start()" class="button">Start</button></th>' +
+            '<th><button onclick="time_stop()" class="button">Stop</button></th></tr></thead>'
 
         start_times = []
         stop_times = []
@@ -750,17 +752,17 @@ function updated(t, cookie=true) {
         i = 0
         lines.forEach((line) => {
             output_tbl +=
-                "<tr><td>" +
+                "<tr><td style='width: 100%;'>" +
                 line.replace(/\n/g, "<br>") +
                 '</td><td> <input type="number" id="start_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(start_' +
                 i +
-                ')" onchange="setCookie(this)"> </td><td> <input type="number" id="stop_' +
+                ')" onchange="setCookie(this)" class="hide-arrows"> </td><td> <input type="number" id="stop_' +
                 i +
                 '" min="0" step="0.01" onfocus="numLostFocus(stop_' +
                 i +
-                ')" onchange="setCookie(this)"> </td></tr>'
+                ')" onchange="setCookie(this)" class="hide-arrows"> </td></tr>'
 
             i++
         })
@@ -1021,6 +1023,7 @@ function checkForm() {
 async function uploadElement(elm) {
     filename = elm.files[0].name
     const response = await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + filename + "&purpose=" + elm.id)
+    console.log("fetched")
     if (!await response.ok) {
         throw new Error('Network response for fetch was not ok.')
     }
@@ -1241,7 +1244,7 @@ async function submitForm() {
     valid = true
     uploading = true
 
-    document.getElementById("submitbutton").innerHTML = "Subitting..."
+    document.getElementById("submitbutton").classList.add("is-loading")
 
     if (valid) {
         valid = checkLyricAscii()
@@ -1277,7 +1280,7 @@ async function submitForm() {
         document.getElementById("theform").submit()
     } else {
         console.log("Failed to submit")
-        document.getElementById("submitbutton").innerHTML = "Submit"
+        document.getElementById("submitbutton").classList.remove("is-loading")
         uploading = false
     }
 }
@@ -1333,9 +1336,9 @@ function update_highlight() {
 
         // currentTime between start and stop times
         if (lower < getAudioSource().currentTime && getAudioSource().currentTime < upper) {
-            row.className = "highlight"
+            row.classList.add("is-selected")
         } else {
-            row.className = ""
+            row.classList.remove("is-selected")
         }
     }
 }
@@ -1362,9 +1365,10 @@ function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
     audioFitTime()
-    tableElements = document.getElementById("tableVisual").getElementsByClassName('all')
+    tableElements = document.getElementById("tableVisual").getElementsByClassName('is-all-setting')
+    newClass = "is-" + newType + "-setting"
     for (let i = 0; i < tableElements.length; i++) {
-        tableElements[i].hidden = !tableElements[i].className.includes(newType)
+        tableElements[i].hidden = !tableElements[i].className.includes(newClass)
     }
 
     if (videoUpload.files.length == 0) {
@@ -1373,14 +1377,14 @@ function videoTypeChange(newType) {
         filetype = videoUpload.files[0].type
     }
 
-    if (newType == "solid" || !filetype.includes(newType)) {
+    if (newClass == "is-solid-setting" || !filetype.includes(newClass)) {
         // REMINDER: hide the video element?
     } else {
         // REMINDER: show the video element?
-        displayElements = myVideo.closest("#tab").getElementsByClassName("all")
+        displayElements = myVideo.closest(".card").getElementsByClassName("is-all-setting")
         for (let i = 0; i < displayElements.length; i++) {
             if (!displayElements[i].hidden) {
-                displayElements[i].hidden = !displayElements[i].className.includes(newType)
+                displayElements[i].hidden = !displayElements[i].className.includes(newClass)
             }
         }
     }
@@ -1398,11 +1402,12 @@ function advancedOption() {
 
 function audioSourceChange(newSource) {
     console.log(newSource)
-    elements = document.getElementById("tableAudio").getElementsByClassName('all')
+    newClass = "is-" + newSource + "-setting"
+    elements = document.getElementById("tableAudio").getElementsByClassName('is-all-setting')
     for (let i = 0; i < elements.length; i++) {
-        elements[i].hidden = !elements[i].className.includes(newSource)
+        elements[i].hidden = !elements[i].className.includes(newClass)
     }
-    myAudio.closest("#tab").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
+    myAudio.closest(".card").hidden = (getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)
     if ((getRadioValue("audioSource") == "video") || (audioUpload.files.length == 0)) {
         myAudio.pause()
     }
@@ -1511,48 +1516,6 @@ function loadFromCookies() {
     }
 }
 
-function cookieDisplay() {
-(function() {
-    'use strict';
-    var storageKey = '__cookiesAccepted__';
-    if (!isStorageAllowed() || isSetPreference()) return;
-    initializeNotice();
-    function initializeNotice() {
-        var el = document.getElementsByClassName('cookie-notice')[0];
-        var dismissEl = el.getElementsByClassName('cookie-notice-dismiss')[0];
-
-        el.style.display = 'block';
-
-        dismissEl.addEventListener('click', function() {
-            el.style.display = 'none';
-            setPreferenceAccepted();
-        }, false);
-    }
-    
-    function setPreferenceAccepted() {
-        localStorage.setItem(storageKey, true);
-    }
-    
-    function isSetPreference() {
-        return JSON.parse(localStorage.getItem(storageKey) || false);
-    }
-    
-    function isStorageAllowed() {
-        var test = '__localStorageTest__';
-
-        try {
-            localStorage.setItem(test, test);
-            localStorage.removeItem(test);
-
-            return true;
-        } catch (e) {
-            console.warn('Storage not allowed, please allow cookies');
-            return false;
-        }
-    };
-}());
-}
-
 document.addEventListener('keydown', function (e) {
     if (document.activeElement.id.startsWith("start") || document.activeElement.id.startsWith("stop")) {
         if (e.code === 'KeyQ') {
@@ -1563,6 +1526,22 @@ document.addEventListener('keydown', function (e) {
     }
 })
 
+function setIntervalX(callback, delay, repetitions) {
+    var x = 0;
+    var intervalID = window.setInterval(function () {
+
+       callback();
+
+       if (++x === repetitions) {
+           window.clearInterval(intervalID);
+       }
+    }, delay);
+}
+
+myVideo.oncanplaythrough = function () {
+    setIntervalX(draw_video_frame, 100, 50);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()
     textAreaAdjust(lyrics)
@@ -1572,4 +1551,11 @@ document.addEventListener('DOMContentLoaded', function () {
     $table.floatThead({
         position: 'absolute'
     });
+
+    let cardToggles = document.getElementsByClassName('card-toggle');
+    for (let i = 0; i < cardToggles.length; i++) {
+      cardToggles[i].addEventListener('click', e => {
+        e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
+      });
+    }
 }, false)

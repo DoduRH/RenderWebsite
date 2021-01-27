@@ -1,112 +1,28 @@
-<!doctype html>
-<html>
+{% extends "base.html" %}
+
+{% block content %}
 
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Please Hold</title>
-  <link rel="stylesheet" href="/static/css/main.css">
-  <link rel="stylesheet" href="/static/css/hold.css">
+  <script src="/static/js/hold.js"></script>
 </head>
 
-<body>
-  <header>
-    <a href="/">
-      <h1 style="color:white">Add my lyrics</h1>
-    </a>
-    <nav>
-      <a href="/">Add lyrics</a>
-      <a href="/contact">Contact</a>
-      <a href="/how-to">How to</a>
-    </nav>
-  </header>
-  <div class=row>
-    <div class=column style="width: 20%"></div>
-    <div class=column style="width: 60%">
-      <div class="capsule">
-        <h2 id="head">Please hold while we render your video</h2>
-        <p id="errorMsg" hidden></p>
-        <p id="quote">Any problems, please email via the <a href="/contact">Contact</a> page quoting this ID: {{ video_id }}</p>
-      </div>
-      <div class="capsule">
-        <div id="myProgress">
-          <div id="myBar" style="width: 0%"></div>
+<div class="hero-body">
+  <div class="container has-text-centered">
+    <div class="column is-8 is-offset-2">
+      <h1 class="title">Please hold while we render your video</h1>
+      <div class="box">
+        <div class="content">
+          <p id="quote">Any problems, please email via the <a href="/contact">Contact</a> page quoting this ID: {{
+            video_id }}</p>
+          <br>
+          <progress id="progBar" class="progress is-primary is-large" value=0 max="100"></progress>
+          <br>
+          <a id=new_vid_link href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
         </div>
       </div>
-      <div class="capsule">
-        <a id=new_vid_link href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
-      </div>
     </div>
-    <div class=column style="width: 20%"></div>
   </div>
-  <footer>
-    &copy; 2020
-  </footer>
-</body>
+</div>
 
-<script>
-  const video_id = '{{ video_id }}';
-
-  function deleteCookie(cname) {
-    var name = cname + "="
-    var decodedCookie = decodeURIComponent(document.cookie)
-    var ca = decodedCookie.split(';')
-    for (var i = 0; i < ca.length; i++) {
-      var c = ca[i]
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1)
-      }
-      if (c.indexOf(name) == 0) {
-        // Found cookie with cname
-        document.cookie = name + "; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
-        return
-      }
-    }
-    return
-  }
-
-  function deleteTimingInfo() {
-    regStart = /(start_[0-9]|stop_[0-9])/g
-    while ((match = regStart.exec(document.cookie)) != null) {
-      deleteCookie(match[0])
-    }
-    deleteCookie("lyricsArea")
-  }
-
-  function progressBar(target) {
-    var elem = document.getElementById("myBar")
-    elem.style.width = target + "%"
-  }
-
-  function request() {
-    console.log("starting request...")
-    fetch('/get_file?videoID='.concat(video_id))
-      .then(response => response.json())
-      .then(data => {
-        console.log(data['status'])
-        if (data['status'] == "error") {
-          document.getElementById("head").innerHTML = "Something went wrong, sorry for the inconvenience"
-          document.getElementById("errorMsg").innerHTML = "Error message: " + data['error']
-          document.getElementById("errorMsg").hidden = false
-          document.getElementById("quote").innerHTML = document.getElementById("quote").innerHTML.replace('Any problems, p', 'P')
-          clearInterval(timerID)
-        } else {
-          progressBar(data['progress'])
-          if (data['progress'] == "100") {
-            clearInterval(timerID)
-            window.location.href = "/download?videoID=".concat(video_id)
-            document.title = "Your download should begin shortly"
-            document.getElementById("head").innerHTML = "You download should begin shortly"
-            document.getElementById("new_vid_link").target = ""
-          }
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-  }
-  errored = false
-  deleteTimingInfo()
-  timerID = setInterval(request, 5000)
-  request()
-
-</script>
+{% endblock %}

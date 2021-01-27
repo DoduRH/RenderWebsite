@@ -1,97 +1,111 @@
-canvas {
+.card+.card {
+   margin-top: 20px
+ }
+
+ .tooltip {
+   position: relative;
+   text-align: right;
+   display: inline;
+ }
+
+ .tooltip img {
+   height: 1em;
+ }
+
+ .tooltip .tooltiptext {
+   visibility: hidden;
+   width: 220px;
+   background-color: hsl(171, 100%, 41%);
+   color: #fff;
+   text-align: center;
+   border-radius: 6px;
+   padding: 5px 0;
+   position: absolute;
+   z-index: 1;
+   bottom: 100%;
+   left: 50%;
+   margin-left: -110px;
+   padding: 10px;
+
+   /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
+   opacity: 0;
+   transition: opacity 1s;
+ }
+
+ .tooltip:hover .tooltiptext {
+   visibility: visible;
+   opacity: 1;
+ }
+
+ .tooltiptext.offset-right {
+   margin-left: -40px;
+ }
+
+ .table.is-borderless td,
+ .table.is-borderless th {
+   border: 0
+ }
+
+ section.section,
+ div.box {
+   background: transparent;
+ }
+
+ table.header-background th {
+   background: #fff;
+ }
+
+ .card-header-icon img {
+   width: 0.8em;
+ }
+
+ .no-select {
+   -webkit-touch-callout: none;
+   /* iOS Safari */
+   -webkit-user-select: none;
+   /* Safari */
+   -khtml-user-select: none;
+   /* Konqueror HTML */
+   -moz-user-select: none;
+   /* Firefox */
+   -ms-user-select: none;
+   /* Internet Explorer/Edge */
+   user-select: none;
+   /* Non-prefixed version, currently
+                                   supported by Chrome and Opera */
+ }
+
+ .upload-icon {
+   content: url("https://storage.googleapis.com/addlyrics.appspot.com/upload-icon.svg");
+   height: 1.4em;
+ }
+
+ table tr th,
+ td {
+   vertical-align: middle !important;
+ }
+
+ textarea.lyricsArea {
+   overflow-y: hidden;
+   overflow-x: auto;
    width: 100%;
-}
-
-.controls {
-    width:100%;
-    height:17px; /* of figure's height */
-    position:relative;
+   resize: none;
  }
 
- .controls[data-state=hidden] {
-    display:none;
- }
- 
- .controls[data-state=visible] {
-    display:block;
+ input[type=number] {
+   width: 4em;
  }
 
- .controls > * {
-    float:left;
-    width:3.90625%;
-    height:100%;
-    margin-left:0.1953125%;
-    display:block;
- }
- 
- .controls > *:first-child {
-    margin-left:0;
+ input.hide-arrows::-webkit-outer-spin-button,
+ input.hide-arrows::-webkit-inner-spin-button {
+   -webkit-appearance: none;
+   margin: 0;
  }
 
- .controls .progress {
-    cursor:pointer;
-    width:91.8%;
+ input[type=number].hide-arrows {
+   -moz-appearance: textfield;
  }
 
- .controls button {
-    border:none;
-    cursor:pointer;
-    background:transparent;
-    background-size:contain;
-    background-repeat:no-repeat;
- }
-
- .controls button:hover, .controls button:focus {
-    opacity:0.5;
- }
-
- .controls button[data-state="play"] {
-    background-image: url('/static/images/playButton.png');
- }
- 
- .controls button[data-state="pause"] {
-    background-image: url('/static/images/pauseButton.png');
- }
-
- .controls button[data-state="mute"] {
-    background-image: url('/static/images/muteButton.png');
- }
-
- .controls button[data-state="sound"] {
-   background-image: url('/static/images/soundButton.png');
-}
-
- .controls progress {
-    display:block;
-    width:100%;
-    height:81%;
-    margin-top:0.125rem;
-    border:none;
-    color:#0095dd;
-    -moz-border-radius:2px;
-    -webkit-border-radius:2px;
-    border-radius:2px;
- }
-
- .controls progress[data-state="fake"] {
-    background:#e6e6e6;
-    height:65%;
- }
- .controls progress span {
-    width:0%;
-    height:100%;
-    display:inline-block;
-    background-color:#2a84cd;  
- }
-
- .controls progress::-moz-progress-bar {
-    background-color:#0095dd;
- }
- 
- .controls progress::-webkit-progress-value {
-    background-color:#0095dd;
- }
-
- .frozenHead thead {
-    background-color: #ffffff;
+ .has-addons .control {
+   margin-bottom: 0em !important;
  }

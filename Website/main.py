@@ -410,7 +410,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        import taskSim as client
+        # import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
@@ -422,6 +422,11 @@ def uploader():
 def get_file():
     video_id = get_args(request, "videoID")
     doc_dict = sqlConnector.get_document(video_id)
+    if doc_dict is None:
+        return jsonify({
+            "status": "error",
+            "error": "No document found"
+        })
     if doc_dict['progress'] is None:
         return jsonify({"status": "error", "error": "File not found"})
     else:
@@ -449,12 +454,12 @@ def download():
 
 @app.route("/")
 def home():
-    return app.send_static_file('html/video.html')
+    return render_template('video.html')
 
 
 @app.route('/contact')
 def contact():
-    return app.send_static_file('html/contact.html')
+    return render_template('contact.html')
 
 
 @app.route('/privacy-policy')
@@ -464,12 +469,12 @@ def privacy():
 
 @app.route('/how-to')
 def howto():
-    return app.send_static_file('html/howto.html')
+    return render_template('howto.html')
 
 
 @app.route('/faq')
 def faq():
-    return app.send_static_file('html/faq.html')
+    return render_template('faq.html')
 
 
 @app.route('/robots.txt')

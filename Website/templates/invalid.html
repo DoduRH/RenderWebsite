@@ -1,28 +1,23 @@
+<!-- templates/Error.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
 <head>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Error</title>
-  <link rel="stylesheet" href="/static/css/main.css">
 </head>
-
-<header>
-  <a href="/">
-    <h1 style="color:white">Add my lyrics</h1>
-  </a>
-  <nav>
-    <a href="/">Add lyrics</a>
-    <a href="/contact">Contact</a>
-    <a href="/how-to">How to</a>
-  </nav>
-  <footer>
-    &copy; 2020
-  </footer>
-</header>
-
-<div class=content>
-    <div class="capsule">
-        <h2>An Error has occured</h2>
-        <p>{{ message }}</p>
-        <p>Please email via the <a href="/contact">Contact</a> page quoting this ID: {{ video_id }}</p>
-        <p><a href='/'>Click here</a> to get back on track</p>
+<div class="hero-body">
+  <div class="container has-text-centered">
+    <div class="column is-6 is-offset-3">
+      <h1 class="title">An Error has occured</h1>
+      <div class="box">
+        <div class="content">
+          <p>{{ message }}</p>
+          <p>Please email via the <a href="/contact">Contact</a> page quoting this ID: {{ video_id }}</p>
+          <p><a href='/'>Click here</a> to get back on track</p>
+        </div>
+      </div>
     </div>
+  </div>
 </div>
+{% endblock %}

@@ -1,0 +1,55 @@
+/* Cookie banner */
+.cookie-notice {
+display: none;
+position: fixed;
+bottom: 0;
+right: 0;
+left: 0;
+padding: .7rem 0;
+color: white;
+z-index: 1000;
+}
+
+.cookie-notice .cookie-notice-flex {
+display: flex;
+align-items: center;
+justify-content: space-between;
+max-width: 1200px;
+margin: 0 auto;
+padding: 0 1rem;
+}
+
+.cookie-notice p {
+flex-grow: 1;
+margin: 0;
+font-size: 15px;
+}
+
+.cookie-notice a {
+color: white;
+}
+
+.cookie-notice .cookie-notice-dismiss {
+display: inline-flex;
+padding: 10px;
+flex-shrink: 0;
+cursor: pointer;
+}
+
+.cookie-notice-dismiss svg {
+display: block;
+width: 20px;
+height: 20px;
+}
+
+.cookie-notice-dismiss path {
+stroke-width: 3px;
+stroke: white;
+}
+
+.cookie-notice-dismiss:hover path {
+stroke: rgba(white, 0.75);
+}
+footer{
+    padding: 2rem 1rem 2rem !important;
+}

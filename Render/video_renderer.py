@@ -268,6 +268,7 @@ def render(args):
         video_url, video_size_in = get_blob_url("addlyrics-content", video_loc, True)
         visual_type = guess_type(video_loc)[0]
     else:
+        video_size_in = 0
         visual_type = "image"
         video_url = generate_solid_background(video_id, background_colour)
 
@@ -312,7 +313,7 @@ def render(args):
         bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
-            .input(video_url, loop=True)
+            .input(video_url, loop=1)
             .filter('framerate', fps=framerate)
         )
 
@@ -538,6 +539,7 @@ def render(args):
                 return ("error", "Render failed to initiate after 1 minute")
         
         skip = True
+        latest = {'frame': 0, 'progress': "continue"}
         for r in reverse_readline(progress_file):
             if skip:
                 skip = False
