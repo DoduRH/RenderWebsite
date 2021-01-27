@@ -283,10 +283,6 @@ myVideo.onplay = (e) => {
     loop()
 }
 
-myVideo.oncanplaythrough = (e) => {
-    draw_video_frame()
-}
-
 myVideo.onvolumechange = (e) => {
     if (myVideo.muted) {
         document.getElementById("mutevideo").dataset.state = "mute"
@@ -1529,6 +1525,22 @@ document.addEventListener('keydown', function (e) {
         }
     }
 })
+
+function setIntervalX(callback, delay, repetitions) {
+    var x = 0;
+    var intervalID = window.setInterval(function () {
+
+       callback();
+
+       if (++x === repetitions) {
+           window.clearInterval(intervalID);
+       }
+    }, delay);
+}
+
+myVideo.oncanplaythrough = function () {
+    setIntervalX(draw_video_frame, 100, 50);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     loadFromCookies()
