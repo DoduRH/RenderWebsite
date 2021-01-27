@@ -700,6 +700,7 @@ function setoverflow(t, value) {
     // t.closest(".expandable").style.overflow = value
 }
 
+// Lyrics textarea has been updated
 function updated(t, cookie=true) {
     console.log("Updating table")
     textAreaAdjust(lyrics)
@@ -717,16 +718,17 @@ function updated(t, cookie=true) {
     if (lyrics.value == "") {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
+        // tableText is text settings table
         document.getElementById("tableText").closest(".card").hidden = true
+        // tableText is text settings table
+        document.getElementById("table1").closest(".card-content").classList.add("is-hidden")
         deleteCookie("lyricsArea")
         e = tbl.closest('div')
-        e.style = "--extendedHeight: " + e.children[0].offsetHeight + "px;"
-        e.classList.remove("expanded")
-        e.classList.add("minimised")
     } else {
         var $table = $('table.frozenHead');
         $table.floatThead('destroy');
         document.getElementById("tableText").closest(".card").hidden = false
+        document.getElementById("table1").closest(".card-content").classList.remove("is-hidden")
         document.getElementById("text_tl").required = true
         if (document.getElementById("verses").checked) {
             lines = lyrics.value.split("\n\n")
@@ -744,7 +746,6 @@ function updated(t, cookie=true) {
         stop_times = []
         if (tableLength > 0) {
             for (let i = 0; i < tableLength; i++) {
-                const line = lines[i]
                 start_times.push(document.getElementById("start_" + i).value)
                 stop_times.push(document.getElementById("stop_" + i).value)
             }
