@@ -454,12 +454,12 @@ def download():
 
 @app.route("/")
 def home():
-    return app.send_static_file('html/video.html')
+    return render_template('video.html')
 
 
 @app.route('/contact')
 def contact():
-    return app.send_static_file('html/contact.html')
+    return render_template('contact.html')
 
 
 @app.route('/privacy-policy')
@@ -469,12 +469,12 @@ def privacy():
 
 @app.route('/how-to')
 def howto():
-    return app.send_static_file('html/howto.html')
+    return render_template('howto.html')
 
 
 @app.route('/faq')
 def faq():
-    return app.send_static_file('html/faq.html')
+    return render_template('faq.html')
 
 
 @app.route('/robots.txt')

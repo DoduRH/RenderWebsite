@@ -1,21 +1,26 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <head>
   <title>Please Hold</title>
-  <link rel="stylesheet" href="/static/css/hold.css">
   <script src="/static/js/hold.js"></script>
 </head>
 
-<div class="column is-8 is-offset-2">
-  <h1 class="title">Please hold while we render your video</h1>
-  <div class="box">
-    <div class="content">
-      <p id="quote">Any problems, please email via the <a href="/contact">Contact</a> page quoting this ID: {{ video_id }}</p>
-      <br>
-      <progress id="progBar" class="progress is-primary is-large" value=0 max="100"></progress>
-      <br>
-      <a id=new_vid_link href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
+<div class="hero-body">
+  <div class="container has-text-centered">
+    <div class="column is-8 is-offset-2">
+      <h1 class="title">Please hold while we render your video</h1>
+      <div class="box">
+        <div class="content">
+          <p id="quote">Any problems, please email via the <a href="/contact">Contact</a> page quoting this ID: {{
+            video_id }}</p>
+          <br>
+          <progress id="progBar" class="progress is-primary is-large" value=0 max="100"></progress>
+          <br>
+          <a id=new_vid_link href="/" target="_blank" rel="noreferrer noopener">Add lyrics to another video?</a>
+        </div>
+      </div>
     </div>
   </div>
 </div>

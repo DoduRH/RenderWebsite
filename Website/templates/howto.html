@@ -1,0 +1,86 @@
+<!-- templates/howto.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+<head>
+  <title>How to</title>
+</head>
+<div class="hero-body">
+  <div class="container has-text-centered">
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Select your visual content</h2>
+        <p>Select either 'Video', 'Image' or 'Solid Colour' as a background, then upload the content if needed.</p>
+        <img src=https://storage.googleapis.com/addlyrics.appspot.com/backgroundVideo.png>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Select your audio content</h2>
+        <p>Set your audio content; if the audio is contained within your video source select 'Video', if you want to
+          upload a seperate audio file, select 'Audio'.</p>
+        <p>TIP: 'Advanced Audio' allows you to control the video audio seperately to the visuals. This is useful for
+          only
+          applying fades to the visuals but not the audio!</p>
+        <img src=https://storage.googleapis.com/addlyrics.appspot.com/audioSettings.png>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Add your lyrics</h2>
+        <p>Insert your lyrics either by typing in the box or using copy and paste.</p>
+        <p>A table to insert timings will appear below.</p>
+        <p>By default each line will be shown seperately. Enabling 'Full verse mode' allows multiple lines to be
+          shown
+          on the screen at the same time. A blank line seperates each group of lines.</p>
+        <img src=https://storage.googleapis.com/addlyrics.appspot.com/addLyrics.png>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Select your text settings</h2>
+        <p>Select how the text will look on screen. To see how your video and lyrics will look together at the
+          current
+          video time, click 'Preview'
+          under the 'Preview Frame' heading.</p>
+        <img src=https://storage.googleapis.com/addlyrics.appspot.com/textSettings.png>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Crop your visual content</h2>
+        <p>Use this tool to crop your video or image as shown below, if you want to show the full image, ignore this
+          step.</p>
+        <p>TIP: Hold shift to lock the aspect ratio to the same as the orriginal video, or hold control to lock the
+          aspect ratio to 16:9.</p>
+        <video id="video1" src=https://storage.googleapis.com/addlyrics.appspot.com/cropVideo.mp4 width=100%
+          controls></video>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Add the timings</h2>
+        <p>Play your audio content and each time you want a new lyrics to appear click 'Start' button.</p>
+        <p>If the stop time is not specified it will be set to the start time of the following lyric. The video
+          below
+          shows how
+          the cursor moves between the inputs as the 'Start' and 'Stop' buttons are clicked.</p>
+        <p>TIP: The line that is highlighted is the line(s) that will be shown at the current time of
+          the
+          audio.</p>
+        <p>TIP: You can press 'Q' on your keyboard instead of the 'Start' button and 'W' instead of the 'Stop'
+          button.
+        </p>
+        <video src=https://storage.googleapis.com/addlyrics.appspot.com/addTimings.mp4 width=100% controls>
+      </div>
+    </div>
+    <div class="column is-10 is-offset-1">
+      <div class="box">
+        <h2 class="has-text-primary title">Submit</h2>
+        <p>Check all your settings and click 'Submit' to upload your media, then wait as we Add Your Lyrics!</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
