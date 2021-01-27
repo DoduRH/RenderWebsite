@@ -735,7 +735,8 @@ function updated(t, cookie=true) {
         }
         console.log(lines)
         output_tbl =
-            "<thead><tr><th>Line</th>" +
+            "<thead><tr><th><div align='left' class='is-inline' style='vertical-align:middle;'>Line</div><div class='is-inline'></div>" +
+            "<div align='right' class='is-inline' style='float: right;'><button onclick='playAudio(this)' class='button'>Play Audio</button></div></th>" +
             '<th><button onclick="time_start()" class="button">Start</button></th>' +
             '<th><button onclick="time_stop()" class="button">Stop</button></th></tr></thead>'
 
@@ -1536,6 +1537,24 @@ function setIntervalX(callback, delay, repetitions) {
            window.clearInterval(intervalID);
        }
     }, delay);
+}
+
+function playAudio(t) {
+    audio = getAudioSource()
+    
+    // check if there is a source
+    if (!audio.closest(".card").hidden) {
+        // pause or play it and update button text
+        // update button
+        if (audio.paused) {
+            audio.play()
+            t.innerHTML = "Pause Audio"
+        } else {
+            audio.pause()
+            t.innerHTML = "Play Audio"
+        }
+    }
+    return
 }
 
 myVideo.oncanplaythrough = function () {

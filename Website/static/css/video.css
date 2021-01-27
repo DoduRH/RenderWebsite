@@ -109,3 +109,6 @@
  .has-addons .control {
    margin-bottom: 0em !important;
  }
+ .is-inline {
+   display: inline-block;
+ }
