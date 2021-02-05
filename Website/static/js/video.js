@@ -1246,7 +1246,7 @@ async function submitForm() {
     valid = true
     uploading = true
 
-    document.getElementById("submitbutton").classList.add("is-loading")
+    //document.getElementById("submitbutton").classList.add("is-loading")
 
     if (valid) {
         valid = checkLyricAscii()

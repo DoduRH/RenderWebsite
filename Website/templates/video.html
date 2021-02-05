@@ -2,9 +2,7 @@
 
 {% extends "base.html" %}
 
-{% block content %}
-
-<head>
+{% block head %}
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Quickly and easily add lyrics to your videos" />
@@ -14,7 +12,9 @@
     crossorigin="anonymous"></script>
   <link rel="stylesheet" href="/static/css/video.css">
   <title>Add lyrics to a video</title>
-</head>
+{% endblock %}
+
+{% block content %}
 <div class="hero-body" style="display: block;">
   <div class="columns">
     <div class="settings column is-half">

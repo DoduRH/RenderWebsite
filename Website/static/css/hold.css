@@ -1,3 +1,10 @@
+progress {
+  -webkit-appearance: none;
+}
+
 .progress::-webkit-progress-value {
-  transition: width 5s linear;
+  -webkit-transition : width 5s linear;
+   -moz-transition : width 5s linear;
+     -o-transition : width 5s linear;
+        transition : width 5s linear;
 }
