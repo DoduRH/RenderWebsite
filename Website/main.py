@@ -49,16 +49,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
-    print(
-        "Uploading file {} to {}.".format(
-            source_file_name, destination_blob_name
-        ),
-        end=""
-    )
-
     blob.upload_from_filename(source_file_name)
-
-    print("Success")
 
 
 def blob_exists(bucket_name, blob_name, output=True):
@@ -69,12 +60,6 @@ def blob_exists(bucket_name, blob_name, output=True):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
-    if output:
-        print(
-            "File {} exists {}.".format(
-                blob_name, str(stats)
-            )
-        )
 
     return stats
 
@@ -86,12 +71,6 @@ def size_blob(bucket_name, blob_name):
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     size = bucket.get_blob(blob_name).size
-
-    print(
-        "File {} has size {} bytes.".format(
-            blob_name, str(size)
-        )
-    )
 
     return size
 
