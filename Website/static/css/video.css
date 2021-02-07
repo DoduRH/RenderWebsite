@@ -116,3 +116,7 @@
  .is-inline {
    display: inline-block;
  }
+
+ .middle-column-width {
+   width: 4em;
+ }
