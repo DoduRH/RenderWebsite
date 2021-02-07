@@ -25,7 +25,12 @@
           </header>
           <div class="card-content">
             <div class="content">
-              <table id=tableVisual class="table">
+              <table id=tableVisual class="table" style="table-layout:fixed">
+                <colgroup>
+                  <col span="1">
+                  <col span="1" width=5%>
+                  <col span="1">
+                </colgroup>  
                 <tr>
                   <td>
                     <label for="visualType">Select background type</label>
@@ -260,12 +265,12 @@
           </header>
           <div class="card-content">
             <div class="content">
-              <table id=tableAudio class="table">
+              <table id=tableAudio class="table" style="table-layout:fixed">
                 <colgroup>
-                  <col span="1" width=50%>
+                  <col span="1">
                   <col span="1" width=5%>
-                  <col span="1" width=45%>
-                </colgroup>
+                  <col span="1">
+                </colgroup>  
                 <tr>
                   <td>
                     <label for="audioSource">Select audio source</label>
@@ -505,7 +510,12 @@
           </header>
           <div class="card-content">
             <div class="content">
-              <table id=tableText width=100%>
+              <table id=tableText width=100% style="table-layout:fixed">
+                <colgroup>
+                  <col span="1">
+                  <col span="1" width=5%>
+                  <col span="1">
+                </colgroup>  
                 <tr>
                   <td>
                     <label for="font_size">Font size</label>
@@ -522,7 +532,7 @@
                     <div class="field has-addons">
                       <p class="control">
                         <input type="number" id="font_size" name="font_size" min="1" value="60" max="1000" step="1"
-                          class="input is-small" required />
+                          class="input is-small narrow" required />
                       </p>
                     </div>
                   </td>
@@ -588,7 +598,7 @@
                     <div class="field has-addons">
                       <p class="control">
                         <input type="number" id="shadow_offset_x" name="shadow_offset_x" value="3" step="1" min="-2000"
-                          max="2000" class="input is-small" required />
+                          max="2000" class="input is-small narrow" required />
                       </p>
                       <p class="control">
                         <a class="button is-static is-small">
@@ -597,7 +607,7 @@
                       </p>
                       <p class="control">
                         <input type="number" id="shadow_offset_y" name="shadow_offset_y" value="3" step="1" min="-2000"
-                          max="2000" class="input is-small" required />
+                          max="2000" class="input is-small narrow" required />
                       </p>
                     </div>
                   </td>
@@ -647,7 +657,7 @@
                     <div class="field has-addons">
                       <p class="control">
                         <input type="number" id="text_width" name="text_width" min="0" value="90" max="100" step="1"
-                          class="button is-small" required />
+                          class="button is-small narrow" required />
                       </p>
                       <p class="control">
                         <a class="button is-static is-small">
