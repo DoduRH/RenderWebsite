@@ -1578,4 +1578,9 @@ document.addEventListener('DOMContentLoaded', function () {
         e.currentTarget.parentElement.parentElement.childNodes[3].classList.toggle('is-hidden');
       });
     }
+
+    // Draggable tiles
+    dragula([document.querySelector(".grid")], {
+        revertOnSpill: true
+    })      
 }, false)

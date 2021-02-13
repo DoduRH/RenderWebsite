@@ -10,8 +10,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/floatthead/2.2.1/jquery.floatThead.min.js" 
     integrity="sha512-q0XkdCnK0e3QLJgYrtENEEmAv+urSGCQs/xCXF4xs+NoLfNWD+j7iMqNYXtFOQfnYDsfE4Z7phZqaHgYJrGB/g==" 
     crossorigin="anonymous"></script>
+  <script src=https://cdnjs.cloudflare.com/ajax/libs/dragula/3.5.2/dragula.min.js></script>
+  <link rel="stylesheet" href=https://cdnjs.cloudflare.com/ajax/libs/dragula/3.5.2/dragula.min.css>
   <link rel="stylesheet" href="/static/css/video.css">
   <title>Add lyrics to a video</title>
+  <style>
+    .grid {
+      display: flex;
+      width: 100%;
+      height: 300px;
+      flex-wrap: wrap;
+    }
+    
+    
+    .grid > .card {
+      overflow: hidden;
+      min-width: 124px;
+      min-height: 124px;
+      flex: 2;
+    }
+  </style>
 {% endblock %}
 
 {% block content %}
@@ -683,6 +701,37 @@
             </div>
           </div>
         </div>
+
+        <div id=uploaded_video_card class="card is-fullwidth">
+          <header class="card-header">
+            <p class="card-header-title">Uploaded Visuals</p>
+          </header>
+          <div class="card-content">
+            <div class="content">
+              <div class="grid">
+                <div class="card is-draggable" data-index="1">
+                  <header class="card-header">
+                    <p class="card-header-title image-name">Image Name</p>
+                  </header>
+                  <div class="card-body">
+                    <h5 class="card-title">Card title that wraps to a new line</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  </div>
+                </div>
+                <div class="card is-draggable" data-index="2">
+                  <header class="card-header">
+                    <p class="card-header-title image-name">Image 2 Name</p>
+                  </header>
+                  <div class="card-body">
+                    <h5 class="card-title">Card title that wraps to a new line</h5>
+                    <p class="card-text">This is a longer card with supporting text below as a natural lead-in to additional content. This content is a little bit longer.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div id=uploaded_audio_card class="card is-fullwidth" hidden>
           <header class="card-header">
             <h1 class="card-header-title">Uploaded Audio</h1>

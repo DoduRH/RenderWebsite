@@ -2,6 +2,11 @@
    margin-top: 20px
  }
 
+ .grid .card+.card {
+  margin-left: 20px;
+  margin-top: 0px;
+}
+
  .tooltip {
    position: relative;
    text-align: right;
