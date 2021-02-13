@@ -67,6 +67,7 @@ function videoChange(t) {
     videoContentCard = document.getElementById("uploaded_video_card")
     cropVideoCard = document.getElementById("crop_video_card")
     previewFrameCard = document.getElementById("preview_frame_card")
+    draggableImagesCard = document.getElementById("reorder_images_card")
     showCards = false
 
 
@@ -91,11 +92,11 @@ function videoChange(t) {
             myImage.src = url
         }
         reset_crop()
-        showCards = true
 
-        videoContentCard.hidden = !showCards
-        cropVideoCard.hidden = !showCards
-        previewFrameCard.hidden = !showCards
+        videoContentCard.hidden = false;
+        cropVideoCard.hidden = false;
+        previewFrameCard.hidden = false;
+        draggableImagesCard.hidden = true;
     } else if (videoUpload.files.length > 1) {
         for (let i = 0; i < videoUpload.files.length; i++) {
             f = videoUpload.files[i]
@@ -139,10 +140,15 @@ function videoChange(t) {
                 imgFiles.push(f);
             }
         }
+        videoContentCard.hidden = true;
+        cropVideoCard.hidden = true;
+        previewFrameCard.hidden = true;
+        draggableImagesCard.hidden = false;
     } else {
         videoContentCard.hidden = true;
         cropVideoCard.hidden = true;
         previewFrameCard.hidden = true;
+        draggableImagesCard.hidden = true;
     }
 }
 
