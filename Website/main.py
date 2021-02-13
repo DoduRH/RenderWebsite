@@ -389,7 +389,7 @@ def uploader():
         task['http_request']['body'] = converted_payload
 
         # for debugging purposes
-        # import taskSim as client
+        import taskSim as client
 
         # Use the client to build and send the task.
         response = client.create_task(parent, task)

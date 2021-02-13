@@ -2,9 +2,16 @@
    margin-top: 20px
  }
 
- .grid .card+.card {
+.grid .card {
+  margin-bottom: 20px;
   margin-left: 20px;
   margin-top: 0px;
+}
+
+.grid .card .card-header-title {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  width: 100%;
 }
 
  .tooltip {

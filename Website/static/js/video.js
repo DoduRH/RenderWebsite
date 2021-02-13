@@ -36,6 +36,17 @@ var video_id
 var start_times = []
 var stop_times = []
 
+var imgFiles = [];
+
+// Helper method for creating elements
+$.extend({
+    el: function(el, props) {
+        var $el = $(document.createElement(el));
+        $el.attr(props);
+        return $el;
+    }
+});
+
 function inputDisplayName(t) {
     console.log("Changing display name")
     labelText = t.closest(".file-label").childNodes[5]
@@ -73,23 +84,66 @@ function videoChange(t) {
 
             videoStart.max = myVideo.duration
             videoEnd.max = myVideo.duration
-
-            reset_crop()
-            showCards = true
         } else if (videoUpload.files[0].type.includes("image")) {
             myVideo.hidden = true
             myImage.hidden = false
 
             myImage.src = url
-
-            reset_crop()
-            showCards = true
         }
-    }
+        reset_crop()
+        showCards = true
 
-    videoContentCard.hidden = !showCards
-    cropVideoCard.hidden = !showCards
-    previewFrameCard.hidden = !showCards
+        videoContentCard.hidden = !showCards
+        cropVideoCard.hidden = !showCards
+        previewFrameCard.hidden = !showCards
+    } else if (videoUpload.files.length > 1) {
+        for (let i = 0; i < videoUpload.files.length; i++) {
+            f = videoUpload.files[i]
+            url = (URL || webkitURL).createObjectURL(f)
+            if (f.type.includes("video")) {
+                $( "<video>", {
+                    "playbackRate": videoSpeed.value,
+                    text: "Click me!",
+                    src: url
+                })
+                .appendTo( "body" );
+
+
+                myImage.hidden = true
+                myVideo.hidden = false
+                myVideo.src = url
+                
+                // hide these?
+                videoStart.max = myVideo.duration
+                videoEnd.max = myVideo.duration
+            } else if (f.type.includes("image")) {
+                max_chars = 120
+                if (f.name.length > max_chars) {
+                    fname = f.name.slice(0, max_chars - 3) + "..."
+                } else {
+                    fname = f.name
+                }
+
+                $('.grid').append(
+                    $.el('div', {'class': 'card is-draggable'}).append(
+                        $.el('header', {'class': 'card-header'}).append(
+                            $.el('p', {'class': 'card-header-title', 'title': f.name}).text(fname)
+                        )
+                    )
+                    .append(
+                        $.el('div', {'class': 'card-body'}).append(
+                            $.el('img', {"src": url, "data-img-file-index": imgFiles.length})
+                        )
+                    )
+                );
+                imgFiles.push(f);
+            }
+        }
+    } else {
+        videoContentCard.hidden = true;
+        cropVideoCard.hidden = true;
+        previewFrameCard.hidden = true;
+    }
 }
 
 window.onresize = function() {
@@ -1366,6 +1420,11 @@ function audioFitTime() {
 function videoTypeChange(newType) {
     console.log(newType)
     videoUpload.accept = newType + "/*"
+    if (newType == "image") {
+        videoUpload.multiple = "multiple"
+    } else {
+        videoUpload.multiple = ""
+    }
     audioFitTime()
     tableElements = document.getElementById("tableVisual").getElementsByClassName('is-all-setting')
     newClass = "is-" + newType + "-setting"
