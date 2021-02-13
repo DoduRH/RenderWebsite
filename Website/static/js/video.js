@@ -72,6 +72,8 @@ function videoChange(t) {
 
 
     if (videoUpload.files.length == 1) {
+        $('.grid').empty();
+        imgFiles = [];
         fileBlob = videoUpload.files[0]
         url = (URL || webkitURL).createObjectURL(fileBlob)
 
