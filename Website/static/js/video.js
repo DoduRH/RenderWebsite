@@ -1084,6 +1084,43 @@ function checkForm() {
     return true
 }
 
+async function uploadFile(file, purpose, number) {
+    await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + file.name + "&purpose=" + purpose + '&number=' + number)
+    .then(response => response.json()
+    .then(data => {
+        console.log(data.url)
+        console.log(data.filename)
+
+        url = data.url.replace(/\"/g, "")
+        console.log("Starting Upload of " + file.name)
+
+        fetch(url, {
+            method: 'PUT',
+            body: file
+        }).then(sent => {
+            finished = sent.ok
+            if (finished) {
+                console.log("Complete " + file.name)
+            } else {
+                console.log("Failed upload of " + file.name)
+                alert("Failed upload of " + file.name)
+                throw new Error("Failed upload of " + file.name)
+            }
+        })
+    }));
+}
+
+async function uploadImages() {
+    elms = $('.grid').children();
+    for (let i = 0; i < elms.length; i++) {
+        e = elms[i]
+        index = $(e).children('.card-body').eq(0).children('img')[0].dataset.imgFileIndex
+        f = imgFiles[index]
+        await uploadFile(f, "videoUpload", i)
+    }
+    return true
+}
+
 async function uploadElement(elm) {
     filename = elm.files[0].name
     const response = await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + filename + "&purpose=" + elm.id)
@@ -1255,7 +1292,8 @@ function checkDuration() {
 async function uploadContent() {
     visualType = getVisualType()
     if (visualType != "solid") { // Upload file if needed
-        if (videoUpload.files.length != 1) {
+        // No stand alone video && no images in multi image setup
+        if (videoUpload.files.length != 1 && (visualType == "image" && imgFiles.length == 0)) {
             showElementError(videoUpload, "Please select a video")
             return false
         } else if (audioUpload.files.length == 0 && getRadioValue("audioSource") == "audio") {
@@ -1264,12 +1302,16 @@ async function uploadContent() {
         }
         
         document.getElementById("submitbutton").innerHTML = "Uploading Video..."
-        if (!await uploadElement(videoUpload)) {
-            alert("Unable to upload video")
-            return false
+        if (visualType == "video") {  // Single image/video
+            result = await uploadElement(videoUpload)
+            if (!result) {
+                alert("Unable to upload video")
+                return false
+            }
+            videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
+        } else if (visualType == "image") { // Multiple images
+            result = await uploadImages()
         }
-        videoExt.value = videoUpload.value.split(".")[videoUpload.value.split(".").length - 1]
-
     } else if (audioUpload.files.length == 0) {
         alert("No audio detected")
         return false

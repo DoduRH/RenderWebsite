@@ -174,6 +174,8 @@ def getSignedURL():
     uuid = request.args.get('uuid')
     filename = request.args.get('filename')
     purpose = request.args.get('purpose')
+    number = request.args.get('number', None)
+
     if not is_valid_uuid(uuid):
         print("Invalid UUID")
         return error("invalid uuid", uuid)
@@ -182,7 +184,10 @@ def getSignedURL():
     if purpose == "audioUpload" and ("audio" in mime or "video" in mime):
         filename = "audio_" + uuid + "." + filename.split(".")[-1]
     elif purpose == "videoUpload" and ("video" in mime or "image" in mime):
-        filename = "video_" + uuid + "." + filename.split(".")[-1]
+        if number is None:
+            filename = f"video_{uuid}.{filename.split('.')[-1]}"
+        else:
+            filename = f"video_{number}_{uuid}.{filename.split('.')[-1]}"
     else:
         print("Invalid purpose", purpose, mime)
         return error("Invalid purpose", purpose, mime)
@@ -190,8 +195,16 @@ def getSignedURL():
     blob = uploadBucket.blob(filename)
     url = blob.generate_signed_url(
         expiration=timedelta(minutes=60),
-        method='PUT', version="v4")
-    return url
+        method='PUT', version="v4"
+    )
+
+    if number is None:
+        return url
+    else:
+        return jsonify({
+            "url": url,
+            "filename": filename
+        })
 
 
 @app.route("/video")
