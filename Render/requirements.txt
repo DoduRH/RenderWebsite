@@ -7,3 +7,4 @@ google-cloud-firestore
 ptvsd==4.3.2
 python-magic
 pillow
+numexpr

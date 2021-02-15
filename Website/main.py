@@ -236,9 +236,8 @@ def uploader():
         sqlConnector.set_document(id, data, merge=True)
 
         visual_type = formData.get("visualType")
-        video_file_names = formData.get("uploadedFileNames")
+        video_file_names = formData.get("uploadedVideoNames")
         if visual_type == "solid":
-            video_name = ""
             video_size = 0
         else:
             video_size = 0

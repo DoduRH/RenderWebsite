@@ -11,8 +11,16 @@ import sqlConnector
 import math
 from datetime import timedelta
 from mimetypes import guess_type
+from numexpr import evaluate
 
 m = Magic(mime=True)
+
+def simple_comp_compile(comp, urls):
+    compile = " ".join(comp.compile())
+    for i, url in enumerate(urls):
+        compile = compile.replace(url, "video_input_" + str(i) + ".mp4")
+    
+    return compile
 
 class position():
     def __init__(self, pos, text_h, line_gap=1.25, edging=0.025):
@@ -45,20 +53,6 @@ class position():
     def getXPos(self):
         return self.x
 
-
-class advanced_dict():
-    def __init__(self, dictionary):
-        self.dictionary = dictionary
-        super().__init__()
-
-    def get_value(self, key, default=None):
-        if key not in self.dictionary.keys():
-            return default
-
-        try:
-            return self.dictionary[key]
-        except KeyError:
-            return default
 
 def aspect(a, b):
     a = round(a)
@@ -228,32 +222,31 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
 def render(args):
-
+    output_width = 1920
+    output_height = 1080
     # Get values from the dictionary
-    my_dict = advanced_dict(args)
-
-    video_id = my_dict.get_value("video_id")
-    words_loc = my_dict.get_value("csv_name")
-    video_loc = my_dict.get_value("video_name")
-    audio_loc = my_dict.get_value("audio_name")
-    background_colour = my_dict.get_value("background_colour")
-    text_position = my_dict.get_value("text_position")
-    text_width = my_dict.get_value("text_width")
-    video_usable = my_dict.get_value("video_usable")
-    audio_usable = my_dict.get_value("audio_usable")
-    font = my_dict.get_value("font")
-    fontsize = my_dict.get_value("font_size")
-    video_speed = my_dict.get_value("video_speed")
-    audio_speed = my_dict.get_value("audio_speed")
-    shadow_visible = my_dict.get_value("view_shadow")
-    shadow_offset = my_dict.get_value("shadow_offset")
-    text_colour = my_dict.get_value("text_colour")
-    shadow_colour = my_dict.get_value("shadow_colour")
-    video_fade = my_dict.get_value("video_fade")
-    audio_fade = my_dict.get_value("audio_fade")
-    crop_video = my_dict.get_value("crop_video")
-    crop_audio = my_dict.get_value("crop_audio")
-    crop_image = my_dict.get_value("crop_image", [0, 0, 0, 0])
+    video_id = args.get("video_id")
+    words_loc = args.get("csv_name")
+    video_file_names = args.get("video_file_names")
+    audio_loc = args.get("audio_name")
+    background_colour = args.get("background_colour")
+    text_position = args.get("text_position")
+    text_width = args.get("text_width")
+    video_usable = args.get("video_usable")
+    audio_usable = args.get("audio_usable")
+    font = args.get("font")
+    fontsize = args.get("font_size")
+    video_speed = args.get("video_speed")
+    audio_speed = args.get("audio_speed")
+    shadow_visible = args.get("view_shadow")
+    shadow_offset = args.get("shadow_offset")
+    text_colour = args.get("text_colour")
+    shadow_colour = args.get("shadow_colour")
+    video_fade = args.get("video_fade")
+    audio_fade = args.get("audio_fade")
+    crop_video = args.get("crop_video")
+    crop_audio = args.get("crop_audio")
+    crop_image = args.get("crop_image", [0, 0, 0, 0])
 
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
@@ -263,79 +256,107 @@ def render(args):
     else:
         data = [["", 0, 0]]
 
-    solid_background = (video_loc == "")
+    solid_background = (video_file_names == []) # not sure this is right any more
+
+    video_size_in = 0
+    video_urls = []
     if not solid_background:
-        video_url, video_size_in = get_blob_url("addlyrics-content", video_loc, True)
+        for video_loc in video_file_names:
+            url, video_size = get_blob_url("addlyrics-content", video_loc, True)
+            video_size_in += video_size
+            video_urls.append(url)
+
         visual_type = guess_type(video_loc)[0]
     else:
         video_size_in = 0
         visual_type = "image"
-        video_url = generate_solid_background(video_id, background_colour)
+        video_urls = [generate_solid_background(video_id, background_colour)]
 
     if audio_loc is None:
         if "video" not in visual_type:
             return ("error", "no audio stream present")
-        audio_url = video_url # THIS SHOULD NOT BE NEEDED #
         audio_size_in = 0
     else:
         audio_url, audio_size_in = get_blob_url("addlyrics-content", audio_loc, True)
 
     output_name = "/tmp/VideoOutput_" + video_id + ".mp4"
 
-    video_probe = ffmpeg.probe(video_url)
-    video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
-    if len(video_streams) == 0:
-        return ("error", "no video stream detected")
+    video_width = 0
+    video_height = 0
+    bitrate = 0
+    video_comp = None
+    for i, url in enumerate(video_urls):
+        video_probe = ffmpeg.probe(url)
+        video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
+        if len(video_streams) == 0:
+            return ("error", "no video stream detected")
 
-    if "video" in visual_type:
-        in_file = ffmpeg.input(video_url)
-        if 'bit_rate' in video_streams[0].keys():
-            bitrate = eval(video_streams[0]['bit_rate'])
-        else:
-            bitrate = 3000000
+        if "video" in visual_type:
+            video_input = video_comp = video_comp.input(url)
+            if 'bit_rate' in video_streams[0].keys():
+                try:
+                    bitrate = max(bitrate, evaluate(video_streams[0]['bit_rate']))
+                except:
+                    print("bitrate unreadable", video_id)
+            else:
+                bitrate = 3000000
 
-        if 'r_frame_rate' in video_streams[0].keys():
-            framerate = eval(video_streams[0]['r_frame_rate'])
-        else:
+            if 'r_frame_rate' in video_streams[0].keys():
+                try:
+                    framerate = max(framerate, evaluate(video_streams[0]['r_frame_rate']))
+                except:
+                    print("bitrate unreadable", video_id)
+            else:
+                framerate = 25
+
+            # Calculate video duration
+            video_stream_duration = float(video_streams[0]['duration'])
+            if video_usable[1] <= video_usable[0]:
+                video_usable[1] = video_stream_duration
+            else:
+                video_usable[1] = min(video_usable[1], video_stream_duration)
+
+            video_duration = (video_usable[1] - video_usable[0]) / video_speed
+        else:  # This means the visuals are coming from an image
             framerate = 25
-        video_comp = in_file.video
+            bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
+            current_img = (
+                ffmpeg
+                .input("cache:" + url, loop=1, t=10)
+                .filter('framerate', fps=framerate)
+                .filter('scale', w=output_width, h=output_height)
+            )
 
-        # Calculate video duration
-        video_stream_duration = float(video_streams[0]['duration'])
-        if video_usable[1] <= video_usable[0]:
-            video_usable[1] = video_stream_duration
+            if video_comp is None:
+                video_comp = current_img
+            else:
+                video_comp = (
+                    ffmpeg
+                    .concat(
+                        video_comp,
+                        current_img
+                    )
+                )
+
+        if solid_background:
+            video_width = 1920
+            video_height = 1080
+            video_comp = (
+                video_comp
+                .filter('scale', w=video_width, h=video_height)
+                .filter('setdar', '16/9')
+            )
         else:
-            video_usable[1] = min(video_usable[1], video_stream_duration)
+            video_width = video_streams[0]['width']
+            video_height = video_streams[0]['height']
 
-        video_duration = (video_usable[1] - video_usable[0]) / video_speed
-    else:  # This means the visuals are coming from an image
-        framerate = 25
-        bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
-        video_comp = (
-            ffmpeg
-            .input(video_url, loop=1)
-            .filter('framerate', fps=framerate)
-        )
-
-    if solid_background:
-        video_width = 1920
-        video_height = 1080
-        video_comp = (
-            video_comp
-            .filter('scale', w=video_width, h=video_height)
-            .filter('setdar', '16/9')
-        )
-    else:
-        video_width = video_streams[0]['width']
-        video_height = video_streams[0]['height']
-
-    if video_width * video_height > 1920 * 1080:
-        return ("error", "Too many pixels")
+        if video_width * video_height > 1920 * 1080:
+            return ("error", "Too many pixels")
 
     # Make audio
     if audio_loc is None:
         audio_probe = video_probe
-        audio_comp = in_file.audio
+        audio_comp = video_input.audio
     else:
         audio_probe = ffmpeg.probe(audio_url)
         audio_comp = (
@@ -380,7 +401,6 @@ def render(args):
             duration = max(video_duration, audio_duration)
 
     if duration > 600:
-        valid = False
         return ("error", "Max video length 5 minutes (after applying speed change)")
 
     if video_stream_duration < video_usable[0] or video_stream_duration < video_usable[1] or video_duration < video_fade[0] or video_duration < video_fade[1]:
