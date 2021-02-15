@@ -1090,6 +1090,7 @@ async function uploadFile(file, purpose, number) {
     .then(data => {
         console.log(data.url)
         console.log(data.filename)
+        uploadedVideoNames.push(data.filename)
 
         url = data.url.replace(/\"/g, "")
         console.log("Starting Upload of " + file.name)
@@ -1112,6 +1113,7 @@ async function uploadFile(file, purpose, number) {
 
 async function uploadImages() {
     elms = $('.grid').children();
+    uploadedVideoNames = new Array();
     for (let i = 0; i < elms.length; i++) {
         e = elms[i]
         index = $(e).children('.card-body').eq(0).children('img')[0].dataset.imgFileIndex
@@ -1383,10 +1385,36 @@ async function submitForm() {
         document.getElementById("videoRight").value = Math.round(videoRight)
         document.getElementById("uuid").value = video_id
         document.getElementById("submitbutton").innerHTML = "Submitting Form Data..."
-        document.getElementById("theform").submit()
+
+        formData = $('form').serializeArray().reduce(function(result, item){
+            result[item.name] = item.value;
+            return result;
+        }, {});
+        formData.uploadedVideoNames = uploadedVideoNames;
+
+        // submit data
+        $.ajax({
+            type: 'POST',
+            url: $("form").attr("action"),
+            contentType: 'application/json',
+            processData: false,
+            data: JSON.stringify(formData),
+            success: function(response) {
+                console.log("received response ", response);
+                if (response.redirect) {
+                    // data.redirect contains the string URL to redirect to
+                    window.location.href = response.redirect;
+                } else {
+                    // upload failed, show message to user
+                    alert(response.message)
+                    uploading = false
+                    console.log("Failed to submit")
+                    uploading = false
+                }
+            },
+        });
     } else {
         console.log("Failed to submit")
-        document.getElementById("submitbutton").classList.remove("is-loading")
         uploading = false
     }
 }

@@ -77,11 +77,11 @@ def size_blob(bucket_name, blob_name):
 def error(*msg):
     return render_template("invalid.html", message=" ".join(msg))
 
-def get_value(r, name, default=None):
-    if name in r.form.keys():
-        return r.form[name]
-    else:
-        return default
+def error_msg(*msg, joinChar=" "):
+    return jsonify({
+        "error": True,
+        "message": joinChar.join(msg)
+    })
 
 def get_args(r, name, default=None):
     if name in r.args.keys():
@@ -221,85 +221,87 @@ def hold():
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
     if request.method == 'POST':
-        r = request
+        formData = json.loads(request.data)
 
-        filename = get_value(r, 'uuid')
-        if not is_valid_uuid(filename):
-            return error("Invalid filename", filename)
-        t = filename
+        id = formData.get('uuid')
+        if not is_valid_uuid(id):
+            return error_msg("Invalid UUID ", id)
 
         data = {
-            'form': r.form,
+            'form': formData,
             'progress': 0,
             'start-time': datetime.datetime.now(),
             'error': ""
         }
-        sqlConnector.set_document(t, data, merge=True)
+        sqlConnector.set_document(id, data, merge=True)
 
-        video_ext = get_value(r, 'videoExt', "")
-        video_name = "video_" + t + "." + video_ext
-        if video_ext == "solid":
+        visual_type = formData.get("visualType")
+        video_file_names = formData.get("uploadedFileNames")
+        if visual_type == "solid":
             video_name = ""
             video_size = 0
-        elif not blob_exists("addlyrics-content", video_name):
-            print("Unable to find video")
-            return error("error, video upload failed")
         else:
-            video_size = size_blob(uploadBucketName, video_name)
+            video_size = 0
+            for name in video_file_names:
+                if not blob_exists("addlyrics-content", name): 
+                    print("Unable to find video")
+                    return error_msg("error, video upload failed")
+               
+                video_size += size_blob(uploadBucketName, name)
 
-        ext = get_value(r, 'audioExt', "")
+        ext = formData.get('audioExt', "")
         if ext == "":
             audio_name = None
             audio_size = 0
         else:
-            audio_name = "audio_" + t + "." + ext
+            audio_name = "audio_" + id + "." + ext
             if not blob_exists("addlyrics-content", audio_name):
-                return error("error, audio not uploaded")
+                return error_msg("error, audio not uploaded")
             else:
                 audio_size = size_blob(uploadBucketName, audio_name)
 
         if video_size + audio_size > MAX_MEDIA_SIZE:
-            return error("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
+            return error_msg("error, files too big.  Combined file size of {} bytes excedes expected file size of {} bytes".format(video_size + audio_size, MAX_MEDIA_SIZE))
 
         try:
-            font_size = int(get_value(r, 'font_size', 50))
-            video_usable = [float(get_value(r, 'video_start', 0)), float(get_value(r, 'video_end', 0))]
-            audio_usable = [float(get_value(r, 'audio_start', 0)), float(get_value(r, 'audio_end', 0))]
-            font = get_value(r, 'font', 'Arial-Bold')
-            text_position = get_value(r, "text_position", "mm")
-            text_width = float(get_value(r, "text_width", 90))/100
-            video_speed = float(get_value(r, 'video_speed', 1))
-            audio_speed = float(get_value(r, 'audio_speed', 1))
-            view_shadow = get_value(r, 'visibleShadow', 'off') == 'on'
-            shadow_offset = [int(get_value(r, 'shadow_offset_x', 5)), int(get_value(r, 'shadow_offset_y', 5))]
-            text_colour = get_value(r, 'textColour', 'ffffff')
-            shadow_colour = get_value(r, 'shadowColour', '000000')
-            background_colour = get_value(r, 'background_colour', '000000')
-            video_fade = [float(get_value(r, 'video_fade_in', 0)), float(get_value(r, 'video_fade_out', 0))]
-            audio_fade = [float(get_value(r, 'audio_fade_in', 0)), float(get_value(r, 'audio_fade_out', 0))]
-            crop_video = get_value(r, 'crop_video', 'off') == 'on'
-            crop_audio = get_value(r, 'crop_audio', 'off') == 'on'
-            video_top = int(get_value(r, 'videoTop', 0))
-            video_left = int(get_value(r, 'videoLeft', 0))
-            video_bottom = int(get_value(r, 'videoBottom', 0))
-            video_right = int(get_value(r, 'videoRight', 0))
+            font_size = int(formData.get('font_size', 50))
+            video_usable = [float(formData.get('video_start', 0)), float(formData.get('video_end', 0))]
+            audio_usable = [float(formData.get('audio_start', 0)), float(formData.get('audio_end', 0))]
+            font = formData.get('font', 'Arial-Bold')
+            text_position = formData.get("text_position", "mm")
+            text_width = float(formData.get("text_width", 90))/100
+            video_speed = float(formData.get('video_speed', 1))
+            audio_speed = float(formData.get('audio_speed', 1))
+            view_shadow = formData.get('visibleShadow', 'off') == 'on'
+            shadow_offset = [int(formData.get('shadow_offset_x', 5)), int(formData.get('shadow_offset_y', 5))]
+            text_colour = formData.get('textColour', 'ffffff')
+            shadow_colour = formData.get('shadowColour', '000000')
+            background_colour = formData.get('background_colour', '000000')
+            video_fade = [float(formData.get('video_fade_in', 0)), float(formData.get('video_fade_out', 0))]
+            audio_fade = [float(formData.get('audio_fade_in', 0)), float(formData.get('audio_fade_out', 0))]
+            crop_video = formData.get('crop_video', 'off') == 'on'
+            crop_audio = formData.get('crop_audio', 'off') == 'on'
+            video_top = int(formData.get('videoTop', 0))
+            video_left = int(formData.get('videoLeft', 0))
+            video_bottom = int(formData.get('videoBottom', 0))
+            video_right = int(formData.get('videoRight', 0))
         except ValueError:
-            return error("Error, unable to interpret inputs")
+            return error_msg("Error, unable to interpret inputs")
 
         # Check colours are valid 6 character hex strings
         for col, name in ((text_colour, "text"), (shadow_colour, "shadow"), (background_colour, "background")):
             if not is_valid_colour(col):
-                return error("Error, invalid", name, "colour")
+                return error_msg("Error, invalid", name, "colour")
 
         # CSV file
-        csv_contents = get_value(r, 'csvFile', '').replace("\r\n", "\n").strip()
+        csv_contents = formData.get('csvFile', '').replace("\r\n", "\n").strip()
         word_count = 0
 
         if csv_contents != '':
             try:
                 data = list(csv.reader(csv_contents.split("\n"), quoting=csv.QUOTE_NONNUMERIC))
             except:
-                return error("Error, unable to interpret read timings")
+                return error_msg("Error, unable to interpret read timings")
 
             if audio_speed != 1 or audio_usable[0] != 0:
                 for i, row in enumerate(data):
@@ -310,7 +312,7 @@ def uploader():
                 for i, row in enumerate(data):
                     word_count += len(row[0].split(" "))
 
-            csv_name = 'csv_' + str(t) + ".csv"
+            csv_name = 'csv_' + str(id) + ".csv"
             local_csv = "/tmp/" + csv_name
             with open(local_csv, "a+", newline='') as f:
                 wr = csv.writer(f, quoting=csv.QUOTE_ALL)
@@ -322,10 +324,10 @@ def uploader():
 
         # Make sure usable audio and video are actually usable after uploading CSV blob
         if audio_usable[1] != 0 and audio_usable[1] <= audio_usable[0]:
-            return error("Audio timestamps don't make sense")
+            return error_msg("Audio timestamps don't make sense")
         
         if video_usable[1] != 0 and video_usable[1] <= video_usable[0]:
-            return error("Video timestamps don't make sense")
+            return error_msg("Video timestamps don't make sense")
 
         crop_image = [video_left, video_top, video_right, video_bottom]
 
@@ -333,15 +335,15 @@ def uploader():
             crop_image[i] = 2 * round(j / 2)
         
         if video_left > video_right and video_right != 0:
-            error("Video croping doesn't make sense")
+            return error_msg("Video croping doesn't make sense")
         
         if video_top > video_bottom and video_bottom != 0:
-            error("Video croping doesn't make sense")
+            return error_msg("Video croping doesn't make sense")
 
         args = {
-            "video_id": str(t), 
+            "video_id": str(id),
             "csv_name": csv_name,
-            "video_name": video_name,
+            "video_file_names": video_file_names,
             "audio_name": audio_name,
             "background_colour": background_colour,
             "text_position": text_position,
@@ -367,7 +369,7 @@ def uploader():
             'args': args
         }
 
-        sqlConnector.set_document(t, data, merge=True)
+        sqlConnector.set_document(id, data, merge=True)
 
         ##########
         # Q code #
@@ -407,7 +409,10 @@ def uploader():
         # Use the client to build and send the task.
         response = client.create_task(parent, task)
 
-        return redirect(url_for('hold', videoID=t))
+        return jsonify({
+            "redirect": url_for('hold', videoID=id),
+            "message": "Render started",
+        })
 
 
 @app.route('/get_file', methods=['GET'])
