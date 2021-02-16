@@ -61,6 +61,10 @@ function inputDisplayName(t) {
     }
 }
 
+function removeCard(t) {
+    t.closest(".card").remove()
+}
+
 function videoChange(t) {
     console.log("New video")
     inputDisplayName(t)
@@ -129,8 +133,11 @@ function videoChange(t) {
 
                 $('.grid').append(
                     $.el('div', {'class': 'card is-draggable'}).append(
-                        $.el('header', {'class': 'card-header'}).append(
-                            $.el('p', {'class': 'card-header-title', 'title': f.name}).text(fname)
+                        $.el('header', {'class': 'card-header flex-child'}).append(
+                            $.el('p', {'class': 'card-header-title', 'title': f.name}).text(fname),
+                            $.el('a', {'class': 'card-header-icon card-toggle no-select'}).append(
+                                $.el('img', {'class': 'fa fa-angle-down trash-icon', 'onclick': 'removeCard(this)'})
+                            )
                         )
                     )
                     .append(

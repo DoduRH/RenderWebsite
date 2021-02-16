@@ -132,3 +132,19 @@
  .middle-column-width {
    width: 4em;
  }
+
+ .trash-icon {
+   content: url('https://storage.googleapis.com/addlyrics.appspot.com/trash.svg');
+ }
+
+ .flex-child {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+ }
+
+.flex-child p {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
