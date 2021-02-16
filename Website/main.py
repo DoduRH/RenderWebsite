@@ -108,6 +108,10 @@ def is_valid_colour(str_to_test):
     return bool(rrggbbString.match(str_to_test))
 
 
+@app.route('/ping')
+def ping():
+    return "pong"
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/favicon'),
