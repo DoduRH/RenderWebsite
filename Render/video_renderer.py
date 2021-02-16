@@ -322,7 +322,7 @@ def render(args):
             bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
             current_img = (
                 ffmpeg
-                .input("cache:" + url, loop=1, t=10)
+                .input("cache:" + url, stream_loop=-1, t=10)
                 .filter('framerate', fps=framerate)
                 .filter('scale', w=output_width, h=output_height)
             )
