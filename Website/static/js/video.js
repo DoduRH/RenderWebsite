@@ -798,6 +798,7 @@ function updated(t, cookie=true) {
             lines = lyrics.value.split("\n")
         }
         console.log(lines)
+        // TODO: convert this to jquery .el("thead") instead of HTML strings
         output_tbl =
             "<thead><tr><th><div align='left' class='is-inline' style='vertical-align:middle;'>Line</div><div class='is-inline'></div>" +
             "<div align='right' class='is-inline' style='float: right;'><button onclick='playAudio(this)' class='button'>Play Audio</button></div></th>" +
@@ -815,6 +816,7 @@ function updated(t, cookie=true) {
 
         i = 0
         lines.forEach((line) => {
+            // TODO: Convert this to jquery as well
             output_tbl +=
                 "<tr><td style='width: 100%;'>" +
                 line.replace(/\n/g, "<br>") +
