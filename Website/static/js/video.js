@@ -40,7 +40,7 @@ var imgFiles = [];
 
 // Helper method for creating elements
 $.extend({
-    el: function(el, props) {
+    el: function(el, props={}) {
         var $el = $(document.createElement(el));
         $el.attr(props);
         return $el;
@@ -805,13 +805,8 @@ function updated(t, cookie=true) {
             lines = lyrics.value.split("\n")
         }
         console.log(lines)
-        // TODO: convert this to jquery .el("thead") instead of HTML strings
-        output_tbl =
-            "<thead><tr><th><div align='left' class='is-inline' style='vertical-align:middle;'>Line</div><div class='is-inline'></div>" +
-            "<div align='right' class='is-inline' style='float: right;'><button onclick='playAudio(this)' class='button'>Play Audio</button></div></th>" +
-            '<th><button onclick="time_start()" class="button">Start</button></th>' +
-            '<th><button onclick="time_stop()" class="button">Stop</button></th></tr></thead>'
 
+        // Save old values
         start_times = []
         stop_times = []
         if (tableLength > 0) {
@@ -821,21 +816,78 @@ function updated(t, cookie=true) {
             }
         }
 
+        // Remove table contents and re-populate
+        table = $('#table1')
+        table.empty()
+        table.append(
+            $.el('colgroup').append(
+                $.el('col', {"span": 1}),
+                $.el('col', {"span": 1}),
+                $.el('col', {"span": 1, "width": "7em"}),
+            ),
+            $.el('thead').append(
+                $.el('tr').append(
+                    $.el('th').append(
+                        $.el('div', {
+                            'align': 'left',
+                            'class': 'is-inline',
+                            'style': 'vertical-align:middle;'
+                        }).text("Line"),
+                        $.el('div', {"class": "is-inline"}), // Spacer
+                        $.el('div', {'align': 'right', 'class': 'is-inline', 'style': 'float: right;'}).append(
+                            $.el('button', {
+                                "onclick": "playAudio(this)",
+                                "class": "button"
+                            }).text("Play Audio")
+                        )
+                    ),
+                    $.el('th').append(
+                        $.el('button', {
+                            "onclick": "time_start()",
+                            "class": "button"
+                        }).text("Start")
+                    ),
+                    $.el('th').append(
+                        $.el('button', {
+                            "onclick": "time_stop()",
+                            "class": "button"
+                        }).text("Stop")
+                    )
+                )
+            )
+        )
+
         i = 0
+
+        
         lines.forEach((line) => {
-            // TODO: Convert this to jquery as well
-            output_tbl +=
-                "<tr><td style='width: 100%;'>" +
-                line.replace(/\n/g, "<br>") +
-                '</td><td> <input type="number" id="start_' +
-                i +
-                '" min="0" step="0.01" onfocus="numLostFocus(start_' +
-                i +
-                ')" onchange="setCookie(this)" class="hide-arrows"> </td><td> <input type="number" id="stop_' +
-                i +
-                '" min="0" step="0.01" onfocus="numLostFocus(stop_' +
-                i +
-                ')" onchange="setCookie(this)" class="hide-arrows"> </td></tr>'
+            table.append(
+                $.el('tr').append(
+                    $.el('td', {"style": "width: 100%;"}).html(line.replace(/\n/g, "<br>")),
+                    $.el('td').append(
+                        $.el('input', {
+                            'type': "number",
+                            'id': "start_" + i,
+                            "min": 0,
+                            "step": 0.01,
+                            "onfocus": "numLostFocus(start_" + i + ")",
+                            "onchange": "setCookie(this)",
+                            "class": "hide-arrows"
+                        })
+                    ),
+                    $.el('td').append(
+                        $.el('input', {
+                            'type': "number",
+                            'id': "stop_" + i,
+                            "min": 0,
+                            "step": 0.01,
+                            "onfocus": "numLostFocus(stop_" + i + ")",
+                            "onchange": "setCookie(this)",
+                            "class": "hide-arrows"
+                        })
+                    ),
+                )
+            )
 
             i++
         })
@@ -844,7 +896,6 @@ function updated(t, cookie=true) {
 
         tableLength = lines.length
 
-        tbl.innerHTML = output_tbl
         if (Math.min(start_times.length, lines.length) > 0) {
             for (let j = 0; j < Math.min(start_times.length, lines.length); j++) {
                 const line = lines[j]
