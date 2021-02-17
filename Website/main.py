@@ -285,8 +285,18 @@ def uploader():
             video_left = int(formData.get('videoLeft', 0))
             video_bottom = int(formData.get('videoBottom', 0))
             video_right = int(formData.get('videoRight', 0))
+            output_resolution_str = formData.get('output_resolution', '1280x720')
         except ValueError:
             return error_msg("Error, unable to interpret inputs")
+
+        # Check output resolution
+        if output_resolution_str not in ["640×480", "800×600", "960×720", "1024×768", "1280×960", "1400×1050", "1440×1080", "1600×1200", 
+            "1280×800", "1440×900", "1680×1050", "1024×576", "1152×648", "1280×720", "1366×768", "1600×900", "1920×1080"]:
+            return error_msg("Error, invalid output resolution", output_resolution_str)
+        else:
+            # Convert to numbers
+            res_x, res_y = output_resolution_str.split("×")
+            output_resolution = [int(res_x), int(res_y)]
 
         # Check colours are valid 6 character hex strings
         for col, name in ((text_colour, "text"), (shadow_colour, "shadow"), (background_colour, "background")):
@@ -362,7 +372,8 @@ def uploader():
             "audio_fade": audio_fade,
             "crop_video": crop_video,
             "crop_audio": crop_audio,
-            "crop_image": crop_image
+            "crop_image": crop_image,
+            "output_resolution": output_resolution,
         }
 
         data = {

@@ -222,8 +222,6 @@ def generate_solid_background(video_id, background_colour, dim=(1, 1)):
 
 # Take timed_words.csv of time stamped lines and put onto video.mp4
 def render(args):
-    output_width = 1920
-    output_height = 1080
     # Get values from the dictionary
     video_id = args.get("video_id")
     words_loc = args.get("csv_name")
@@ -247,6 +245,7 @@ def render(args):
     crop_video = args.get("crop_video")
     crop_audio = args.get("crop_audio")
     crop_image = args.get("crop_image", [0, 0, 0, 0])
+    output_width, output_height = args.get("output_resolution", [1280, 720])
 
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":

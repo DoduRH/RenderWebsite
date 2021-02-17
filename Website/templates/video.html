@@ -785,9 +785,60 @@
             </div>
           </div>
         </div>
+        <div id=resolution_card class="card is-fullwidth">
+          <header class="card-header">
+            <p class="card-header-title">Step 6: Select Output options</p>
+          </header>
+          <div class="card-content">
+            <div class="content">
+              <table id=tableText width=100% style="table-layout:fixed">
+                <colgroup>
+                  <col span="1">
+                  <col span="1" class="middle-column-width">
+                  <col span="1">
+                </colgroup>  
+                <tr>
+                  <td>
+                    <label for="font_size">Output resolution</label>
+                  </td>
+                  <td>
+                    <div class="tooltip" onmouseover="setoverflow(this, 'visible')"
+                      onmouseout="setoverflow(this, 'hidden')">
+                      <img src="https://storage.googleapis.com/addlyrics.appspot.com/info-icon.svg">
+                      <span class="tooltiptext noselect" style="top: 100%; bottom: auto">Set the output resolution</span>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="select">
+                      <select id="output_resolution" name="output_resolution">
+                        <option selected>1920×1080</option>
+                        <option>1280×720</option>
+                        <option>1600×900</option>
+                        <option>1366×768</option>
+                        <option>1152×648</option>
+                        <option>1024×576</option>
+                        <option>1680×1050</option>
+                        <option>1440×900</option>
+                        <option>1280×800</option>
+                        <option>1600×1200</option>
+                        <option>1440×1080</option>
+                        <option>1400×1050</option>
+                        <option>1280×960</option>
+                        <option>1024×768</option>
+                        <option>960×720</option>
+                        <option>800×600</option>
+                        <option>640×480</option>
+                      </select>
+                    </div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
         <div id=submit_card class="card is-fullwidth">
           <header class="card-header">
-            <p class="card-header-title">Step 6: Submit</p>
+            <p class="card-header-title">Step 7: Submit</p>
           </header>
           <div class="card-content">
             <div class="content">
