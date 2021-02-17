@@ -1094,30 +1094,29 @@ function checkForm() {
 }
 
 async function uploadFile(file, purpose, number) {
-    await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + file.name + "&purpose=" + purpose + '&number=' + number)
-    .then(response => response.json()
-    .then(data => {
-        console.log(data.url)
-        console.log(data.filename)
-        uploadedVideoNames.push(data.filename)
+    data = await fetch('/getSignedURL?uuid=' + video_id + "&filename=" + file.name + "&purpose=" + purpose + '&number=' + number)
+    .then(response => response.json());
 
-        url = data.url.replace(/\"/g, "")
-        console.log("Starting Upload of " + file.name)
+    console.log(data.url)
+    console.log(data.filename)
+    uploadedVideoNames.push(data.filename)
 
-        fetch(url, {
-            method: 'PUT',
-            body: file
-        }).then(sent => {
-            finished = sent.ok
-            if (finished) {
-                console.log("Complete " + file.name)
-            } else {
-                console.log("Failed upload of " + file.name)
-                alert("Failed upload of " + file.name)
-                throw new Error("Failed upload of " + file.name)
-            }
-        })
-    }));
+    url = data.url.replace(/\"/g, "")
+    console.log("Starting Upload of " + file.name)
+
+    await fetch(url, {
+        method: 'PUT',
+        body: file
+    }).then(sent => {
+        finished = sent.ok
+        if (finished) {
+            console.log("Complete " + file.name)
+        } else {
+            console.log("Failed upload of " + file.name)
+            alert("Failed upload of " + file.name)
+            throw new Error("Failed upload of " + file.name)
+        }
+    })
 }
 
 async function uploadImages() {
