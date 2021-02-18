@@ -27,6 +27,7 @@ var audioSpeed = document.getElementById("audio_speed")
 var videoSpeed = document.getElementById("video_speed")
 var previewImg = document.getElementById("previewImg")
 var lastFocus = null
+var lastImageFocus = null
 var tableLength = 0
 var timerID
 var c
@@ -63,6 +64,7 @@ function inputDisplayName(t) {
 
 function removeCard(t) {
     t.closest(".card").remove()
+    update_image_timing_table()
 }
 
 function videoChange(t) {
@@ -159,6 +161,7 @@ function videoChange(t) {
         previewFrameCard.hidden = true;
         draggableImagesCard.hidden = true;
     }
+    update_image_timing_table()
 }
 
 window.onresize = function() {
@@ -767,6 +770,146 @@ function update_all_verse() {
 function setoverflow(t, value) {
     console.log("Set overflow?")
     // t.closest(".expandable").style.overflow = value
+}
+
+// TODO: Refactor this to single function with arguments
+function image_time_start() {
+    if (lastImageFocus == null) {
+        lastImageFocus = document.getElementById("image_start_0")
+    }
+    if (lastImageFocus.id.startsWith("image_stop")) {
+        lastImageFocus = document.getElementById(
+            "image_start_" + (parseInt(lastImageFocus.id.split("_")[2]) + 1)
+        )
+    }
+
+    lastImageFocus.value = getAudioSource().currentTime.toFixed(2)
+    focusOnNoScoll(
+        document.getElementById(
+            "image_stop_" + parseInt(lastImageFocus.id.split("_")[2])
+        )
+    )
+}
+
+function image_time_stop() {
+    if (lastImageFocus == null) {
+        lastImageFocus = document.getElementById("image_start_0")
+    }
+    if (lastImageFocus.id.startsWith("image_start")) {
+        lastImageFocus = document.getElementById(
+            "image_stop_" + lastImageFocus.id.split("_")[2]
+        )
+    }
+
+    lastImageFocus.value = getAudioSource().currentTime.toFixed(2)
+
+    focusOnNoScoll(
+        document.getElementById(
+            "image_start_" + (parseInt(lastImageFocus.id.split("_")[2]) + 1)
+        )
+    )
+}
+
+function image_timing_focus(element) {
+    lastImageFocus = element;
+}
+
+// update image timing list
+function update_image_timing_table() {
+    console.log("updating image timing")
+
+    visualType = getVisualType();
+    image_card = $('#image_timing_card')
+    image_grid = $('.grid')
+
+    if (image_grid.children().length >= 1 && visualType == "image") {
+        image_card[0].hidden = false
+        table = $('#image_timing_table')
+
+        // Save existing timings
+        start_times = []
+        stop_times = []
+        tableLength = table.find("tr").length
+        if (tableLength > 0) {
+            for (let i = 0; i < tableLength - 1; i++) {
+                start_times.push(table.find("#image_start_" + i)[0].value)
+                stop_times.push(table.find("#image_stop_" + i)[0].value)
+            }
+        }
+        // TODO: remove 'stop' button and replace 'start' text
+        // Remove table contents and re-populate  
+        table.empty()
+        table.append(
+            $.el('colgroup').append(
+                $.el('col', {"span": 1}),
+                $.el('col', {"span": 1}),
+            ),
+            $.el('thead').append(
+                $.el('tr').append(
+                    $.el('th').append(
+                        $.el('div', {
+                            'align': 'left',
+                            'class': 'is-inline',
+                            'style': 'vertical-align:middle;',
+                        }).text("Line"),
+                        $.el('div', {"class": "is-inline"}), // Spacer
+                        $.el('div', {'align': 'right', 'class': 'is-inline', 'style': 'float: right;'}).append(
+                            $.el('button', {
+                                "onclick": "playAudio(this)",
+                                "class": "button",
+                            }).text("Play Audio")
+                        )
+                    ),
+                    $.el('th').append(
+                        $.el('button', {
+                            "onclick": "image_time_start()",
+                            "class": "button button-start",
+                        }).text("Start")
+                    )
+                )
+            )
+        )
+
+        i = 0
+        children = image_grid.children()
+        children.each(function (index) {
+            card = children.eq(index)
+            table.append(
+                $.el('tr').append(
+                    $.el('td', {"style": "width: 100%;"}).append(
+                        $.el('img', {"src": card.find(".card-body > img")[0].src})
+                    ),
+                    $.el('td').append(
+                        $.el('input', {
+                            'type': "number",
+                            'id': "image_start_" + i,
+                            "min": 0,
+                            "step": 0.01,
+                            "onfocus": "image_timing_focus(this)",
+                            "class": "hide-arrows",
+                            "value": start_times[i],
+                        })
+                    ),
+                    $.el('td').append(
+                        $.el('input', {
+                            'type': "number",
+                            'id': "image_stop_" + i,
+                            "min": 0,
+                            "step": 0.01,
+                            "onfocus": "image_timing_focus(this)",
+                            "class": "hide-arrows",
+                            "value": stop_times[i],
+                        })
+                    ),
+                )
+            )
+
+            i++
+        })
+        update_highlight()
+    } else {
+        image_card.hide()
+    }
 }
 
 // Lyrics textarea has been updated
@@ -1495,8 +1638,47 @@ function hide_canvas(e) {
 }
 
 function update_highlight() {
-    // Do highlighting
+    // Do highlighting for lyric table
     var rows = tbl.getElementsByTagName('tr')
+    var upper
+    for (var i = 1; i < rows.length; i++) {
+        row = rows[i]
+        cols = row.getElementsByTagName('td')
+
+        // Stop value not there
+        if (cols[2].children[0].value == "") {
+            if (rows.length == i + 1) {
+                upper = getAudioSource().duration
+            } else {
+                // Next row start value not there
+                if (rows[i + 1].getElementsByTagName('td')[1].children[0].value == "") {
+                    // Dont highlight row
+                    upper = cols[1].children[0].value
+                } else {
+                    // upper = next row start value
+                    upper = rows[i + 1].getElementsByTagName('td')[1].children[0].value
+                }
+            }
+        } else {
+            // upper = stop value
+            upper = cols[2].children[0].value
+        }
+
+        if (cols[1].children[0].value == "") {
+            lower = getAudioSource().duration
+        } else {
+            lower = cols[1].children[0].value
+        }
+
+        // currentTime between start and stop times
+        if (lower < getAudioSource().currentTime && getAudioSource().currentTime < upper) {
+            row.classList.add("is-selected")
+        } else {
+            row.classList.remove("is-selected")
+        }
+    }
+
+    var rows = document.getElementById("image_timing_table").getElementsByTagName('tr')
     var upper
     for (var i = 1; i < rows.length; i++) {
         row = rows[i]
