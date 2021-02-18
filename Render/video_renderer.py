@@ -288,7 +288,7 @@ def render(args):
         return ("error", "no video stream detected")
 
     if "video" in visual_type:
-        in_file = ffmpeg.input(video_url)
+        in_file = ffmpeg.input("cache:" + video_url)
         if 'bit_rate' in video_streams[0].keys():
             bitrate = eval(video_streams[0]['bit_rate'])
         else:
@@ -313,7 +313,7 @@ def render(args):
         bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
-            .input(video_url, loop=1)
+            .input("cache:" + video_url, loop=1)
             .filter('framerate', fps=framerate)
         )
 
@@ -340,7 +340,7 @@ def render(args):
         audio_probe = ffmpeg.probe(audio_url)
         audio_comp = (
             ffmpeg
-            .input(audio_url)
+            .input("cache:" + audio_url)
             .audio
         )
 
@@ -421,7 +421,7 @@ def render(args):
         audio_comp = audio_comp.filter("afade", type="out", start_time=video_duration-audio_fade_out, duration=audio_fade_out)
 
     # Set-up video
-    if crop_image != [0, 0, video_width, video_height] and abs(crop_image[2]) < video_width and abs(crop_image[3]) < video_height and crop_image != [0, 0, 0, 0]:
+    if crop_image != [0, 0, video_width, video_height] and abs(crop_image[2]) <= video_width and abs(crop_image[3]) <= video_height and crop_image != [0, 0, 0, 0]:
         video_width = abs(crop_image[2] - crop_image[0])
         video_height = abs(crop_image[3] - crop_image[1])
         ratio = aspect(video_width, video_height)
