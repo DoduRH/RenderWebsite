@@ -700,6 +700,44 @@ function setoverflow(t, value) {
     // t.closest(".expandable").style.overflow = value
 }
 
+async function getTimings() {
+    // Get upload element 
+    if (getAudioSource() == myVideo) {
+        elm = videoUpload
+    } else {
+        elm = audioUpload
+    }
+
+    // Upload element to google cloud
+    await uploadElement(elm)
+
+    // Get timings
+    timings = await fetch('http://localhost:8081/lyrics-api', {
+        method: 'POST',
+        body: JSON.stringify({
+            "video_id": video_id,
+            "lyrics": document.getElementById("lyricsArea").value,
+            "filename": elm.video.filename,
+        })
+
+    })
+    .then(response => response.json())
+    .then(data => data.timings)
+    .catch((err) => {
+        console.log("Failed")
+        console.log(err)
+        return
+    })
+
+    // Apply timings to timing table
+    for (i = 0; i < timings.length; i++) {
+        document.getElementById("start_" + i).value = timings[i][1]
+        document.getElementById("stop_" + i).value = timings[i][2]
+    }
+
+    console.log(timings)
+}
+
 // Lyrics textarea has been updated
 function updated(t, cookie=true) {
     console.log("Updating table")
@@ -738,7 +776,8 @@ function updated(t, cookie=true) {
         console.log(lines)
         output_tbl =
             "<thead><tr><th><div align='left' class='is-inline' style='vertical-align:middle;'>Line</div><div class='is-inline'></div>" +
-            "<div align='right' class='is-inline' style='float: right;'><button onclick='playAudio(this)' class='button'>Play Audio</button></div></th>" +
+            "<div align='right' class='is-inline' style='float: right;'><button onclick='getTimings()' class='button'>Get Timings (Beta)</button>" + 
+            "<button onclick='playAudio(this)' class='button'>Play Audio</button></div></th>" +
             '<th><button onclick="time_start()" class="button">Start</button></th>' +
             '<th><button onclick="time_stop()" class="button">Stop</button></th></tr></thead>'
 
