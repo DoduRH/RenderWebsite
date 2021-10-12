@@ -121,6 +121,10 @@ def is_valid_colour(str_to_test):
 def ping():
     return "pong"
 
+@app.route('/loaderio-f0d7eb8d40ad3ae96c77f77aaa4efea7.txt')
+def verify():
+    return "loaderio-f0d7eb8d40ad3ae96c77f77aaa4efea7"
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static/favicon'),
