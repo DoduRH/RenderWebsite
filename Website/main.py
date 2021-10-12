@@ -14,7 +14,10 @@ import threading
 from re import compile as reg
 import sqlConnector
 import datetime
-import base64
+import pathlib
+from video_producer import render
+from google.cloud import firestore
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -30,6 +33,12 @@ downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
 
 rrggbbString = reg(r'#[a-fA-F0-9]{6}$')
 
+@app.after_request
+def apply_headers(response):
+    if not request.full_path.startswith("/how-to?"):
+        response.headers.add("Cross-Origin-Opener-Policy", "same-origin")
+        response.headers.add("Cross-Origin-Embedder-Policy", "require-corp")
+    return response
 
 @app.before_request
 def before_request():
@@ -208,6 +217,39 @@ def hold():
     video_id = get_args(request, "videoID")
     return render_template('hold.html', video_id=video_id)
 
+def synchronus_update(data):
+    db = firestore.Client()
+    stats = db.collection(u'statistics').document(u'stats-v2')
+    stats.update(data)
+
+@app.route('/api/render', methods=['GET', 'POST'])
+def get_arguments():
+    args = request.get_json()
+    is_local = ":5000" in request.host
+
+    if not is_local:
+        sqlConnector.set_document(
+            f"{uuid4()}", 
+            {
+                'form': request.form,
+                'start-time': datetime.datetime.now(),
+                'error': ""
+            }, 
+            merge=True
+        )
+
+    return_args, output_video_duration = render(args)
+    if not is_local:
+        update_thread = threading.Thread(target=synchronus_update, args=[{
+            "video_size_in": firestore.Increment(args.get("video_file_size", 0)),
+            "audio_size_in": firestore.Increment(args.get("audio_file_size", 0)),
+            "video_length": firestore.Increment(output_video_duration),
+            "words_added": firestore.Increment(sum([len(re.split(r'[ ]{1,}|\|', x[0].strip())) for x in args.get("words_array", [["", 0, 0]])])),
+            "total_renders": firestore.Increment(1)
+        }])
+        update_thread.start()
+
+    return jsonify(return_args)
 
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
@@ -434,11 +476,17 @@ def download():
 
     return redirect(url)
 
+@app.route("/@0.10.0/<path:path>")
+def prev1(path):
+    return send_file(pathlib.Path("@0.10.0", path))
 
 @app.route("/")
 def home():
     return render_template('video.html')
 
+@app.route("/done")
+def done():
+    return render_template('done.html')
 
 @app.route('/contact')
 def contact():
