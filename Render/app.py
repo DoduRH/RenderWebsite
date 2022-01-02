@@ -4,7 +4,7 @@ import json
 import sqlConnector
 
 import os
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-ed88c47e7d9d.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
 
 app = Flask(__name__)
 

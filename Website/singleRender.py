@@ -4,7 +4,7 @@ import timeit
 import subprocess
 sys.path.append(os.path.abspath(os.curdir))
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-ed88c47e7d9d.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
 
 from video_producer import render
 

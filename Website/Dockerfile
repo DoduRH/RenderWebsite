@@ -11,7 +11,7 @@ COPY . ./
 RUN pip install -r requirements.txt
 
 # Add credentials
-RUN set GOOGLE_APPLICATION_CREDENTIALS="addlyrics-ed88c47e7d9d.json"
+RUN set GOOGLE_APPLICATION_CREDENTIALS="google-authorisation.json"
 EXPOSE 8080
 
 # Run the web service on container startup. Here we use the gunicorn
