@@ -116,6 +116,9 @@ def is_valid_uuid(uuid_to_test, version=4):
 def is_valid_colour(str_to_test):
     return bool(rrggbbString.match(str_to_test))
 
+@app.context_processor
+def inject_now():
+    return {'now': datetime.datetime.utcnow()}
 
 @app.route('/ping')
 def ping():
@@ -235,7 +238,7 @@ def get_arguments():
         sqlConnector.set_document(
             f"{uuid4()}", 
             {
-                'form': request.form,
+                'form': request.get_json(),
                 'start-time': datetime.datetime.now(),
                 'error': ""
             }, 
@@ -515,15 +518,6 @@ def faq():
 @app.route('/robots.txt')
 def robot():
     return app.send_static_file('robot/robots.txt')
-
-
-@app.errorhandler(Exception)
-def errorPage(e):
-    print("Error occured from ip", request.remote_addr, "trying to access", request.base_url, "error", e)
-    try:
-        return error(str(e.code), e.description)
-    except:
-        return error("Somthing went wrong")
 
 
 if __name__ == '__main__':

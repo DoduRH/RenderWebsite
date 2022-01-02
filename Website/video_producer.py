@@ -53,9 +53,8 @@ def gcd(a, b):
     return small
 
 
-
-def wraptext(font, fontsize, text, width):
-    f = ImageFont.truetype(font, size=int(fontsize))
+def wraptext(font, fontsize, text, width, font_folder="fonts"):
+    f = ImageFont.truetype(f"{font_folder}/{font}", size=int(fontsize))
     lines = []
     height = 0
     splitter = re_comp(r'(?: ?)\|(?: ?)')
@@ -127,8 +126,8 @@ def render(args):
     audio_stream_duration = float(args.get("audio_stream_duration", 0))
     video_dimentions = args.get("video_dimentions", dict(width=1920, height=1080))
 
-    font = 'Montserrat/Montserrat-SemiBold.ttf'
-    font = "/arial.ttf"
+    # font = 'Montserrat/Montserrat-SemiBold.ttf'
+    font = "/arial.ttf" # From https://www.freefontspro.com/14454/arial.ttf
     if words is None:
         data = [["", 0, 0]]
     else:
