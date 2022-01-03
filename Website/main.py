@@ -47,7 +47,7 @@ def before_request():
         code = 301
         return redirect(url, code=code)
 
-
+# TODO: These may not be needed any more
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
     # bucket_name = "your-bucket-name"
@@ -86,6 +86,7 @@ def size_blob(bucket_name, blob_name):
 def error(*msg):
     return render_template("invalid.html", message=" ".join(msg))
 
+# TODO: Replace these function calls with dict.get(key, default)
 def get_value(r, name, default=None):
     if name in r.form.keys():
         return r.form[name]
