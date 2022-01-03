@@ -22,14 +22,13 @@ import re
 app = Flask(__name__)
 CORS(app)
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
-
 MAX_MEDIA_SIZE = 11 * (10 ** 9)  # 10GB between audio and video
 
 uploadBucketName = "addlyrics-content"
-path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-uploadClient = storage.Client.from_service_account_json(path)
-downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
+service_account_path = pathlib.Path("google-authorisation.json")
+if service_account_path.exists():
+    uploadClient = storage.Client.from_service_account_json(service_account_path)
+    downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
 
 rrggbbString = reg(r'#[a-fA-F0-9]{6}$')
 
@@ -54,7 +53,11 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
     # source_file_name = "local/path/to/file"
     # destination_blob_name = "storage-object-name"
 
-    storage_client = storage.Client()
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
+
+    storage_client = storage.Client.from_service_account_json(service_account_path)
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
@@ -66,6 +69,10 @@ def blob_exists(bucket_name, blob_name, output=True):
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
 
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
+
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     stats = storage.Blob(bucket=bucket, name=blob_name).exists(storage_client)
@@ -76,6 +83,10 @@ def size_blob(bucket_name, blob_name):
     """Returns a blob's size in bytes."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
+
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -226,6 +237,9 @@ def hold():
     return render_template('hold.html', video_id=video_id)
 
 def synchronus_update(data):
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
     db = firestore.Client()
     stats = db.collection(u'statistics').document(u'stats-v2')
     stats.update(data)
@@ -259,9 +273,14 @@ def get_arguments():
 
     return jsonify(return_args)
 
+# TODO: Remove endpoints like this that are not in use any more
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
     if request.method == 'POST':
+        if not service_account_path.exists():
+            print("Service account json not found")
+            return error("Service account json not found, please contact us if this is an error")
+
         r = request
 
         filename = get_value(r, 'uuid')
