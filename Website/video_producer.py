@@ -120,7 +120,9 @@ def render(args):
         int(args.get('videoBottom', 1080)),
         int(args.get('videoRight', 1920)),
     ]
-    #crop_image = args.get("crop_image", [0, 0, 0, 0])
+
+    output_video_height = crop_image[2] - crop_image[0]
+    output_video_width = crop_image[3] - crop_image[1]
 
     video_stream_duration = float(args.get("video_stream_duration", 0))
     audio_stream_duration = float(args.get("audio_stream_duration", 0))
@@ -264,12 +266,10 @@ def render(args):
 
     # Set-up video
     if crop_image != [0, 0, video_dimentions.get('width', 1920), video_dimentions.get('height', 1920)] and abs(crop_image[2]) <= video_dimentions.get('width', 1920) and abs(crop_image[3]) <= video_dimentions.get('height', 1920) and crop_image != [0, 0, 0, 0]:
-        video_width = abs(crop_image[2] - crop_image[0])
-        video_height = abs(crop_image[3] - crop_image[1])
-        ratio = aspect(video_width, video_height)
+        ratio = aspect(output_video_width, output_video_height)
         video_comp = (
             video_comp
-            .crop(x=crop_image[0], y=crop_image[1], width=video_width, height=video_height)
+            .crop(x=crop_image[0], y=crop_image[1], width=output_video_width, height=output_video_height)
             .filter('setdar', str(ratio[0]) + '/' + str(ratio[1]))
         )
 
@@ -287,22 +287,18 @@ def render(args):
         video_comp = video_comp.trim(start=0, end=audio_duration)
 
     # Add black screen to end video
-    if not math.isclose(output_video_duration, duration, abs_tol=0.5) and output_video_duration < duration and not solid_background:
-        ratio = aspect(video_width, video_height)
-        black_video = (
-            ffmpeg            
-            .input("!screen-black.mp4")
-            .filter('framerate', fps=framerate)
-            .trim(start=0, end=duration - output_video_duration)
-            .filter('scale', w=video_width, h=video_height)
-            .filter('setdar', str(ratio[0]) + '/' + str(ratio[1]))
-        )
-        ffmpeg.run
+    # FIXME: Currently ffmpeg-wasm doesn't support colored screens however once it does this can be used
+    if False and not math.isclose(output_video_duration, duration, abs_tol=0.5) and output_video_duration < duration and not solid_background:
         video_comp = (
             ffmpeg
             .concat(
                 video_comp,
-                black_video
+                # Black screen
+                (
+                    ffmpeg
+                    .source("color", color="black") # TODO: Add option to change color
+                    .trim(start=0, end=duration - output_video_duration)
+                )
             )
         )
     # VIDEO END
