@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, request
 from video_renderer import render
 import json
 import sqlConnector
@@ -15,9 +15,9 @@ def index():
 @app.route('/render', methods=['GET', 'POST'])
 def main():
     # Testing data
-    data = request.form['body']
+    # data = request.form['body']
     # Google run
-    # data = request.data
+    data = request.data
     print(data)
     args = json.loads(data)
 
