@@ -1,6 +1,6 @@
 Flask
 flask-cors
-ffmpeg-python
+git+git://github.com/silviot/ffmpeg-python.git@61e533abd90c88522bfa8a0e1ee452c1e1cb81d4
 pillow
 gunicorn
 google-cloud-storage

@@ -76,7 +76,7 @@
  }
 
  .upload-icon {
-   content: url("https://storage.googleapis.com/addlyrics.appspot.com/upload-icon.svg");
+   content: url("/static/images/upload-icon.svg");
    height: 1.4em;
  }
 
@@ -120,3 +120,14 @@
  .middle-column-width {
    width: 4em;
  }
+
+ progress {
+  -webkit-appearance: none;
+}
+
+.progress::-webkit-progress-value {
+  -webkit-transition : width 1s linear;
+   -moz-transition : width 1s linear;
+     -o-transition : width 1s linear;
+        transition : width 1s linear;
+}

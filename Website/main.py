@@ -14,7 +14,10 @@ import threading
 from re import compile as reg
 import sqlConnector
 import datetime
-import base64
+import pathlib
+from video_producer import render
+from google.cloud import firestore
+import re
 
 app = Flask(__name__)
 CORS(app)
@@ -24,12 +27,19 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
 MAX_MEDIA_SIZE = 11 * (10 ** 9)  # 10GB between audio and video
 
 uploadBucketName = "addlyrics-content"
-path = os.environ.get('GOOGLE_APPLICATION_CREDENTIALS')
-uploadClient = storage.Client.from_service_account_json(path)
-downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
+service_account_path = pathlib.Path("google-authorisation.json")
+if service_account_path.exists():
+    uploadClient = storage.Client.from_service_account_json(service_account_path)
+    downloadBucket = uploadBucket = uploadClient.get_bucket(uploadBucketName)
 
 rrggbbString = reg(r'#[a-fA-F0-9]{6}$')
 
+@app.after_request
+def apply_headers(response):
+    if not request.full_path.startswith("/how-to?"):
+        response.headers.add("Cross-Origin-Opener-Policy", "same-origin")
+        response.headers.add("Cross-Origin-Embedder-Policy", "require-corp")
+    return response
 
 @app.before_request
 def before_request():
@@ -38,14 +48,18 @@ def before_request():
         code = 301
         return redirect(url, code=code)
 
-
+# TODO: These may not be needed any more
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
     # bucket_name = "your-bucket-name"
     # source_file_name = "local/path/to/file"
     # destination_blob_name = "storage-object-name"
 
-    storage_client = storage.Client()
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
+
+    storage_client = storage.Client.from_service_account_json(service_account_path)
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(destination_blob_name)
 
@@ -56,6 +70,10 @@ def blob_exists(bucket_name, blob_name, output=True):
     """Checks a blob exists in the bucket."""
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
+
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
 
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
@@ -68,6 +86,10 @@ def size_blob(bucket_name, blob_name):
     # bucket_name = "your-bucket-name"
     # blob_name = "storage-object-name"
 
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
+
     storage_client = storage.Client()
     bucket = storage_client.bucket(bucket_name)
     size = bucket.get_blob(blob_name).size
@@ -77,6 +99,7 @@ def size_blob(bucket_name, blob_name):
 def error(*msg):
     return render_template("invalid.html", message=" ".join(msg))
 
+# TODO: Replace these function calls with dict.get(key, default)
 def get_value(r, name, default=None):
     if name in r.form.keys():
         return r.form[name]
@@ -107,10 +130,17 @@ def is_valid_uuid(uuid_to_test, version=4):
 def is_valid_colour(str_to_test):
     return bool(rrggbbString.match(str_to_test))
 
+@app.context_processor
+def inject_now():
+    return {'now': datetime.datetime.utcnow()}
 
 @app.route('/ping')
 def ping():
     return "pong"
+
+@app.route('/loaderio-f0d7eb8d40ad3ae96c77f77aaa4efea7.txt')
+def verify():
+    return "loaderio-f0d7eb8d40ad3ae96c77f77aaa4efea7"
 
 @app.route('/favicon.ico')
 def favicon():
@@ -208,10 +238,51 @@ def hold():
     video_id = get_args(request, "videoID")
     return render_template('hold.html', video_id=video_id)
 
+def synchronus_update(data):
+    if not service_account_path.exists():
+        print("Service account json not found")
+        return
+    db = firestore.Client()
+    stats = db.collection(u'statistics').document(u'stats-v2')
+    stats.update(data)
 
+@app.route('/api/render', methods=['GET', 'POST'])
+def get_arguments():
+    args = request.get_json()
+    is_local = ":5000" in request.host
+
+    if not is_local:
+        sqlConnector.set_document(
+            f"{uuid4()}", 
+            {
+                'form': request.get_json(),
+                'start-time': datetime.datetime.now(),
+                'error': ""
+            }, 
+            merge=True
+        )
+
+    return_args, output_video_duration = render(args)
+    if not is_local:
+        update_thread = threading.Thread(target=synchronus_update, args=[{
+            "video_size_in": firestore.Increment(args.get("video_file_size", 0)),
+            "audio_size_in": firestore.Increment(args.get("audio_file_size", 0)),
+            "video_length": firestore.Increment(output_video_duration),
+            "words_added": firestore.Increment(sum([len(re.split(r'[ ]{1,}|\|', x[0].strip())) for x in args.get("words_array", [["", 0, 0]])])),
+            "total_renders": firestore.Increment(1)
+        }])
+        update_thread.start()
+
+    return jsonify(return_args)
+
+# TODO: Remove endpoints like this that are not in use any more
 @app.route('/uploader', methods=['GET', 'POST'])
 def uploader():
     if request.method == 'POST':
+        if not service_account_path.exists():
+            print("Service account json not found")
+            return error("Service account json not found, please contact us if this is an error")
+
         r = request
 
         filename = get_value(r, 'uuid')
@@ -434,11 +505,17 @@ def download():
 
     return redirect(url)
 
+@app.route("/@0.10.0/<path:path>")
+def prev1(path):
+    return send_file(pathlib.Path("@0.10.0", path))
 
 @app.route("/")
 def home():
     return render_template('video.html')
 
+@app.route("/done")
+def done():
+    return render_template('done.html')
 
 @app.route('/contact')
 def contact():
@@ -463,15 +540,6 @@ def faq():
 @app.route('/robots.txt')
 def robot():
     return app.send_static_file('robot/robots.txt')
-
-
-@app.errorhandler(Exception)
-def errorPage(e):
-    print("Error occured from ip", request.remote_addr, "trying to access", request.base_url, "error", e)
-    try:
-        return error(str(e.code), e.description)
-    except:
-        return error("Somthing went wrong")
 
 
 if __name__ == '__main__':

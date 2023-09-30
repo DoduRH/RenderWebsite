@@ -5,8 +5,8 @@ var ctx = canvas.getContext('2d')
 var myAudio = document.getElementById("audio1")
 var videoUpload = document.getElementById("videoUpload")
 var audioUpload = document.getElementById("audioUpload")
-var videoExt = document.getElementById("videoExt")
-var audioExt = document.getElementById("audioExt")
+//var videoExt = document.getElementById("videoExt")
+//var audioExt = document.getElementById("audioExt")
 
 var videoTop = 0
 var videoBottom = 1080
@@ -17,7 +17,7 @@ var videoStart = document.getElementById("video_start")
 var videoEnd = document.getElementById("video_end")
 var audioStart = document.getElementById("audio_start")
 var audioEnd = document.getElementById("audio_end")
-var write = document.getElementById("csv")
+//var csv_area = document.getElementById("csv")
 var csvHead = document.getElementById("csvHeading")
 var lyrics = document.getElementById("lyricsArea")
 var tbl = document.getElementById("table1")
@@ -695,11 +695,6 @@ function update_all_verse() {
     }
 }
 
-function setoverflow(t, value) {
-    console.log("Set overflow?")
-    // t.closest(".expandable").style.overflow = value
-}
-
 // Lyrics textarea has been updated
 function updated(t, cookie=true) {
     console.log("Updating table")
@@ -874,7 +869,7 @@ function showElementError(elm, msg) {
     elm.reportValidity()
 }
 
-function done() {
+function write_csv() {
     console.log("Creating CSV")
 
     csv = []
@@ -925,7 +920,7 @@ function done() {
         }
     }
 
-    write.value = csv.join("\r")
+    // csv_area.value = csv.join("\r")
     return true
 }
 
@@ -988,9 +983,9 @@ function getOutputDuration() {
 function checkForm() {
     // Check CSV
     if (lyrics.value.trim() == "") {
-        write.value = ""
+        // csv_area.value = ""
     } else {
-        if (!done()) {
+        if (!write_csv()) {
             return false
         }
 
@@ -1238,6 +1233,223 @@ function checkLyricAscii() {
     }
 }
 
+function getCSV() {
+    console.log("Creating CSV")
+
+    csv = []
+    i = 0
+
+    lines = lyrics.value.split("\n")
+    loops = tbl.rows.length - 1
+    console.log(lines)
+
+    if (loops == 1 && lines[0].trim() == "") {
+        return null
+    } else {
+        verse = ""
+        for (let i = 0; i < loops; i++) {
+            start_time = document.getElementById("start_" + i).value
+            stop_time = document.getElementById("stop_" + i).value
+
+            if (stop_time == "") {
+                if (loops > i + 1) {
+                    stop_time = document.getElementById("start_" + (i + 1)).value
+                } else {
+                    stop_time = getAudioSource().duration
+                }
+            }
+
+            if (document.getElementById("verses").checked) {
+                line = lyrics.value.split("\n\n")[i].split("\n").join("|")
+            } else {
+                line = lines[i]
+            }
+            line = line.replace(/"/g, '""')
+            csv.push([line, parseFloat(start_time), parseFloat(stop_time)])
+        }
+    }
+
+    return csv
+}
+
+function getFilenames(element) {
+    filenames = Array()
+    for (let i = 0; i < element.files.length; i++) {
+        filenames.push(element.files[i].name)
+    }
+    return filenames
+}
+
+function checkVideo(){
+    visualType = getVisualType()
+    if (visualType != "solid") { // Upload file if needed
+        if (videoUpload.files.length != 1) {
+            showElementError(videoUpload, "Please select a video")
+            return false
+        } else if (audioUpload.files.length == 0 && getRadioValue("audioSource") == "audio") {
+            showElementError(audioUpload, "Please upload an audio file or select 'Video' as the audio source")
+            return false
+        }
+
+    } else if (audioUpload.files.length == 0) {
+        alert("No audio detected")
+        return false
+    } else {  // Solid background and audio is present
+        video_filename = "solid"
+    }
+
+    return true
+}
+
+function getFormData() {
+    data = $('#theform').serializeArray()
+    var returnArray = {};
+    for (var i = 0; i < data.length; i++){
+        returnArray[data[i]['name']] = data[i]['value'];
+    }
+    return returnArray
+}
+
+function downloadURI(uri, name) {
+    var link = document.createElement("a");
+    link.download = name;
+    link.href = uri;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    delete link;
+  }
+
+async function renderVideo() {
+    console.log("Startng render")
+    valid = true
+    uploading = true
+
+    if (valid) {
+        valid = checkLyricAscii()
+    }
+
+    if (valid) {
+        valid = htmlValidation()
+    }
+
+    if (valid) {
+        valid = checkForm()
+    }
+
+    if (valid) {
+        button = document.getElementById("submitbutton");
+        button.parentElement.hidden = true;
+
+        progress_bar = document.getElementById("submitProgress");
+        progress_bar.parentElement.hidden = false;
+        progress_bar.removeAttribute("value")
+
+        data = getFormData()
+        data["videoTop"] = Math.round(videoTop)
+        data["videoLeft"] = Math.round(videoLeft)
+        data["videoBottom"] = Math.round(videoBottom)
+        data["videoRight"] = Math.round(videoRight)
+        data["words_array"] = getCSV()
+
+        data["video_filenames"] = getFilenames(videoUpload)
+        data["video_stream_duration"] = myVideo.duration
+        data['video_file_size'] = videoUpload.files[0].size;
+        data["video_dimentions"] = {
+            "width": myVideo.videoWidth,
+            "height": myVideo.videoHeight,
+        }
+
+        if (audioUpload.files.length >= 1) {
+            data["audio_filenames"] = getFilenames(audioUpload)
+            data["audio_stream_duration"] = myAudio.duration
+            data['audio_file_size'] = audioUpload.files[0].size;
+        } else {
+            data["audio_stream_duration"] = myVideo.duration
+            data['audio_file_size'] = 0;
+        }
+
+        if (!document.getElementById("advanced_options").checked && getAudioSource() == myVideo) {
+            // Copy video settings to audio settings
+            data["audio_stream_duration"] = data['video_stream_duration']
+            data["audio_speed"] = data['video_speed']
+            data["audio_fade_in"] = data['video_fade_in']
+            data["audio_fade_out"] = data['video_fade_out']
+            data["audio_start"] = data['video_start']
+        }
+
+        console.log(`Making request with`)
+        console.log(data)
+
+        $.ajax({
+            type: "POST",
+            url: "/api/render",
+            dataType: 'json',
+            contentType: 'application/json',
+            data: JSON.stringify(data), // serializes the form's elements.
+            success: async function(output)
+            {
+                if (output.success) {
+                    file_names = []
+            
+                    files = Object();
+                    files[videoUpload.files[0].name] = new Uint8Array(await readFromBlobOrFile(videoUpload.files[0]));
+                    file_names.push(videoUpload.files[0].name);
+
+                    files['arial.ttf'] = b64ToUint8Array(ARIAL_TTF);
+                    file_names.push("arial.ttf")
+
+                    if (audioUpload.files.length >= 1) {
+                        files[audioUpload.files[0].name] = new Uint8Array(await readFromBlobOrFile(audioUpload.files[0]));
+                        file_names.push(audioUpload.files[0].name)
+                    }
+
+                    const OUT_FILE_NAME = `output.mp4`;
+                    file_names.push(OUT_FILE_NAME)
+                    file_names.push("arial.ttf")
+
+                    fontfile = '/arial.ttf';
+                        
+                    button.innerHTML = `Preparing to render video...`;
+                    
+                    progress_bar = document.getElementById("submitProgress");
+                    render_result = await runFFmpeg(files, output.result, OUT_FILE_NAME, progress_bar)
+                    .catch((error) => {
+                        console.error("Error")
+                        console.error(error)
+                    })
+                    button.innerHTML = "Complete Render";
+                    
+                    link = URL.createObjectURL(new Blob([render_result.file.buffer], { type: 'video/mp4' }));
+
+                    download_name = videoUpload.files[0].name.split(".")
+
+                    downloadURI(link, `${download_name.slice(start=0, end=-1).join(".")} - Add my Lyrics.${download_name.slice(-1)[0]}`)
+
+                    // Clean up filesystem by redirecting
+                    // Simulate an HTTP redirect:
+                    window.location.replace("/done");
+
+                    button = document.getElementById("submitbutton")
+                    button.parentElement.hidden = false
+                    button.innerHTML = "Submit";
+
+                    message = document.getElementById("submitProgress")
+                    message.parentElement.hidden = true
+                } else {
+                    alert(JSON.stringify(output)); // show response from the php script.
+                }
+                uploading = false
+            }
+        });
+
+    } else {
+        console.log("Failed to submit")
+        document.getElementById("submitbutton").classList.remove("is-loading")
+        uploading = false
+    }
+}
+
 async function submitForm() {
     if (uploading) {
         return
@@ -1273,11 +1485,11 @@ async function submitForm() {
     }
 
     if (valid) {
-        document.getElementById("videoTop").value = Math.round(videoTop)
-        document.getElementById("videoLeft").value = Math.round(videoLeft)
-        document.getElementById("videoBottom").value = Math.round(videoBottom)
-        document.getElementById("videoRight").value = Math.round(videoRight)
-        document.getElementById("uuid").value = video_id
+        // document.getElementById("videoTop").value = Math.round(videoTop)
+        // document.getElementById("videoLeft").value = Math.round(videoLeft)
+        // document.getElementById("videoBottom").value = Math.round(videoBottom)
+        // document.getElementById("videoRight").value = Math.round(videoRight)
+        // document.getElementById("uuid").value = video_id
         document.getElementById("submitbutton").innerHTML = "Submitting Form Data..."
         document.getElementById("theform").submit()
     } else {
