@@ -1,9 +1,10 @@
-Flask==1.1.2
+Flask
 flask-cors
 ffmpeg-python
 pillow
 gunicorn
 google-cloud-storage
-google-cloud-tasks==1.5.0
+google-cloud-tasks
 google-cloud-firestore
-googleapis-common-protos==1.51.0
+googleapis-common-protos
+pytz

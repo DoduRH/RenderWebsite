@@ -1,10 +1,10 @@
-from flask import Flask, render_template, request
+from flask import Flask, request
 from video_renderer import render
 import json
 import sqlConnector
 
 import os
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-ed88c47e7d9d.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
 
 app = Flask(__name__)
 
@@ -15,9 +15,9 @@ def index():
 @app.route('/render', methods=['GET', 'POST'])
 def main():
     # Testing data
-    data = request.form['body']
+    # data = request.form['body']
     # Google run
-    # data = request.data
+    data = request.data
     print(data)
     args = json.loads(data)
 

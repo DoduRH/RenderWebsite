@@ -19,7 +19,7 @@ import base64
 app = Flask(__name__)
 CORS(app)
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "addlyrics-d6f3c94c49de.json"
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "google-authorisation.json"
 
 MAX_MEDIA_SIZE = 11 * (10 ** 9)  # 10GB between audio and video
 
@@ -396,7 +396,7 @@ def uploader():
         # import taskSim as client
 
         # Use the client to build and send the task.
-        response = client.create_task(parent, task)
+        response = client.create_task(parent=parent, task=task)
 
         return redirect(url_for('hold', videoID=t))
 
