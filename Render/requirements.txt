@@ -1,4 +1,4 @@
-Flask==1.1.2
+Flask==2.2.2
 ffmpeg-python
 gunicorn
 cryptography>=3.2
@@ -7,3 +7,4 @@ google-cloud-firestore
 ptvsd==4.3.2
 python-magic
 pillow
+pytz

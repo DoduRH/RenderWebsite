@@ -7,19 +7,40 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
+# Get system dependencies
+RUN set -e; \
+    apt-get update -y && apt-get install -y \
+    tini \
+    gnupg \
+    curl \
+    lsb-release; \
+    gcsFuseRepo=gcsfuse-`lsb_release -c -s`; \
+    echo "deb http://packages.cloud.google.com/apt $gcsFuseRepo main" | \
+    tee /etc/apt/sources.list.d/gcsfuse.list; \
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | \
+    apt-key add -;
+
 RUN apt-get update -y && apt-get install -y \
     libmagic-dev \
-    ffmpeg
+    ffmpeg \
+    gcsfuse \
+    && apt-get clean
+
+# Set mount directory
+ENV MNT_DIR /mnt/content
+ENV BUCKET addlyrics-content
+
+# Ensure the startup script is executable
+RUN chmod +x /app/run.sh
 
 # Install production dependencies.
 RUN pip install -r requirements.txt
 
 # Add credentials
-RUN set GOOGLE_APPLICATION_CREDENTIALS="google-authorisation.json"
+RUN set GOOGLE_APPLICATION_CREDENTIALS="/app/google-authorisation.json"
 EXPOSE 8080
+ENV PORT 8080
 
-# Run the web service on container startup. Here we use the gunicorn
-# webserver, with one worker process and 8 threads.
-# For environments with multiple CPU cores, increase the number of workers
-# to be equal to the cores available.
-CMD exec gunicorn --bind :8080 --workers 1 --threads 8 --timeout 0 app:app
+ENTRYPOINT ["/usr/bin/tini", "--"] 
+
+CMD ["/app/run.sh"]
