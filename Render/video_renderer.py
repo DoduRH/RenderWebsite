@@ -224,7 +224,7 @@ def render(args):
         return ("error", "no video stream detected")
 
     if "video" in visual_type:
-        in_file = ffmpeg.input("cache:" + video_url)
+        in_file = ffmpeg.input(video_url)
         if 'bit_rate' in video_streams[0].keys():
             bitrate = eval(video_streams[0]['bit_rate'])
         else:
@@ -249,6 +249,7 @@ def render(args):
         bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
+            # Cache this because it is a static image
             .input("cache:" + video_url, loop=1)
             .filter('framerate', fps=framerate)
         )
@@ -276,7 +277,7 @@ def render(args):
         audio_probe = ffmpeg.probe(audio_url)
         audio_comp = (
             ffmpeg
-            .input("cache:" + audio_url)
+            .input(audio_url)
             .audio
         )
 
