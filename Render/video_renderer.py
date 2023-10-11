@@ -3,7 +3,6 @@ import ffmpeg
 from google.cloud import storage
 from PIL import ImageFont, Image
 import os
-from magic import Magic 
 from re import compile as re_comp
 from re import split as reg_split
 from time import sleep
@@ -11,8 +10,6 @@ import sqlConnector
 import math
 from datetime import timedelta
 from mimetypes import guess_type
-
-m = Magic(mime=True)
 
 class position():
     def __init__(self, pos, text_h, line_gap=1.25, edging=0.025):

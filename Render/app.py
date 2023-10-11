@@ -18,6 +18,7 @@ def main():
     # data = request.form['body']
     # Google run
     data = request.data
+    print(data)
     args = json.loads(data)
 
     result = render(args)
