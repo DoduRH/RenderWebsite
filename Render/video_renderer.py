@@ -74,73 +74,6 @@ def gcd(a, b):
         rem = large % small
     return small
 
-
-def download_blob(bucket_name, source_blob_name, filetype, giveType=False):
-    """Downloads a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_blob_name = "storage-object-name"
-    # destination_file_name = "local/path/to/file"
-
-    storage_client = storage.Client()
-
-    destination_file_name = "/tmp/" + source_blob_name
-
-    print(
-        "Downloading blob {} to {} - ".format(
-            source_blob_name, destination_file_name
-        ),
-        end=""
-    )
-
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(source_blob_name)
-    blob.download_to_filename(destination_file_name)
-    
-    return destination_file_name
-
-
-def get_blob_url(bucket_name, source_blob_name, return_size=False):
-    """Returns url for a blob from the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_blob_name = "storage-object-name"
-
-    storage_client = storage.Client()
-
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.get_blob(source_blob_name)
-
-    url = blob.generate_signed_url(
-            expiration=timedelta(minutes=60),
-            method='GET', version="v4")
-    
-    if return_size:
-        return [url, blob.size]
-    else:
-        return url
-
-
-def upload_blob(bucket_name, source_file_name, destination_blob_name):
-    """Uploads a file to the bucket."""
-    # bucket_name = "your-bucket-name"
-    # source_file_name = "local/path/to/file"
-    # destination_blob_name = "storage-object-name"
-
-    storage_client = storage.Client()
-    bucket = storage_client.bucket(bucket_name)
-    blob = bucket.blob(destination_blob_name)
-
-    print(
-        "Uploading file {} to {} - ".format(
-            source_file_name, destination_blob_name
-        ),
-        end=""
-    )
-
-    blob.upload_from_filename(source_file_name)
-
-    print("Success")
-
-
 def reverse_readline(filename, buf_size=8192):
     """A generator that returns the lines of a file in reverse order"""
     with open(filename) as fh:
@@ -251,10 +184,11 @@ def render(args):
     crop_video = my_dict.get_value("crop_video")
     crop_audio = my_dict.get_value("crop_audio")
     crop_image = my_dict.get_value("crop_image", [0, 0, 0, 0])
+    content_path = '/mnt/content'
 
     font = 'Montserrat/Montserrat-SemiBold.ttf'
     if words_loc != "":
-        words_loc = download_blob("addlyrics-content", words_loc, ('text'))
+        words_loc = f'{content_path}/{words_loc}'
         with open(words_loc, newline='') as csvfile:
             data = list(csv.reader(csvfile))
     else:
@@ -262,8 +196,9 @@ def render(args):
 
     solid_background = (video_loc == "")
     if not solid_background:
-        video_url, video_size_in = get_blob_url("addlyrics-content", video_loc, True)
+        video_url = f'{content_path}/{video_loc}'
         visual_type = guess_type(video_loc)[0]
+        video_size_in = os.path.getsize(video_url)
     else:
         video_size_in = 0
         visual_type = "image"
@@ -275,9 +210,10 @@ def render(args):
         audio_url = video_url # THIS SHOULD NOT BE NEEDED #
         audio_size_in = 0
     else:
-        audio_url, audio_size_in = get_blob_url("addlyrics-content", audio_loc, True)
+        audio_url = f'{content_path}/{audio_loc}'
+        audio_size_in = os.path.getsize(audio_url)
 
-    output_name = "/tmp/VideoOutput_" + video_id + ".mp4"
+    output_name = f"{content_path}/VideoOutput_" + video_id + ".mp4"
 
     video_probe = ffmpeg.probe(video_url)
     video_streams = [stream for stream in video_probe["streams"] if stream["codec_type"] == "video"]
@@ -285,7 +221,7 @@ def render(args):
         return ("error", "no video stream detected")
 
     if "video" in visual_type:
-        in_file = ffmpeg.input("cache:" + video_url)
+        in_file = ffmpeg.input(video_url)
         if 'bit_rate' in video_streams[0].keys():
             bitrate = eval(video_streams[0]['bit_rate'])
         else:
@@ -310,6 +246,7 @@ def render(args):
         bitrate = 1000000  # 1kb/s Must be set so min can be taken on the output, could be lowered due to solid backdrop?
         video_comp = (
             ffmpeg
+            # Cache this because it is a static image
             .input("cache:" + video_url, loop=1)
             .filter('framerate', fps=framerate)
         )
@@ -337,7 +274,7 @@ def render(args):
         audio_probe = ffmpeg.probe(audio_url)
         audio_comp = (
             ffmpeg
-            .input("cache:" + audio_url)
+            .input(audio_url)
             .audio
         )
 
@@ -555,12 +492,12 @@ def render(args):
 
         sqlConnector.set_document(video_id, {'progress': progress}, merge=True)
 
-    upload_blob("addlyrics-content", output_name, "VideoOutput_" + video_id + ".mp4")
+    # upload_blob("addlyrics-content", output_name, "VideoOutput_" + video_id + ".mp4")
     
     sqlConnector.set_document(video_id, {'progress': 100}, merge=True)
     
     # Increment counters
-    video_size_out = os.path.getsize("/tmp/VideoOutput_" + video_id + ".mp4")
+    video_size_out = os.path.getsize(output_name)
 
     sqlConnector.increment_stats(video_size_in, audio_size_in, video_size_out, duration, word_count)
     sqlConnector.set_document(video_id, {
@@ -571,6 +508,6 @@ def render(args):
         'word_count': word_count
     }, merge=True)
 
-    delete_files([output_name, words_loc, progress_file])
+    delete_files([progress_file])
 
     return ("Sucsess", "VideoOutput_" + video_id + ".mp4")
